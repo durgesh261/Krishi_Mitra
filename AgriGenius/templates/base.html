@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      id="favicon"
+      rel="shortcut icon"
+      href="../static/logo.png"
+      type="image/x-png"
+    />
+    <title>{% block title %}AgriGenius{% endblock %}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <div id="google_translate_element"></div>
+  <body>
+    <nav class="navbar">
+      <div class="nav-brand">
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="Logo"
+          class="nav-logo"
+        />
+        <span>AgriGenius</span>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a
+            href="/"
+            class="{% if request.endpoint == 'index' %}active{% endif %}"
+            ><i class="fas fa-home"></i> Home</a
+          >
+        </li>
+
+        {% if session.user_id %}
+        <!-- Features Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle">
+            <i class="fas fa-th"></i> Features <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/crop-recommendation">
+                <i class="fas fa-seedling"></i> Crop Recommendation
+              </a>
+            </li>
+            <li>
+              <a href="/crop-guide"> <i class="fas fa-book"></i> Crop Guide </a>
+            </li>
+            <li>
+              <a href="/weather"> <i class="fas fa-cloud-sun"></i> Weather </a>
+            </li>
+            <li>
+              <a href="/disease">
+                <i class="fas fa-leaf"></i> Disease Detection
+              </a>
+            </li>
+            <li>
+              <a href="/calculator">
+                <i class="fas fa-calculator"></i> Profit Calculator
+              </a>
+            </li>
+            <li>
+              <a href="/sustainability">
+                <i class="fas fa-recycle"></i> Sustainability
+              </a>
+            </li>
+            <li>
+              <a href="/krishi-seva">
+                <i class="fas fa-hands-helping"></i> Krishi Seva
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a
+            href="/chat"
+            class="{% if request.endpoint == 'chat' %}active{% endif %}"
+            ><i class="fas fa-comments"></i> AI Chat</a
+          >
+        </li>
+        {% endif %}
+
+        <!-- Info Pages -->
+        <li>
+          <a
+            href="/about"
+            class="{% if request.endpoint == 'about' %}active{% endif %}"
+            ><i class="fas fa-info-circle"></i> About</a
+          >
+        </li>
+        <li>
+          <a
+            href="/contact"
+            class="{% if request.endpoint == 'contact' %}active{% endif %}"
+            ><i class="fas fa-envelope"></i> Contact</a
+          >
+        </li>
+
+        <!-- User Menu -->
+        {% if session.user_id %}
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle">
+            <i class="fas fa-user-circle"></i> Account
+            <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/profile"> <i class="fas fa-user"></i> Profile </a>
+            </li>
+            {% if session.is_admin %}
+            <li>
+              <a href="/admin">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+              </a>
+            </li>
+            {% endif %}
+            <li>
+              <a href="/logout"> <i class="fas fa-sign-out-alt"></i> Logout </a>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li>
+          <a
+            href="/login"
+            class="{% if request.endpoint == 'login' %}active{% endif %}"
+            ><i class="fas fa-sign-in-alt"></i> Login</a
+          >
+        </li>
+        {% endif %}
+      </ul>
+      <button class="nav-toggle" id="navToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+
+    <main class="main-content">{% block content %}{% endblock %}</main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      // Mobile nav toggle
+      $("#navToggle").click(function () {
+        $(".nav-links").toggleClass("show");
+      });
+
+      // Dropdown functionality
+      $(".dropdown-toggle").click(function (e) {
+        e.preventDefault();
+        $(this).parent().toggleClass("active");
+      });
+
+      // Close dropdown when clicking outside
+      $(document).click(function (e) {
+        if (!$(e.target).closest(".dropdown").length) {
+          $(".dropdown").removeClass("active");
+        }
+      });
+    </script>
+    <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+    }
+    </script>
+
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

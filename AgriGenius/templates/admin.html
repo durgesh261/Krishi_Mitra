@@ -1,0 +1,278 @@
+{% extends "base.html" %} {% block title %}Admin Dashboard - AgriGenius{%
+endblock %} {% block content %}
+<div class="page-container">
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+      <p>Welcome, {{ session.username }}</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <i class="fas fa-users"></i>
+        <div class="stat-content">
+          <h3>{{ analytics.total_users }}</h3>
+          <p>Total Users</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <i class="fas fa-chart-line"></i>
+        <div class="stat-content">
+          <h3>{{ analytics.total_queries }}</h3>
+          <p>Total Queries</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <i class="fas fa-envelope"></i>
+        <div class="stat-content">
+          <h3>{{ analytics.total_contacts }}</h3>
+          <p>Contact Submissions</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <i class="fas fa-clock"></i>
+        <div class="stat-content">
+          <h3>{{ analytics.recent_activities|length }}</h3>
+          <p>Recent Activities</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-tab="users">
+        <i class="fas fa-users"></i> Users
+      </button>
+      <button class="tab-btn" data-tab="contacts">
+        <i class="fas fa-envelope"></i> Contacts
+      </button>
+      <button class="tab-btn" data-tab="analytics">
+        <i class="fas fa-chart-bar"></i> Analytics
+      </button>
+      <button class="tab-btn" data-tab="activities">
+        <i class="fas fa-history"></i> Activities
+      </button>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="tab-content active" id="users-tab">
+      <h2><i class="fas fa-users"></i> User Management</h2>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Full Name</th>
+              <th>Location</th>
+              <th>Joined</th>
+              <th>Last Login</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.full_name or 'N/A' }}</td>
+              <td>{{ user.district or 'N/A' }}, {{ user.state or 'N/A' }}</td>
+              <td>{{ user.created_at[:10] if user.created_at else 'N/A' }}</td>
+              <td>
+                {{ user.last_login[:10] if user.last_login else 'Never' }}
+              </td>
+              <td>
+                <button class="btn-delete" onclick="deleteUser({{ user.id }})">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Contacts Tab -->
+    <div class="tab-content" id="contacts-tab">
+      <h2><i class="fas fa-envelope"></i> Contact Submissions</h2>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Subject</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contact in contacts %}
+            <tr>
+              <td>{{ contact.id }}</td>
+              <td>{{ contact.name }}</td>
+              <td>{{ contact.email }}</td>
+              <td>{{ contact.subject or 'N/A' }}</td>
+              <td class="message-cell">{{ contact.message[:50] }}...</td>
+              <td>
+                <span class="status-badge status-{{ contact.status }}">
+                  {{ contact.status }}
+                </span>
+              </td>
+              <td>
+                {{ contact.created_at[:10] if contact.created_at else 'N/A' }}
+              </td>
+              <td>
+                <select
+                  onchange="updateContactStatus({{ contact.id }}, this.value)"
+                >
+                  <option
+                    value="pending"
+                    {%
+                    if
+                    contact.status=""
+                    ="pending"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Pending
+                  </option>
+                  <option
+                    value="reviewed"
+                    {%
+                    if
+                    contact.status=""
+                    ="reviewed"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Reviewed
+                  </option>
+                  <option
+                    value="resolved"
+                    {%
+                    if
+                    contact.status=""
+                    ="resolved"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Resolved
+                  </option>
+                </select>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div class="tab-content" id="analytics-tab">
+      <h2><i class="fas fa-chart-bar"></i> Feature Usage Analytics</h2>
+      <div class="analytics-grid">
+        {% for feature in analytics.feature_usage %}
+        <div class="analytics-card">
+          <h3>{{ feature.feature }}</h3>
+          <p class="usage-count">{{ feature.count }} queries</p>
+          <div class="usage-bar">
+            <div
+              class="usage-fill"
+              style="width: {{ (feature.count / analytics.total_queries * 100) if analytics.total_queries > 0 else 0 }}%"
+            ></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Activities Tab -->
+    <div class="tab-content" id="activities-tab">
+      <h2><i class="fas fa-history"></i> Recent Activities</h2>
+      <div class="activities-list">
+        {% for activity in analytics.recent_activities %}
+        <div class="activity-item">
+          <i class="fas fa-circle"></i>
+          <div class="activity-content">
+            <p>
+              <strong>{{ activity.username or 'Unknown' }}</strong> - {{
+              activity.activity_type }}
+            </p>
+            <p class="activity-details">
+              {{ activity.details or 'No details' }}
+            </p>
+            <span class="activity-time">{{ activity.created_at }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      document
+        .querySelectorAll(".tab-btn")
+        .forEach((b) => b.classList.remove("active"));
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((c) => c.classList.remove("active"));
+
+      this.classList.add("active");
+      document
+        .getElementById(this.dataset.tab + "-tab")
+        .classList.add("active");
+    });
+  });
+
+  // Delete user
+  function deleteUser(userId) {
+    if (confirm("Are you sure you want to delete this user?")) {
+      fetch("/admin/delete-user/" + userId, {
+        method: "POST",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            alert("User deleted successfully");
+            location.reload();
+          } else {
+            alert("Error: " + data.error);
+          }
+        });
+    }
+  }
+
+  // Update contact status
+  function updateContactStatus(contactId, status) {
+    fetch("/admin/update-contact/" + contactId, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: status }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Status updated successfully");
+        } else {
+          alert("Error: " + data.error);
+        }
+      });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block title %}Krishi Seva Hub - AgriGenius{%
+endblock %} {% block content %}
+<div class="page-container">
+  <div class="krishi-container">
+    <div class="tool-header">
+      <i class="fas fa-hands-helping"></i>
+      <h1>Krishi Seva Hub</h1>
+      <p>Government Schemes & Soil Testing Labs</p>
+    </div>
+
+    <!-- Government Schemes -->
+    <div class="section-card">
+      <h2><i class="fas fa-landmark"></i> Government Schemes</h2>
+      <div class="schemes-grid">
+        {% for scheme in schemes %}
+        <div class="scheme-card">
+          <h3>{{ scheme.scheme_name }}</h3>
+          <p class="scheme-full-name">{{ scheme.full_name }}</p>
+          <p class="scheme-desc">{{ scheme.description }}</p>
+          <div class="scheme-details">
+            <p><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+            <p><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+            <p>
+              <strong>Category:</strong>
+              <span class="badge">{{ scheme.category }}</span>
+            </p>
+          </div>
+          <a href="{{ scheme.website }}" target="_blank" class="scheme-link">
+            <i class="fas fa-external-link-alt"></i> Visit Official Website
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Soil Labs -->
+    <div class="section-card">
+      <h2><i class="fas fa-flask"></i> Soil Testing Laboratories</h2>
+
+      <div class="filter-section">
+        <select id="stateFilter">
+          <option value="">All States</option>
+          {% for lab in labs %} {% if loop.index == 1 or
+          labs[loop.index0-1].state != lab.state %}
+          <option value="{{ lab.state }}">{{ lab.state }}</option>
+          {% endif %} {% endfor %}
+        </select>
+      </div>
+
+      <div class="labs-grid" id="labsList">
+        {% for lab in labs %}
+        <div class="lab-card" data-state="{{ lab.state }}">
+          <h3>{{ lab.lab_name }}</h3>
+          <p>
+            <i class="fas fa-map-marker-alt"></i> {{ lab.district }}, {{
+            lab.state }}
+          </p>
+          <p><i class="fas fa-phone"></i> {{ lab.phone }}</p>
+          <p><i class="fas fa-envelope"></i> {{ lab.email }}</p>
+          <p><i class="fas fa-clock"></i> {{ lab.timings }}</p>
+          <p class="lab-services">
+            <strong>Services:</strong> {{ lab.services }}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $("#stateFilter").change(function () {
+    const state = $(this).val();
+    if (state) {
+      $(".lab-card").hide();
+      $(`.lab-card[data-state="${state}"]`).show();
+    } else {
+      $(".lab-card").show();
+    }
+  });
+</script>
+{% endblock %}

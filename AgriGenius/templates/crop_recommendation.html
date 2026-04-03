@@ -1,0 +1,154 @@
+{% extends "base.html" %} {% block title %}Crop Recommendation - AgriGenius{%
+endblock %} {% block content %}
+<div class="page-container">
+  <div class="tool-container">
+    <div class="tool-header">
+      <i class="fas fa-seedling"></i>
+      <h1>Crop Recommendation System</h1>
+      <p>
+        Get AI-powered crop suggestions based on soil and weather conditions
+      </p>
+    </div>
+
+    <div class="input-mode-selector">
+      <button class="mode-btn active" data-mode="auto">
+        <i class="fas fa-map-marker-alt"></i> Auto-Fill (State/District)
+      </button>
+      <button class="mode-btn" data-mode="manual">
+        <i class="fas fa-keyboard"></i> Manual Input
+      </button>
+    </div>
+
+    <!-- Auto-Fill Mode -->
+    <div class="input-mode" id="auto-mode">
+      <div class="tool-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="state"><i class="fas fa-map"></i> Select State</label>
+            <select id="state">
+              <option value="">Choose State</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="district"
+              ><i class="fas fa-map-pin"></i> Select District</label
+            >
+            <select id="district">
+              <option value="">Choose District</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <button
+            id="getLocationBtn"
+            class="submit-btn"
+            style="flex: 1; margin-right: 10px"
+          >
+            <i class="fas fa-map-marker-alt"></i> Use My Location
+          </button>
+          <button id="autoFillBtn" class="submit-btn" style="flex: 1">
+            <i class="fas fa-magic"></i> Auto-Fill Values
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Mode -->
+    <div class="input-mode" id="manual-mode" style="display: none">
+      <div class="tool-form">
+        <h3>Soil Nutrients (kg/ha)</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="N">Nitrogen (N)</label>
+            <input type="number" id="N" placeholder="0-140" />
+          </div>
+          <div class="form-group">
+            <label for="P">Phosphorus (P)</label>
+            <input type="number" id="P" placeholder="0-145" />
+          </div>
+          <div class="form-group">
+            <label for="K">Potassium (K)</label>
+            <input type="number" id="K" placeholder="0-205" />
+          </div>
+        </div>
+
+        <h3>Weather Conditions</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="temperature">Temperature (°C)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="temperature"
+              placeholder="8-45"
+            />
+          </div>
+          <div class="form-group">
+            <label for="humidity">Humidity (%)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="humidity"
+              placeholder="14-100"
+            />
+          </div>
+          <div class="form-group">
+            <label for="rainfall">Rainfall (mm)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="rainfall"
+              placeholder="20-300"
+            />
+          </div>
+        </div>
+
+        <h3>Soil Properties</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ph">pH Level</label>
+            <input type="number" step="0.1" id="ph" placeholder="3.5-10" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="predictBtn" class="submit-btn" style="margin-top: 20px">
+      <i class="fas fa-brain"></i> Predict Best Crops
+    </button>
+
+    <div id="loading" class="loading" style="display: none">
+      <div class="spinner"></div>
+      <p>Analyzing soil and weather data...</p>
+    </div>
+
+    <div id="results" class="result-container" style="display: none">
+      <div class="recommendation-card">
+        <h2><i class="fas fa-trophy"></i> Top 3 Recommended Crops</h2>
+        <div id="cropsList"></div>
+
+        <div class="confidence-badge" id="confidenceBadge"></div>
+
+        <div class="reasoning-section">
+          <h3><i class="fas fa-lightbulb"></i> Key Factors</h3>
+          <div id="reasoning"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="error" class="error-message" style="display: none"></div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/crop_recommendation.js') }}"></script>
+{% endblock %}

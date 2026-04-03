@@ -1,0 +1,23 @@
+crop,watering_schedule,fertilizer_plan,duration_days,ideal_temp_min,ideal_temp_max,ideal_humidity_min,ideal_humidity_max
+rice,Keep field flooded with 2-3 inches water. Drain 2 weeks before harvest.,"Basal: 60kg N, 30kg P, 30kg K/ha. Top: 30kg N at tillering, 30kg N at panicle.",120-150 days,20,35,70,90
+maize,"Critical stages: knee-high, tasseling, silking. Irrigate every 10-12 days.","Basal: 60kg N, 30kg P, 30kg K/ha. Top: 60kg N at knee-high stage.",90-120 days,18,30,60,75
+chickpea,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+kidneybeans,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+pigeonpeas,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+mothbeans,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+mungbean,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+blackgram,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+lentil,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+pomegranate,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+banana,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+mango,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+grapes,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+watermelon,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+muskmelon,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+apple,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+orange,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+papaya,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+coconut,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+cotton,Light irrigation at sowing. Regular at 15-20 day intervals during growth.,"Basal: 40kg N, 20kg P, 20kg K/ha. Top: 40kg N at square, 20kg N at flowering.",150-180 days,21,35,60,80
+jute,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80
+coffee,Regular irrigation based on soil moisture. Water deeply but infrequently.,Apply balanced NPK as per soil test. Split nitrogen application.,90-150 days,18,30,60,80

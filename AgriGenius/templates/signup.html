@@ -1,0 +1,144 @@
+{% extends "base.html" %} {% block title %}Sign Up - AgriGenius{% endblock %} {%
+block content %}
+<div class="page-container">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="AgriGenius"
+          class="auth-logo"
+        />
+        <h1>Create Account</h1>
+        <p>Join AgriGenius today</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form
+        method="POST"
+        action="{{ url_for('signup') }}"
+        class="auth-form"
+        id="signupForm"
+      >
+        <div class="form-group">
+          <label for="username"><i class="fas fa-user"></i> Username *</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email"><i class="fas fa-envelope"></i> Email *</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="full_name"
+            ><i class="fas fa-id-card"></i> Full Name</label
+          >
+          <input type="text" id="full_name" name="full_name" />
+        </div>
+
+        <div class="form-group">
+          <label for="phone"><i class="fas fa-phone"></i> Phone</label>
+          <input type="tel" id="phone" name="phone" />
+        </div>
+
+        <div class="form-group">
+          <label for="password"><i class="fas fa-lock"></i> Password *</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="6"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password"
+            ><i class="fas fa-lock"></i> Confirm Password *</label
+          >
+          <input
+            type="password"
+            id="confirm_password"
+            name="confirm_password"
+            required
+            minlength="6"
+          />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <input
+            type="checkbox"
+            id="request_location"
+            name="request_location"
+            checked
+          />
+          <label for="request_location"
+            >Allow location access for better recommendations</label
+          >
+        </div>
+
+        <button type="submit" class="auth-btn">
+          <i class="fas fa-user-plus"></i> Sign Up
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>
+          Already have an account? <a href="{{ url_for('login') }}">Login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document
+    .getElementById("signupForm")
+    .addEventListener("submit", function (e) {
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirm_password").value;
+
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert("Passwords do not match!");
+        return false;
+      }
+
+      const requestLocation =
+        document.getElementById("request_location").checked;
+      if (requestLocation && navigator.geolocation) {
+        e.preventDefault();
+
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            // Add hidden fields for location
+            const form = document.getElementById("signupForm");
+
+            let latInput = document.createElement("input");
+            latInput.type = "hidden";
+            latInput.name = "latitude";
+            latInput.value = position.coords.latitude;
+            form.appendChild(latInput);
+
+            let lonInput = document.createElement("input");
+            lonInput.type = "hidden";
+            lonInput.name = "longitude";
+            lonInput.value = position.coords.longitude;
+            form.appendChild(lonInput);
+
+            form.submit();
+          },
+          function (error) {
+            console.log("Location access denied:", error);
+            document.getElementById("signupForm").submit();
+          },
+        );
+      }
+    });
+</script>
+{% endblock %}
