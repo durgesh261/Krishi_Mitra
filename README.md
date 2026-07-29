@@ -90,23 +90,6 @@ src
 * Mobile application
 * AI chatbot for farming assistance
 
-## 📸 Screenshots
-
-Add screenshots of the following pages:
-
-* Login Page
-* Dashboard
-* Crop Recommendation Page
-* Farmer Profile
-* Admin Dashboard
-
-## 👨‍💻 Author
-
-**Durgesh Kanjariya**
-
-* GitHub: https://github.com/durgesh261
-* LinkedIn: https://linkedin.com/in/durgesh-kanjariya-389a91252
-
 ## 📄 License
 
 This project is available for educational and learning purposes. Feel free to fork, explore, and contribute.
