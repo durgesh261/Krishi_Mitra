@@ -79,54 +79,6 @@ src
 └── main
 ```
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-* Java 17 or later
-* Maven
-* MySQL
-* Git
-
-### Installation
-
-1. Clone the repository.
-
-```bash
-git clone https://github.com/durgesh261/Krishi_Mitra.git
-```
-
-2. Navigate to the project folder.
-
-```bash
-cd Krishi-Mitra
-```
-
-3. Configure the MySQL database in `application.properties`.
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/krishi_mitra
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
-
-4. Build the project.
-
-```bash
-mvn clean install
-```
-
-5. Run the application.
-
-```bash
-mvn spring-boot:run
-```
-
-6. Open your browser.
-
-```
-http://localhost:8080
-```
 
 ## 🎯 Future Enhancements
 
