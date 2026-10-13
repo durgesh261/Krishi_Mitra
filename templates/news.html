@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+{% block title %}Daily Agri News & Advisories - Krishi Mitra{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <!-- News Hero Section -->
+  <div class="news-hero">
+    <div class="news-hero-content">
+      <div class="hero-live-badge-row">
+        <div class="hero-live-badge">
+          <span class="live-dot"></span> <span data-i18n="news_live_badge">Live Agricultural Feed • Auto-Updated 24/7 (Every 15 Mins)</span>
+          {% if last_updated %}
+          <span class="badge-timestamp">• Last Sync: {{ last_updated }}</span>
+          {% endif %}
+        </div>
+        <a href="/news?refresh=1" class="refresh-feed-pill" title="Check for new headlines right now">
+          <i class="fas fa-sync-alt"></i> <span>Refresh Live Feed</span>
+        </a>
+      </div>
+      <h1 data-i18n="news_main_title">📰 Daily Krishi Samachar & Advisories</h1>
+      <p data-i18n="news_subtitle">
+        Stay updated with real-time Indian farming news, MSP announcements, IMD monsoon forecasts, government subsidy deadlines, and pest advisories.
+      </p>
+
+      <!-- Breaking Ticker -->
+      {% if news_items %}
+      <div class="breaking-ticker">
+        <span class="ticker-label"><i class="fas fa-bolt"></i> <span data-i18n="news_breaking_label">Latest Headline</span>:</span>
+        <span class="ticker-text">{{ news_items[0].title }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Layout: Main Content + Daily Partner Ads Sidebar -->
+  <div class="news-layout">
+    <div class="news-main-column">
+      <!-- Search & Filters Toolbar -->
+      <div class="news-toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="newsSearchInput"
+            placeholder="Search news by topic (e.g., MSP, Subsidy, Monsoon, Fertilizer, Drone)..."
+            value="{{ search_query }}"
+            data-i18n-placeholder="news_search_ph"
+          />
+        </div>
+
+        <div class="category-pills" id="categoryPills">
+          <button class="cat-pill {% if selected_category == 'all' %}active{% endif %}" data-cat="all">
+            All News ({{ news_items|length }})
+          </button>
+          {% for cat in categories %}
+          <button class="cat-pill {% if selected_category == cat.name %}active{% endif %}" data-cat="{{ cat.name }}">
+            {{ cat.name }} ({{ cat.count }})
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Live Count Status -->
+      <div class="news-count-bar">
+        <span>Showing <strong id="visibleNewsCount">{{ news_items|length }}</strong> articles updated for today</span>
+      </div>
+
+      <!-- News Articles Grid -->
+      <div class="news-grid" id="newsGrid">
+        {% for item in news_items %}
+        <article class="news-card" data-category="{{ item.category }}">
+          <div class="news-card-header">
+            <span class="news-cat-tag">
+              <i class="{{ item.image_icon }}"></i> {{ item.category }}
+            </span>
+            <span class="news-date">
+              <i class="far fa-clock"></i> {{ item.published_at }}
+            </span>
+          </div>
+
+          <h3 class="news-title">
+            <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer">
+              {{ item.title }}
+            </a>
+          </h3>
+
+          <p class="news-summary">{{ item.summary }}</p>
+
+          <div class="news-card-footer">
+            <div class="news-source">
+              <i class="fas fa-newspaper"></i> <span>{{ item.source }}</span>
+            </div>
+            <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
+              Read Story <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div id="noNewsAlert" class="no-news-box" style="display: none;">
+        <i class="fas fa-newspaper" style="font-size: 40px; color: #aaa; margin-bottom: 12px;"></i>
+        <h3>No news stories matched your search</h3>
+        <p>Try searching for broader keywords like "wheat", "MSP", "rain", or select "All News".</p>
+      </div>
+    </div>
+
+    <!-- Right Sidebar: Daily Farming Advertisements & Subsidies -->
+    <aside class="news-sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-bullhorn"></i>
+        <div>
+          <h3>Daily Farmer Offers & Subsidies</h3>
+          <span>Verified Government & Co-op Deals</span>
+        </div>
+      </div>
+
+      <div class="sidebar-ads-list">
+        {% for ad in ads %}
+        <div class="sidebar-ad-card" style="border-left-color: {{ ad.theme_color }};">
+          <span class="ad-badge" style="background: {{ ad.theme_color }}; color: white;">
+            {{ ad.badge }}
+          </span>
+          <h4 class="ad-title">{{ ad.title }}</h4>
+          <p class="ad-desc">{{ ad.description[:130] }}...</p>
+
+          <div class="ad-points">
+            {% for b in ad.benefits[:2] %}
+            <span class="ad-benefit"><i class="fas fa-check-circle" style="color: {{ ad.theme_color }};"></i> {{ b }}</span>
+            {% endfor %}
+          </div>
+
+          <div class="ad-action-row">
+            <a href="{{ ad.cta_link }}" target="_blank" rel="noopener noreferrer" class="ad-btn" style="background: {{ ad.theme_color }};">
+              {{ ad.cta_text }} <i class="fas fa-external-link-alt"></i>
+            </a>
+            <span class="ad-helpline" title="Toll-Free Helpline">
+              <i class="fas fa-phone-alt"></i> {{ ad.helpline }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.news-hero {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 35px 40px;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 30px rgba(27, 94, 32, 0.25);
+}
+.hero-live-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+.hero-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  backdrop-filter: blur(5px);
+}
+.badge-timestamp {
+  font-size: 11px;
+  opacity: 0.85;
+}
+.refresh-feed-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.25);
+  color: white !important;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.refresh-feed-pill:hover {
+  background: white;
+  color: #1b5e20 !important;
+  transform: translateY(-1px);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff5252;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff5252;
+  animation: pulseDot 1.5s infinite;
+}
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+.news-hero h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.news-hero p {
+  font-size: 16px;
+  opacity: 0.9;
+  max-width: 850px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.breaking-ticker {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.ticker-label {
+  color: #ffeb3b;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ticker-text {
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Two Column Layout */
+.news-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+.news-main-column {
+  flex: 1;
+  min-width: 0;
+}
+.news-sidebar {
+  width: 380px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 90px;
+}
+@media (max-width: 1024px) {
+  .news-layout {
+    flex-direction: column;
+  }
+  .news-sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+/* Toolbar */
+.news-toolbar {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.category-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cat-pill {
+  padding: 7px 14px;
+  background: #f1f8e9;
+  border: 1px solid #dcedc8;
+  color: #2e7d32;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cat-pill:hover,
+.cat-pill.active {
+  background: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+.news-count-bar {
+  margin-bottom: 16px;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* News Grid */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+.news-card {
+  background: white;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8f5e9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(46, 125, 50, 0.15);
+}
+.news-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.news-cat-tag {
+  background: #e8f5e9;
+  color: #1b5e20;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.news-date {
+  font-size: 12px;
+  color: #888;
+}
+.news-title {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.news-title a {
+  color: #1b5e20;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.news-title a:hover {
+  color: #388e3c;
+}
+.news-summary {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.news-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px dashed #eee;
+}
+.news-source {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.read-more-btn {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2e7d32;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: gap 0.2s;
+}
+.read-more-btn:hover {
+  gap: 8px;
+}
+.no-news-box {
+  text-align: center;
+  padding: 50px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+/* Sidebar Ads */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e8f5e9;
+  padding-bottom: 14px;
+}
+.sidebar-header i {
+  font-size: 24px;
+  color: #2e7d32;
+}
+.sidebar-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: #1b5e20;
+}
+.sidebar-header span {
+  font-size: 12px;
+  color: #777;
+}
+.sidebar-ads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.sidebar-ad-card {
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-left: 4px solid #2e7d32;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s;
+}
+.sidebar-ad-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+.ad-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.ad-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.ad-desc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.ad-points {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.ad-benefit {
+  font-size: 11px;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ad-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+}
+.ad-btn {
+  color: white !important;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.ad-btn:hover {
+  opacity: 0.9;
+}
+.ad-helpline {
+  font-size: 11px;
+  color: #555;
+  font-weight: 600;
+  white-space: nowrap;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  function normalizeText(s) {
+    if (!s) return '';
+    return String(s).replace(/&amp;/g, '&').toLowerCase().trim();
+  }
+
+  function filterNews() {
+    var searchVal = normalizeText($('#newsSearchInput').val());
+    var selectedCat = normalizeText($('.cat-pill.active').attr('data-cat'));
+
+    var visible = 0;
+
+    $('.news-card').each(function() {
+      var card = $(this);
+      var category = normalizeText(card.attr('data-category'));
+      var cardText = card.text().toLowerCase();
+
+      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1;
+      var matchCategory = !selectedCat || selectedCat === 'all' || category === selectedCat;
+
+      if (matchSearch && matchCategory) {
+        card.show();
+        visible++;
+      } else {
+        card.hide();
+      }
+    });
+
+    $('#visibleNewsCount').text(visible);
+
+    if (visible === 0) {
+      $('#noNewsAlert').show();
+    } else {
+      $('#noNewsAlert').hide();
+    }
+  }
+
+  $('#newsSearchInput').on('input', filterNews);
+
+  $('.cat-pill').on('click', function() {
+    $('.cat-pill').removeClass('active');
+    $(this).addClass('active');
+    filterNews();
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,865 @@
+{% extends "base.html" %}
+{% block title %}Krishi Seva Hub - Krishi Mitra{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <!-- Hero Section -->
+  <div class="krishi-hero">
+    <div class="krishi-hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-hands-helping"></i> <span data-i18n="krishi_hero_tag">Farmer Support & Welfare</span>
+      </div>
+      <h1 data-i18n="krishi_title">🏛️ Krishi Seva Hub</h1>
+      <p data-i18n="krishi_subtitle">
+        Explore verified Government Schemes, farm subsidies, financial assistance, and certified Soil Testing Laboratories across India.
+      </p>
+
+      <div class="krishi-stats-row">
+        <div class="k-stat-card">
+          <span class="k-stat-val">{{ schemes|length }}+</span>
+          <span class="k-stat-lbl" data-i18n="k_stat_schemes">Govt Schemes</span>
+        </div>
+        <div class="k-stat-card">
+          <span class="k-stat-val">{{ labs|length }}+</span>
+          <span class="k-stat-lbl" data-i18n="k_stat_labs">Soil Testing Labs</span>
+        </div>
+        <div class="k-stat-card">
+          <span class="k-stat-val">{{ states|length }}</span>
+          <span class="k-stat-lbl" data-i18n="k_stat_states">States Covered</span>
+        </div>
+        <div class="k-stat-card">
+          <span class="k-stat-val" style="color: #2e7d32;">100%</span>
+          <span class="k-stat-lbl" data-i18n="k_stat_free">Free Soil Cards</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Switcher Tabs -->
+  <div class="hub-tabs">
+    <button class="hub-tab-btn active" id="tabBtnSchemes" onclick="switchHubSection('schemes')">
+      <i class="fas fa-landmark"></i> <span data-i18n="tab_schemes">Government Schemes & Subsidies</span>
+    </button>
+    <button class="hub-tab-btn" id="tabBtnLabs" onclick="switchHubSection('labs')">
+      <i class="fas fa-flask"></i> <span data-i18n="tab_labs">Soil Testing Laboratories</span>
+    </button>
+  </div>
+
+  <!-- SECTION 1: GOVERNMENT SCHEMES -->
+  <div id="sectionSchemes" class="hub-section active">
+    <!-- Schemes Toolbar -->
+    <div class="hub-toolbar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          id="schemeSearchInput"
+          placeholder="Search schemes (e.g., Solar pump, PM-Kisan, Loan, Subsidy, Insurance)..."
+          data-i18n-placeholder="search_schemes_ph"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="schemeCategoryFilter"><i class="fas fa-tags"></i> Category:</label>
+        <select id="schemeCategoryFilter" class="hub-select">
+          <option value="all">All Categories / सभी श्रेणियां</option>
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Schemes Grid -->
+    <div class="schemes-grid" id="schemesList">
+      {% for scheme in schemes %}
+      <div class="scheme-card" data-category="{{ scheme.category }}">
+        <div class="scheme-card-header">
+          <div class="scheme-title-group">
+            <span class="scheme-badge">{{ scheme.scheme_name }}</span>
+            {% if scheme.launched_year %}
+            <span class="scheme-year">Est. {{ scheme.launched_year }}</span>
+            {% endif %}
+          </div>
+          <span class="category-pill">{{ scheme.category }}</span>
+        </div>
+
+        <h3 class="scheme-full-name">{{ scheme.full_name }}</h3>
+        <p class="scheme-desc">{{ scheme.description }}</p>
+
+        <div class="scheme-key-points">
+          <div class="key-point">
+            <i class="fas fa-user-check"></i>
+            <div>
+              <strong>Eligibility:</strong>
+              <span>{{ scheme.eligibility }}</span>
+            </div>
+          </div>
+          <div class="key-point">
+            <i class="fas fa-gift"></i>
+            <div>
+              <strong>Benefits:</strong>
+              <span>{{ scheme.benefits }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="scheme-card-footer">
+          <a href="{{ scheme.website }}" target="_blank" rel="noopener noreferrer" class="scheme-action-btn">
+            <i class="fas fa-external-link-alt"></i> Apply / Official Website
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="noSchemesAlert" class="no-results-box" style="display: none;">
+      <i class="fas fa-folder-open"></i>
+      <h3>No matching government schemes found</h3>
+      <p>Try searching for another keyword or reset the category filter.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2: SOIL TESTING LABORATORIES -->
+  <div id="sectionLabs" class="hub-section">
+    <!-- Labs Toolbar -->
+    <div class="hub-toolbar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          id="labSearchInput"
+          placeholder="Search by lab name, district, address, or services..."
+          data-i18n-placeholder="search_labs_ph"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="labStateFilter"><i class="fas fa-map-marked-alt"></i> State:</label>
+        <select id="labStateFilter" class="hub-select">
+          <option value="all">All States / सभी राज्य</option>
+          {% for st in states %}
+          <option value="{{ st }}">{{ st }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="labDistrictFilter"><i class="fas fa-city"></i> District:</label>
+        <select id="labDistrictFilter" class="hub-select">
+          <option value="all">All Districts / सभी ज़िले</option>
+        </select>
+      </div>
+
+      <button id="resetLabFiltersBtn" class="reset-filter-btn" title="Reset Filters">
+        <i class="fas fa-undo"></i> Reset
+      </button>
+    </div>
+
+    <div class="labs-count-bar">
+      <span>Found <strong id="visibleLabsCount">{{ labs|length }}</strong> Soil Testing Laboratories</span>
+    </div>
+
+    <!-- Labs Grid -->
+    <div class="labs-grid" id="labsList">
+      {% for lab in labs %}
+      <div class="lab-card" data-state="{{ lab.state }}" data-district="{{ lab.district }}">
+        <div class="lab-card-header">
+          <div>
+            <span class="state-pill">{{ lab.state }}</span>
+            <span class="district-pill">{{ lab.district }}</span>
+          </div>
+          <div class="lab-icon-box">
+            <i class="fas fa-flask"></i>
+          </div>
+        </div>
+
+        <h3 class="lab-name">{{ lab.lab_name }}</h3>
+
+        <div class="lab-address">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>{{ lab.address }}</span>
+        </div>
+
+        <div class="lab-details-grid">
+          <div class="detail-item">
+            <span class="d-lbl"><i class="fas fa-rupee-sign"></i> Fee:</span>
+            <span class="d-val">{{ lab.fees or 'Free with Soil Health Card' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="d-lbl"><i class="fas fa-hourglass-half"></i> Report Time:</span>
+            <span class="d-val">{{ lab.report_time or '7-10 days' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="d-lbl"><i class="fas fa-clock"></i> Timings:</span>
+            <span class="d-val">{{ lab.timings or 'Mon-Fri 9:00 AM - 5:00 PM' }}</span>
+          </div>
+        </div>
+
+        <div class="lab-services-box">
+          <span class="services-lbl">Services:</span>
+          <div class="service-tags">
+            {% for s in lab.services.split(',') %}
+            <span class="service-tag">{{ s.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="lab-card-footer">
+          <a href="tel:{{ lab.phone }}" class="lab-contact-btn phone">
+            <i class="fas fa-phone-alt"></i> {{ lab.phone }}
+          </a>
+          {% if lab.email %}
+          <a href="mailto:{{ lab.email }}" class="lab-contact-btn email">
+            <i class="fas fa-envelope"></i> Email
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="noLabsAlert" class="no-results-box" style="display: none;">
+      <i class="fas fa-search-location"></i>
+      <h3>No soil laboratories found</h3>
+      <p>Try selecting another state, district, or clearing your search term.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.krishi-hero {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 30px rgba(27, 94, 32, 0.25);
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  backdrop-filter: blur(5px);
+}
+.krishi-hero h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.krishi-hero p {
+  font-size: 16px;
+  opacity: 0.9;
+  max-width: 800px;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+.krishi-stats-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.k-stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  color: #2e7d32;
+  padding: 14px 22px;
+  border-radius: 12px;
+  min-width: 140px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+.k-stat-val {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.k-stat-lbl {
+  font-size: 12px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* Tab Switcher */
+.hub-tabs {
+  display: flex;
+  background: white;
+  padding: 8px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  gap: 10px;
+}
+.hub-tab-btn {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  background: transparent;
+  color: #555;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+.hub-tab-btn:hover {
+  color: #2e7d32;
+  background: #f1f8e9;
+}
+.hub-tab-btn.active {
+  background: #2e7d32;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.hub-section {
+  display: none;
+}
+.hub-section.active {
+  display: block;
+}
+
+/* Toolbars */
+.hub-toolbar {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.search-box {
+  flex: 2;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-box i {
+  position: absolute;
+  left: 15px;
+  color: #2e7d32;
+}
+.search-box input {
+  width: 100%;
+  padding: 12px 15px 12px 42px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+.search-box input:focus {
+  border-color: #2e7d32;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 180px;
+}
+.filter-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+.hub-select {
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+}
+.hub-select:focus {
+  border-color: #2e7d32;
+  outline: none;
+}
+.reset-filter-btn {
+  padding: 10px 16px;
+  border: 2px solid #e0e0e0;
+  background: #f9f9f9;
+  border-radius: 10px;
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+  height: 42px;
+  transition: all 0.2s;
+}
+.reset-filter-btn:hover {
+  background: #ffebee;
+  color: #c62828;
+  border-color: #ef9a9a;
+}
+.labs-count-bar {
+  margin-bottom: 20px;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Schemes Grid */
+.schemes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 25px;
+}
+.scheme-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8f5e9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.scheme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(46, 125, 50, 0.15);
+}
+.scheme-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.scheme-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.scheme-badge {
+  background: #2e7d32;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.scheme-year {
+  font-size: 11px;
+  color: #888;
+}
+.category-pill {
+  background: #e8f5e9;
+  color: #1b5e20;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.scheme-full-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.scheme-desc {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.scheme-key-points {
+  background: #f9fbf9;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #edf5ed;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.key-point {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.4;
+}
+.key-point i {
+  color: #2e7d32;
+  font-size: 15px;
+  margin-top: 2px;
+}
+.scheme-action-btn {
+  display: block;
+  text-align: center;
+  background: #2e7d32;
+  color: white !important;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  transition: all 0.25s;
+}
+.scheme-action-btn:hover {
+  background: #1b5e20;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+/* Labs Grid */
+.labs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 25px;
+}
+.lab-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8f5e9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.lab-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(46, 125, 50, 0.15);
+}
+.lab-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.state-pill {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.district-pill {
+  background: #f1f8e9;
+  color: #33691e;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: 5px;
+}
+.lab-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f1f8e9;
+  color: #2e7d32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.lab-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.lab-address {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.lab-address i {
+  color: #d32f2f;
+  margin-top: 2px;
+}
+.lab-details-grid {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+}
+.d-lbl {
+  color: #666;
+  font-weight: 500;
+}
+.d-val {
+  font-weight: 600;
+  color: #222;
+}
+.lab-services-box {
+  margin-bottom: 18px;
+}
+.services-lbl {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.service-tag {
+  background: #f1f8e9;
+  color: #2e7d32;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #dcedc8;
+}
+.lab-card-footer {
+  display: flex;
+  gap: 10px;
+}
+.lab-contact-btn {
+  flex: 1;
+  text-align: center;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.lab-contact-btn.phone {
+  background: #2e7d32;
+  color: white !important;
+}
+.lab-contact-btn.phone:hover {
+  background: #1b5e20;
+}
+.lab-contact-btn.email {
+  background: #f1f8e9;
+  color: #2e7d32 !important;
+  border: 1px solid #c8e6c9;
+}
+.lab-contact-btn.email:hover {
+  background: #e8f5e9;
+}
+
+.no-results-box {
+  text-align: center;
+  padding: 50px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  color: #666;
+}
+.no-results-box i {
+  font-size: 44px;
+  color: #aaa;
+  margin-bottom: 15px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Section switcher with explicit show/hide
+window.switchHubSection = function(section) {
+  if (section === 'labs') {
+    $('#tabBtnLabs').addClass('active');
+    $('#tabBtnSchemes').removeClass('active');
+    $('#sectionLabs').addClass('active').show();
+    $('#sectionSchemes').removeClass('active').hide();
+  } else {
+    $('#tabBtnSchemes').addClass('active');
+    $('#tabBtnLabs').removeClass('active');
+    $('#sectionSchemes').addClass('active').show();
+    $('#sectionLabs').removeClass('active').hide();
+  }
+};
+
+$(document).on('click', '#tabBtnLabs', function(e) {
+  e.preventDefault();
+  window.switchHubSection('labs');
+});
+
+$(document).on('click', '#tabBtnSchemes', function(e) {
+  e.preventDefault();
+  window.switchHubSection('schemes');
+});
+
+$(document).ready(function() {
+  console.log("Krishi Seva Hub scripts initialized!");
+
+  // Check URL hash or query param on load
+  var urlParams = new URLSearchParams(window.location.search);
+  if (window.location.hash === '#labs' || urlParams.get('tab') === 'labs') {
+    window.switchHubSection('labs');
+  }
+
+  // 1. Schemes Filtering
+  function filterSchemes() {
+    var searchVal = $('#schemeSearchInput').val().toLowerCase().trim();
+    var categoryVal = $('#schemeCategoryFilter').val();
+
+    var visibleSchemes = 0;
+
+    $('.scheme-card').each(function() {
+      var card = $(this);
+      var category = card.data('category');
+      var cardText = card.text().toLowerCase();
+
+      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1;
+      var matchCategory = categoryVal === 'all' || category === categoryVal;
+
+      if (matchSearch && matchCategory) {
+        card.show();
+        visibleSchemes++;
+      } else {
+        card.hide();
+      }
+    });
+
+    if (visibleSchemes === 0) {
+      $('#noSchemesAlert').show();
+    } else {
+      $('#noSchemesAlert').hide();
+    }
+  }
+
+  $('#schemeSearchInput').on('input', filterSchemes);
+  $('#schemeCategoryFilter').on('change', filterSchemes);
+
+
+  // 2. Extract District List dynamically from existing cards
+  var stateDistrictMap = {};
+  $('.lab-card').each(function() {
+    var state = $(this).data('state');
+    var district = $(this).data('district');
+    if (state && district) {
+      if (!stateDistrictMap[state]) {
+        stateDistrictMap[state] = [];
+      }
+      if (stateDistrictMap[state].indexOf(district) === -1) {
+        stateDistrictMap[state].push(district);
+      }
+    }
+  });
+
+  // Populate districts based on selected state
+  function updateDistrictDropdown(state) {
+    var districtSelect = $('#labDistrictFilter');
+    districtSelect.empty();
+    districtSelect.append('<option value="all">All Districts / सभी ज़िले</option>');
+
+    var districts = [];
+    if (state && state !== 'all') {
+      districts = (stateDistrictMap[state] || []).sort();
+    } else {
+      // All districts across all states
+      var allD = [];
+      for (var s in stateDistrictMap) {
+        allD = allD.concat(stateDistrictMap[s]);
+      }
+      districts = Array.from(new Set(allD)).sort();
+    }
+
+    districts.forEach(function(d) {
+      districtSelect.append('<option value="' + d + '">' + d + '</option>');
+    });
+  }
+
+  // Initial population of all districts
+  updateDistrictDropdown('all');
+
+  // When state changes
+  $('#labStateFilter').on('change', function() {
+    var selectedState = $(this).val();
+    updateDistrictDropdown(selectedState);
+    filterLabs();
+  });
+
+  // When district changes
+  $('#labDistrictFilter').on('change', function() {
+    filterLabs();
+  });
+
+  // 3. Labs Filtering
+  function filterLabs() {
+    var searchVal = $('#labSearchInput').val().toLowerCase().trim();
+    var stateVal = $('#labStateFilter').val();
+    var districtVal = $('#labDistrictFilter').val();
+
+    var visibleLabs = 0;
+
+    $('.lab-card').each(function() {
+      var card = $(this);
+      var state = card.data('state');
+      var district = card.data('district');
+      var cardText = card.text().toLowerCase();
+
+      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1;
+      var matchState = stateVal === 'all' || state === stateVal;
+      var matchDistrict = districtVal === 'all' || district === districtVal;
+
+      if (matchSearch && matchState && matchDistrict) {
+        card.show();
+        visibleLabs++;
+      } else {
+        card.hide();
+      }
+    });
+
+    $('#visibleLabsCount').text(visibleLabs);
+
+    if (visibleLabs === 0) {
+      $('#noLabsAlert').show();
+    } else {
+      $('#noLabsAlert').hide();
+    }
+  }
+
+  $('#labSearchInput').on('input', filterLabs);
+
+  // Reset lab filters
+  $('#resetLabFiltersBtn').on('click', function() {
+    $('#labSearchInput').val('');
+    $('#labStateFilter').val('all');
+    updateDistrictDropdown('all');
+    $('#labDistrictFilter').val('all');
+    filterLabs();
+  });
+});
+</script>
+{% endblock %}

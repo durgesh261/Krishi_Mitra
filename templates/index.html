@@ -1,0 +1,1030 @@
+{% extends "base.html" %} 
+{% block title %}Krishi Mitra - Smart Farming Assistant{% endblock %} 
+
+{% block content %}
+<div class="home-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="kisan-hero-badge">
+        <i class="fas fa-seedling"></i> <span>भारत के किसानों का सच्चा साथी • All-in-One Smart Kisan Assistant</span>
+      </div>
+      <h1>🌱 <span data-i18n="hero_title">Welcome to Krishi Mitra</span></h1>
+      <p class="hero-subtitle" data-i18n="hero_subtitle">Your AI-Powered Smart Farming Assistant</p>
+      <p class="hero-description" data-i18n="hero_desc">
+        Your trusted digital farming companion for higher crop yield, instant disease diagnosis, real-time mandi prices, daily agricultural news, and verified government subsidies.
+      </p>
+      <div class="hero-btn-group">
+        <a href="/crop-recommendation" class="cta-button">
+          <i class="fas fa-seedling"></i> Recommend Crops
+        </a>
+        <a href="/disease" class="cta-button-accent">
+          <i class="fas fa-camera"></i> Crop Doctor (Scan Leaf)
+        </a>
+        <a href="/mandi-prices" class="cta-button-secondary" data-i18n="cta_mandi">
+          <i class="fas fa-store"></i> Live Mandi Bhav
+        </a>
+        <a href="/chat" class="cta-button-secondary" data-i18n="cta_chat">
+          <i class="fas fa-comments"></i> Kisan AI Chat
+        </a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img
+        src="{{ url_for('static', filename='logo.png') }}"
+        alt="Krishi Mitra"
+      />
+    </div>
+  </div>
+
+  <!-- SLIDING AGRICULTURAL ADVERTISEMENT CAROUSEL (Slide Scroll) -->
+  {% if ads %}
+  <div class="ad-carousel-section">
+    <div class="carousel-section-header">
+      <div class="header-left">
+        <span class="live-flair"><i class="fas fa-bullhorn"></i> <span data-i18n="ad_flair">Farmer Marketplace & Subsidies</span></span>
+        <h2 data-i18n="ad_carousel_title">🚜 Featured Agricultural Deals & Verified Offers</h2>
+      </div>
+      <div class="carousel-controls">
+        <button class="carousel-arrow prev-btn" id="prevAdBtn" aria-label="Previous Slide">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-arrow next-btn" id="nextAdBtn" aria-label="Next Slide">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="ad-carousel-container" id="adCarouselContainer">
+      <div class="ad-carousel-track" id="adCarouselTrack">
+        {% for ad in ads %}
+        <div class="ad-slide-item" data-index="{{ loop.index0 }}">
+          <div class="ad-banner-card" style="background: {{ ad.bg_gradient }}; border-color: {{ ad.theme_color }};">
+            <div class="ad-banner-left">
+              <div class="ad-top-badges">
+                <span class="ad-sponsor-badge" style="background: {{ ad.theme_color }};">
+                  {{ ad.badge }}
+                </span>
+                <span class="ad-valid-badge">
+                  <i class="far fa-calendar-check"></i> {{ ad.deal_tag }}
+                </span>
+              </div>
+
+              <h3 class="ad-slide-title">{{ ad.title }}</h3>
+              <p class="ad-slide-subtitle">{{ ad.subtitle }}</p>
+              <p class="ad-slide-desc">{{ ad.description }}</p>
+
+              <div class="ad-benefits-row">
+                {% for b in ad.benefits %}
+                <span class="ad-benefit-tag">
+                  <i class="fas fa-check-circle" style="color: {{ ad.theme_color }};"></i> {{ b }}
+                </span>
+                {% endfor %}
+              </div>
+
+              <div class="ad-cta-row">
+                <a href="{{ ad.cta_link }}" target="_blank" rel="noopener noreferrer" class="ad-main-btn" style="background: {{ ad.theme_color }};">
+                  {{ ad.cta_text }} <i class="fas fa-arrow-right"></i>
+                </a>
+                <span class="ad-call-info">
+                  <i class="fas fa-phone-alt"></i> Toll-Free: <strong>{{ ad.helpline }}</strong>
+                </span>
+              </div>
+            </div>
+
+            <div class="ad-banner-right">
+              <div class="ad-icon-circle" style="color: {{ ad.theme_color }};">
+                <i class="{{ ad.icon }}"></i>
+              </div>
+              <span class="ad-partner-lbl">Verified Partner</span>
+              <span class="ad-partner-name">{{ ad.partner }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Carousel Dots Indicators -->
+    <div class="carousel-dots" id="carouselDots">
+      {% for ad in ads %}
+      <span class="dot-indicator {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}"></span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- DAILY AGRI NEWS SPOTLIGHT SECTION -->
+  {% if latest_news %}
+  <div class="home-news-section">
+    <div class="news-section-header">
+      <div>
+        <div class="news-live-tag">
+          <span class="live-pulse"></span> <span data-i18n="home_news_live">Updated Today • Live RSS</span>
+        </div>
+        <h2 data-i18n="home_news_heading">📰 Daily Krishi Samachar & Weather Alerts</h2>
+      </div>
+      <a href="/news" class="view-all-news-btn" data-i18n="view_all_news">
+        View All Agri News <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="home-news-grid">
+      {% for item in latest_news[:3] %}
+      <div class="home-news-card">
+        <div class="home-news-top">
+          <span class="home-news-cat"><i class="{{ item.image_icon }}"></i> {{ item.category }}</span>
+          <span class="home-news-time"><i class="far fa-clock"></i> {{ item.published_at }}</span>
+        </div>
+        <h4 class="home-news-title">
+          <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer">
+            {{ item.title }}
+          </a>
+        </h4>
+        <p class="home-news-desc">{{ item.summary[:130] }}...</p>
+        <div class="home-news-bot">
+          <span class="home-news-src"><i class="fas fa-building"></i> {{ item.source }}</span>
+          <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="home-news-link">
+            Read <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Features Grid Section -->
+  <div class="features-section">
+    <h2 data-i18n="features_heading">Our Smart Farming Features</h2>
+    <div class="features-grid">
+      <div class="feature-card" style="border: 2px solid #a5d6a7; background: #fbfffb;">
+        <div class="feature-icon" style="background: #2e7d32; color: white;"><i class="fas fa-chart-line"></i></div>
+        <h3 data-i18n="feat_mandi_title">🌾 Live Mandi Bhav & MSP</h3>
+        <p data-i18n="feat_mandi_desc">
+          Real-time wholesale APMC prices, Government MSP comparison, and arrival trends across major Indian mandis.
+        </p>
+        <a href="/mandi-prices" class="feature-link" data-i18n="feat_mandi_btn" style="color: #2e7d32; font-weight: 700;">
+          Check Mandi Rates <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background: #1565c0; color: white;"><i class="fas fa-newspaper"></i></div>
+        <h3 data-i18n="feat_news_title">📰 Daily Agri News & Alerts</h3>
+        <p data-i18n="feat_news_desc">
+          Stay informed on policy changes, IMD weather forecasts, subsidy deadlines, and agronomic research.
+        </p>
+        <a href="/news" class="feature-link" style="color: #1565c0; font-weight: 700;">
+          Read News <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-seedling"></i></div>
+        <h3 data-i18n="feat_crop_title">Crop Recommendation</h3>
+        <p data-i18n="feat_crop_desc">
+          Find the most profitable and high-yielding crops suited to your soil nutrients, rainfall, and local climate.
+        </p>
+        <a href="/crop-recommendation" class="feature-link">
+          Recommend Crops <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-comments"></i></div>
+        <h3 data-i18n="feat_chat_title">AI Chat Assistant</h3>
+        <p data-i18n="feat_chat_desc">
+          Ask any agriculture-related question. Supports text and image inputs
+          for comprehensive farming advice.
+        </p>
+        <a href="/chat" class="feature-link" data-i18n="feat_chat_btn">
+          Try Chat <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-cloud-sun"></i></div>
+        <h3 data-i18n="feat_weather_title">Weather-Based Decisions</h3>
+        <p data-i18n="feat_weather_desc">
+          Get real-time weather data and AI-powered farming recommendations
+          based on current conditions.
+        </p>
+        <a href="/weather" class="feature-link" data-i18n="feat_weather_btn">
+          Check Weather <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-leaf"></i></div>
+        <h3 data-i18n="feat_disease_title">Crop Disease Detection</h3>
+        <p data-i18n="feat_disease_desc">
+          Upload crop images for instant disease identification, diagnosis, and
+          treatment recommendations.
+        </p>
+        <a href="/disease" class="feature-link" data-i18n="feat_disease_btn">
+          Detect Disease <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-calculator"></i></div>
+        <h3 data-i18n="feat_calc_title">Resource Calculator</h3>
+        <p data-i18n="feat_calc_desc">
+          Calculate water, fertilizer, and other resource requirements based on
+          crop type and farm size.
+        </p>
+        <a href="/calculator" class="feature-link" data-i18n="feat_calc_btn">
+          Calculate <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-book"></i></div>
+        <h3 data-i18n="feat_guide_title">Crop Cultivation Guide</h3>
+        <p data-i18n="feat_guide_desc">
+          Detailed watering schedules, fertilizer plans, and duration guides for 42 Indian crops.
+        </p>
+        <a href="/crop-guide" class="feature-link">
+          Explore Guides <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-hands-helping"></i></div>
+        <h3 data-i18n="feat_krishi_title">Krishi Seva & Schemes</h3>
+        <p data-i18n="feat_krishi_desc">
+          Access 14+ Government subsidies and 77 certified Soil Testing Laboratories across India.
+        </p>
+        <a href="/krishi-seva" class="feature-link">
+          Explore Seva Hub <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kisan 24x7 Emergency Helplines Desk (Real Farmer Support) -->
+  <div class="kisan-helplines-section">
+    <div class="helplines-header">
+      <div class="helpline-icon-title">
+        <i class="fas fa-headset"></i>
+        <div>
+          <h3>किसान सहायता एवं टोल-फ्री हेल्पलाइन (24x7 Farmer Support Desk)</h3>
+          <p>Government of India certified toll-free helplines for agriculture advisory, schemes, subsidies, and credit queries.</p>
+        </div>
+      </div>
+      <span class="helpline-badge"><i class="fas fa-phone-volume"></i> Toll-Free / निःशुल्क</span>
+    </div>
+
+    <div class="helplines-grid">
+      <a href="tel:18001801551" class="helpline-card">
+        <div class="hl-icon" style="background: #e8f5e9; color: #2e7d32;"><i class="fas fa-user-tie"></i></div>
+        <div class="hl-content">
+          <h4>Kisan Call Center (KCC)</h4>
+          <span class="hl-number">1800-180-1551</span>
+          <span class="hl-desc">Expert agricultural scientists (6 AM - 10 PM in 22 languages)</span>
+        </div>
+      </a>
+
+      <a href="tel:18001803333" class="helpline-card">
+        <div class="hl-icon" style="background: #fff3e0; color: #e65100;"><i class="fas fa-solar-panel"></i></div>
+        <div class="hl-content">
+          <h4>PM-KUSUM Solar Scheme</h4>
+          <span class="hl-number">1800-180-3333</span>
+          <span class="hl-desc">60% Solar Pump subsidy guidance & application help</span>
+        </div>
+      </a>
+
+      <a href="tel:1800229011" class="helpline-card">
+        <div class="hl-icon" style="background: #f3e5f5; color: #7b1fa2;"><i class="fas fa-credit-card"></i></div>
+        <div class="hl-content">
+          <h4>Kisan Credit Card (KCC)</h4>
+          <span class="hl-number">1800-22-9011</span>
+          <span class="hl-desc">4% Low-interest crop loans & bank assistance</span>
+        </div>
+      </a>
+
+      <a href="tel:155261" class="helpline-card">
+        <div class="hl-icon" style="background: #e3f2fd; color: #1565c0;"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="hl-content">
+          <h4>PM-KISAN Samman Nidhi</h4>
+          <span class="hl-number">155261 / 1800-11-5526</span>
+          <span class="hl-desc">₹6,000/year DBT installment verification</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Farmer Hero Badges & Buttons */
+.kisan-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8f5e9;
+  color: #1b5e20;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  border: 1px solid #a5d6a7;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+  letter-spacing: 0.2px;
+}
+.kisan-hero-badge i {
+  color: #2e7d32;
+  font-size: 14px;
+}
+.hero-btn-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+.cta-button-accent {
+  background: #ff6f00;
+  color: white !important;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(255, 111, 0, 0.35);
+  transition: all 0.3s;
+}
+.cta-button-accent:hover {
+  background: #e65100;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 111, 0, 0.45);
+}
+.cta-button-secondary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #2e7d32 !important;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+.cta-button-secondary:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* KISAN HELPLINES SECTION */
+.kisan-helplines-section {
+  margin: 40px 0 30px 0;
+  background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+  border: 2px solid #c8e6c9;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 6px 25px rgba(46, 125, 50, 0.08);
+}
+.helplines-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.helpline-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.helpline-icon-title i {
+  font-size: 28px;
+  color: #2e7d32;
+  background: white;
+  padding: 12px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+}
+.helpline-icon-title h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #1b5e20;
+  font-weight: 700;
+}
+.helpline-icon-title p {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #555;
+}
+.helpline-badge {
+  background: #2e7d32;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.helplines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+.helpline-card {
+  background: white;
+  border: 1px solid #dcedc8;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  transition: all 0.25s;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}
+.helpline-card:hover {
+  transform: translateY(-3px);
+  border-color: #2e7d32;
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15);
+}
+.hl-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.hl-content {
+  display: flex;
+  flex-direction: column;
+}
+.hl-content h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  font-weight: 700;
+}
+.hl-number {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1b5e20;
+  margin: 3px 0;
+}
+.hl-desc {
+  font-size: 11px;
+  color: #777;
+  line-height: 1.3;
+}
+
+/* SLIDING ADVERTISEMENT CAROUSEL (Slide Scroll) */
+.ad-carousel-section {
+  margin: 35px 0 45px 0;
+  background: white;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e0e0e0;
+}
+.carousel-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.live-flair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff3e0;
+  color: #e65100;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.carousel-section-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin: 0;
+}
+.carousel-controls {
+  display: flex;
+  gap: 10px;
+}
+.carousel-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  background: white;
+  color: #2e7d32;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+.carousel-arrow:hover {
+  background: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+  transform: scale(1.05);
+}
+.ad-carousel-container {
+  overflow: hidden;
+  position: relative;
+  border-radius: 16px;
+}
+.ad-carousel-track {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.ad-slide-item {
+  min-width: 100%;
+  box-sizing: border-box;
+}
+.ad-banner-card {
+  border-radius: 16px;
+  padding: 28px 32px;
+  border: 2px solid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  min-height: 230px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+.ad-banner-left {
+  flex: 1;
+}
+.ad-top-badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.ad-sponsor-badge {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.ad-valid-badge {
+  background: rgba(0, 0, 0, 0.07);
+  color: #444;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.ad-slide-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1b5e20;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.ad-slide-subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+.ad-slide-desc {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.5;
+  max-width: 750px;
+}
+.ad-benefits-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.ad-benefit-tag {
+  background: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ad-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.ad-main-btn {
+  color: white !important;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+.ad-main-btn:hover {
+  transform: translateY(-2px);
+}
+.ad-call-info {
+  font-size: 13px;
+  color: #333;
+}
+.ad-banner-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  backdrop-filter: blur(5px);
+}
+.ad-icon-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
+}
+.ad-partner-lbl {
+  font-size: 11px;
+  color: #777;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ad-partner-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #222;
+  margin-top: 2px;
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.dot-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.dot-indicator.active {
+  background: #2e7d32;
+  width: 28px;
+  border-radius: 10px;
+}
+
+/* DAILY AGRI NEWS SPOTLIGHT */
+.home-news-section {
+  margin: 35px 0 45px 0;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.06);
+}
+.news-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+.news-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #d32f2f;
+  margin-bottom: 6px;
+}
+.live-pulse {
+  width: 8px;
+  height: 8px;
+  background: #d32f2f;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #d32f2f;
+  animation: pulseDot 1.5s infinite;
+}
+.news-section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin: 0;
+}
+.view-all-news-btn {
+  color: #2e7d32;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.2s;
+}
+.view-all-news-btn:hover {
+  gap: 10px;
+}
+.home-news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.home-news-card {
+  background: #f9fbf9;
+  border: 1px solid #e8f5e9;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.home-news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.12);
+}
+.home-news-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.home-news-cat {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1b5e20;
+  background: #e8f5e9;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+.home-news-time {
+  font-size: 11px;
+  color: #888;
+}
+.home-news-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.home-news-title a {
+  color: #222;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.home-news-title a:hover {
+  color: #2e7d32;
+}
+.home-news-desc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+.home-news-bot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+  font-size: 12px;
+}
+.home-news-src {
+  color: #555;
+  font-weight: 600;
+}
+.home-news-link {
+  color: #2e7d32;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .kisan-hero-badge {
+    font-size: 11.5px;
+    padding: 6px 12px;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.4;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+
+  .hero-btn-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .cta-button, .cta-button-accent, .cta-button-secondary {
+    padding: 10px 8px;
+    font-size: 12.5px;
+    min-height: 44px;
+    justify-content: center;
+    border-radius: 12px;
+    width: 100%;
+    text-align: center;
+    gap: 6px;
+    box-sizing: border-box;
+  }
+
+  .kisan-helplines-section {
+    padding: 20px 14px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+
+  .kisan-helplines-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .helpline-card {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+
+  .ads-slider-section {
+    padding: 18px 12px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+
+  .carousel-section-header h2 {
+    font-size: 18px;
+  }
+
+  .ad-slide-content {
+    padding: 18px 14px;
+  }
+
+  .ad-slide-title {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .ad-slide-desc {
+    font-size: 13px;
+  }
+
+  .ad-features-list li {
+    font-size: 12px;
+  }
+
+  .ad-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ad-banner-right {
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  .news-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .home-news-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .home-news-card {
+    padding: 16px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-btn-group {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .kisan-hero-badge {
+    font-size: 10.5px;
+    padding: 5px 8px;
+  }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// SLIDING ADVERTISEMENT CAROUSEL SCRIPT
+$(document).ready(function() {
+  var currentSlide = 0;
+  var totalSlides = $('.ad-slide-item').length;
+  var slideInterval = null;
+  var isHovered = false;
+
+  function goToSlide(index) {
+    if (totalSlides === 0) return;
+    if (index >= totalSlides) {
+      currentSlide = 0;
+    } else if (index < 0) {
+      currentSlide = totalSlides - 1;
+    } else {
+      currentSlide = index;
+    }
+
+    var offsetPct = -(currentSlide * 100);
+    $('#adCarouselTrack').css('transform', 'translateX(' + offsetPct + '%)');
+
+    // Update dots
+    $('.dot-indicator').removeClass('active');
+    $('.dot-indicator[data-index="' + currentSlide + '"]').addClass('active');
+  }
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    slideInterval = setInterval(function() {
+      if (!isHovered) {
+        goToSlide(currentSlide + 1);
+      }
+    }, 4500); // Auto-advance every 4.5 seconds
+  }
+
+  function stopAutoPlay() {
+    if (slideInterval) {
+      clearInterval(slideInterval);
+      slideInterval = null;
+    }
+  }
+
+  // Next and Prev button clicks
+  $('#nextAdBtn').on('click', function() {
+    goToSlide(currentSlide + 1);
+    startAutoPlay();
+  });
+
+  $('#prevAdBtn').on('click', function() {
+    goToSlide(currentSlide - 1);
+    startAutoPlay();
+  });
+
+  // Dots click
+  $('.dot-indicator').on('click', function() {
+    var idx = parseInt($(this).data('index'), 10);
+    goToSlide(idx);
+    startAutoPlay();
+  });
+
+  // Pause on hover
+  $('#adCarouselContainer, .carousel-controls').hover(
+    function() { isHovered = true; },
+    function() { isHovered = false; }
+  );
+
+  // Initialize auto-play
+  if (totalSlides > 1) {
+    startAutoPlay();
+  }
+});
+</script>
+{% endblock %}

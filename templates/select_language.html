@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Choose Language - Krishi Mitra{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="lang-select-container">
+    <div class="tool-header text-center">
+      <i class="fas fa-globe-asia" style="font-size: 40px; color: #2e7d32; margin-bottom: 15px;"></i>
+      <h1 data-i18n="lang_modal_title">Choose Your Language / अपनी भाषा चुनें</h1>
+      <p data-i18n="lang_modal_subtitle">
+        Select your default regional language. Krishi Mitra will remember your choice across all features.
+      </p>
+    </div>
+
+    <form method="POST" action="{{ url_for('select_language') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" class="lang-form">
+      <div class="lang-cards-grid">
+        {% for code, info in languages.items() %}
+        <label class="lang-card {% if current_lang == code %}selected{% endif %}" for="lang_{{ code }}">
+          <input 
+            type="radio" 
+            name="language" 
+            id="lang_{{ code }}" 
+            value="{{ code }}" 
+            {% if current_lang == code %}checked{% endif %}
+            onchange="selectLanguageCard(this)"
+          />
+          <div class="lang-card-content">
+            <div class="lang-card-top">
+              <span class="lang-native">{{ info.native }}</span>
+              <span class="lang-badge">{{ info.region }}</span>
+            </div>
+            <div class="lang-name">{{ info.name }}</div>
+            <div class="lang-indicator">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="lang-action-row">
+        <button type="submit" class="submit-btn lang-submit-btn">
+          <i class="fas fa-check"></i> <span data-i18n="btn_save_lang">Set as Default Language & Continue</span>
+        </button>
+        <a href="{{ request.args.get('next') or url_for('index') }}" class="skip-btn">
+          Skip / जारी रखें
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.lang-select-container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+.lang-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  margin: 30px 0;
+}
+.lang-card {
+  position: relative;
+  display: block;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: #fafafa;
+}
+.lang-card:hover {
+  border-color: #2e7d32;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.12);
+}
+.lang-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.lang-card.selected {
+  border-color: #2e7d32;
+  background: #e8f5e9;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.18);
+}
+.lang-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.lang-native {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+.lang-badge {
+  font-size: 11px;
+  background: #c8e6c9;
+  color: #2e7d32;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.lang-name {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+}
+.lang-indicator {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  color: #2e7d32;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.lang-card.selected .lang-indicator {
+  opacity: 1;
+}
+.lang-action-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 25px;
+}
+.lang-submit-btn {
+  width: 100%;
+  max-width: 420px;
+  font-size: 16px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+.skip-btn {
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 12px;
+}
+.skip-btn:hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+</style>
+
+<script>
+function selectLanguageCard(radio) {
+  document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('selected'));
+  radio.closest('.lang-card').classList.add('selected');
+  // Also apply immediately via translations.js
+  if (typeof applyLanguage === 'function') {
+    applyLanguage(radio.value);
+  }
+}
+</script>
+{% endblock %}

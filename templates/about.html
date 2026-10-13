@@ -1,0 +1,135 @@
+{% extends "base.html" %} {% block title %}About Us - Krishi Mitra{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="about-container">
+    <div class="about-header">
+      <h1><i class="fas fa-info-circle"></i> About Krishi Mitra</h1>
+      <p class="subtitle">Empowering Farmers with AI Technology</p>
+    </div>
+
+    <div class="about-section">
+      <div class="about-card">
+        <h2><i class="fas fa-bullseye"></i> Our Mission</h2>
+        <p>
+          Krishi Mitra is dedicated to revolutionizing agriculture through
+          artificial intelligence and modern technology. We aim to empower
+          farmers with data-driven insights, helping them make informed
+          decisions about crop management, disease detection, and resource
+          optimization.
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h2><i class="fas fa-eye"></i> Our Vision</h2>
+        <p>
+          To become the leading AI-powered agricultural assistant platform,
+          making advanced farming technology accessible to every farmer,
+          regardless of their location or resources. We envision a future where
+          sustainable farming practices are the norm, powered by intelligent
+          technology.
+        </p>
+      </div>
+    </div>
+
+    <div class="features-overview">
+      <h2><i class="fas fa-star"></i> What We Offer</h2>
+      <div class="features-grid-about">
+        <div class="feature-item">
+          <i class="fas fa-robot"></i>
+          <h3>AI Chat Assistant</h3>
+          <p>
+            Multi-modal AI that understands text and images for comprehensive
+            farming advice
+          </p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-leaf"></i>
+          <h3>Disease Detection</h3>
+          <p>
+            Advanced computer vision to identify crop diseases and provide
+            treatment solutions
+          </p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-cloud-sun"></i>
+          <h3>Weather Advisory</h3>
+          <p>
+            Real-time weather-based farming recommendations for optimal crop
+            management
+          </p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-calculator"></i>
+          <h3>Resource Calculator</h3>
+          <p>
+            Calculate water, fertilizer, and resource requirements with
+            precision
+          </p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-seedling"></i>
+          <h3>Sustainability Tips</h3>
+          <p>
+            Eco-friendly farming practices for long-term environmental health
+          </p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-database"></i>
+          <h3>Knowledge Base</h3>
+          <p>
+            RAG-powered system with government schemes and agricultural data
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-stack-section">
+      <h2><i class="fas fa-cogs"></i> Technology Stack</h2>
+      <div class="tech-list">
+        <div class="tech-item">
+          <i class="fas fa-brain"></i>
+          <span>Groq AI (Llama Models)</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-link"></i>
+          <span>LangChain RAG</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-database"></i>
+          <span>ChromaDB Vector Store</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-code"></i>
+          <span>Flask Backend</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-cloud"></i>
+          <span>OpenWeatherMap API</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-microphone"></i>
+          <span>Voice Input/Output</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-section">
+      <h2><i class="fas fa-users"></i> Our Team</h2>
+      <p class="team-description">
+        Krishi Mitra is developed by a passionate team of AI researchers,
+        agricultural experts, and software engineers committed to making a
+        positive impact on farming communities.
+      </p>
+    </div>
+
+    <div class="contact-cta">
+      <h2>Get in Touch</h2>
+      <p>Have questions or suggestions? We'd love to hear from you!</p>
+      <a href="{{ url_for('contact') }}" class="cta-button">
+        <i class="fas fa-envelope"></i> Contact Us
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

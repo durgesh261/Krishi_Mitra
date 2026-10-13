@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+{% block title %}Live Mandi Bhav & Govt MSP - Krishi Mitra{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <!-- Mandi Hero Section -->
+  <div class="mandi-hero">
+    <div class="mandi-hero-content">
+      <div class="mandi-badge">
+        <i class="fas fa-broadcast-tower"></i> <span data-i18n="mandi_live_tag">Live Market Intelligence</span>
+      </div>
+      <h1 data-i18n="mandi_title">🌾 Real-Time Mandi Bhav & MSP Tracker</h1>
+      <p data-i18n="mandi_subtitle">
+        Daily APMC wholesale mandi rates, Government Minimum Support Price (MSP 2024-25/2026), and commodity market trends across India.
+      </p>
+      <div class="mandi-stats-row">
+        <div class="mandi-stat-card">
+          <span class="stat-num" id="statCommodities">22+</span>
+          <span class="stat-lbl" data-i18n="mandi_stat_crops">Key Crops</span>
+        </div>
+        <div class="mandi-stat-card">
+          <span class="stat-num" id="statStates">15+</span>
+          <span class="stat-lbl" data-i18n="mandi_stat_states">States Covered</span>
+        </div>
+        <div class="mandi-stat-card">
+          <span class="stat-num" id="statMarkets">40+</span>
+          <span class="stat-lbl" data-i18n="mandi_stat_mandis">APMC Mandis</span>
+        </div>
+        <div class="mandi-stat-card">
+          <span class="stat-num" style="color: #2e7d32;" id="statAboveMsp">95%</span>
+          <span class="stat-lbl" data-i18n="mandi_stat_above_msp">Trading Above MSP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="mandi-toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        id="mandiSearch"
+        placeholder="Search by crop, market (e.g., Wheat, Indore, Lasalgaon)..."
+        data-i18n-placeholder="mandi_search_ph"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="stateFilter"><i class="fas fa-map-marker-alt"></i> State:</label>
+      <select id="stateFilter" class="mandi-select">
+        <option value="all">All States / सभी राज्य</option>
+        {% for st in states %}
+        <option value="{{ st }}">{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="commodityFilter"><i class="fas fa-seedling"></i> Commodity:</label>
+      <select id="commodityFilter" class="mandi-select">
+        <option value="all">All Commodities / सभी फसलें</option>
+        {% for cmd in commodities %}
+        <option value="{{ cmd }}">{{ cmd }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="mspFilter"><i class="fas fa-shield-alt"></i> MSP Status:</label>
+      <select id="mspFilter" class="mandi-select">
+        <option value="all">All Rates</option>
+        <option value="above">Above MSP (लाभकारी)</option>
+        <option value="below">Below MSP</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Price Summary Alert -->
+  <div class="mandi-info-banner">
+    <i class="fas fa-info-circle"></i>
+    <span>
+      <strong>Farmer Advisory:</strong> Mandi prices are updated daily from APMC eNAM benchmarks. If market rates fall below Govt MSP, farmers can sell at designated government procurement centers (FCI/NAFED).
+    </span>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="mandi-grid" id="mandiGrid">
+    {% for item in prices %}
+    <div class="mandi-card" data-state="{{ item.state }}" data-commodity="{{ item.commodity }}" data-status="{{ item.status }}">
+      <div class="mandi-card-header">
+        <div>
+          <span class="commodity-tag {{ item.category|lower }}">{{ item.category }}</span>
+          <h3 class="crop-title">{{ item.commodity }}</h3>
+          <span class="crop-variety">{{ item.variety }}</span>
+        </div>
+        <div class="mandi-location">
+          <i class="fas fa-store"></i> <strong>{{ item.market }}</strong>
+          <span class="state-sub">{{ item.district }}, {{ item.state }}</span>
+        </div>
+      </div>
+
+      <div class="mandi-price-box">
+        <div class="modal-price">
+          <span class="price-lbl">Modal Mandi Rate</span>
+          <span class="price-val">₹{{ item.modal_price }}</span>
+          <span class="price-unit">per Quintal</span>
+        </div>
+
+        <div class="msp-comparison">
+          <span class="msp-lbl">Govt MSP 2024-25: <strong>₹{{ item.msp }}</strong></span>
+          {% if item.msp_difference >= 0 %}
+          <span class="diff-badge positive">
+            <i class="fas fa-arrow-up"></i> +₹{{ item.msp_difference }} ({{ item.msp_diff_percent }}% Above MSP)
+          </span>
+          {% else %}
+          <span class="diff-badge negative">
+            <i class="fas fa-arrow-down"></i> -₹{{ item.msp_difference|abs }} (Below MSP)
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mandi-card-footer">
+        <div class="footer-stat">
+          <span class="f-lbl">Range:</span>
+          <span class="f-val">₹{{ item.min_price }} - ₹{{ item.max_price }}</span>
+        </div>
+        <div class="footer-stat">
+          <span class="f-lbl">Arrivals:</span>
+          <span class="f-val">{{ item.arrivals }}</span>
+        </div>
+        <div class="footer-stat">
+          <span class="f-lbl">Trend:</span>
+          <span class="trend-badge {{ item.trend|lower }}">
+            {% if item.trend == 'Rising' %}🟢 Rising{% elif item.trend == 'Steady' %}🟡 Steady{% else %}🔴 Soft{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div id="noMandiResults" class="no-results" style="display: none;">
+    <i class="fas fa-search-minus" style="font-size: 40px; color: #888; margin-bottom: 15px;"></i>
+    <h3>No mandi records match your filter</h3>
+    <p>Try selecting "All States" or clearing the search query.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.mandi-hero {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(27, 94, 32, 0.25);
+}
+.mandi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  backdrop-filter: blur(5px);
+}
+.mandi-hero h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.mandi-hero p {
+  font-size: 16px;
+  opacity: 0.9;
+  max-width: 800px;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+.mandi-stats-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.mandi-stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  color: #2e7d32;
+  padding: 15px 25px;
+  border-radius: 12px;
+  min-width: 140px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+.stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.stat-lbl {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+.mandi-toolbar {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 25px;
+}
+.search-box {
+  flex: 2;
+  min-width: 250px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-box i {
+  position: absolute;
+  left: 15px;
+  color: #2e7d32;
+}
+.search-box input {
+  width: 100%;
+  padding: 12px 15px 12px 42px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all 0.3s;
+}
+.search-box input:focus {
+  border-color: #2e7d32;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 170px;
+}
+.filter-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+.mandi-select {
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+}
+.mandi-select:focus {
+  border-color: #2e7d32;
+  outline: none;
+}
+.mandi-info-banner {
+  background: #e8f5e9;
+  border-left: 5px solid #2e7d32;
+  padding: 14px 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1b5e20;
+  font-size: 14px;
+}
+.mandi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+}
+.mandi-card {
+  background: white;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8f5e9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.mandi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(46, 125, 50, 0.15);
+}
+.mandi-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 14px;
+}
+.commodity-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+.commodity-tag.cereal { background: #fff3e0; color: #e65100; }
+.commodity-tag.oilseed { background: #fffde7; color: #f57f17; }
+.commodity-tag.commercial { background: #e8eaf6; color: #283593; }
+.commodity-tag.vegetable { background: #e8f5e9; color: #2e7d32; }
+.commodity-tag.pulse { background: #fbe9e7; color: #d84315; }
+.commodity-tag.spice { background: #fce4ec; color: #c2185b; }
+.commodity-tag.fruit { background: #f3e5f5; color: #7b1fa2; }
+
+.crop-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin: 0;
+}
+.crop-variety {
+  font-size: 13px;
+  color: #666;
+}
+.mandi-location {
+  text-align: right;
+  font-size: 14px;
+  color: #333;
+}
+.state-sub {
+  display: block;
+  font-size: 12px;
+  color: #777;
+}
+.mandi-price-box {
+  background: #f9fbf9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #edf5ed;
+}
+.modal-price {
+  margin-bottom: 10px;
+}
+.price-lbl {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+.price-val {
+  font-size: 30px;
+  font-weight: 800;
+  color: #2e7d32;
+  letter-spacing: -0.5px;
+}
+.price-unit {
+  font-size: 13px;
+  color: #777;
+  margin-left: 4px;
+}
+.msp-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.msp-lbl {
+  font-size: 13px;
+  color: #555;
+}
+.diff-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+}
+.diff-badge.positive {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.diff-badge.negative {
+  background: #ffebee;
+  color: #c62828;
+}
+.mandi-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #666;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+}
+.footer-stat {
+  display: flex;
+  flex-direction: column;
+}
+.f-lbl {
+  color: #888;
+  font-size: 11px;
+}
+.f-val {
+  font-weight: 600;
+  color: #333;
+}
+.trend-badge {
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.trend-badge.rising { color: #2e7d32; font-weight: 700; }
+.trend-badge.steady { color: #f57f17; font-weight: 700; }
+.trend-badge.soft { color: #c62828; font-weight: 700; }
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+  function filterMandi() {
+    var searchVal = $('#mandiSearch').val().toLowerCase().trim();
+    var stateVal = $('#stateFilter').val().toLowerCase();
+    var commVal = $('#commodityFilter').val().toLowerCase();
+    var mspVal = $('#mspFilter').val();
+
+    var visibleCount = 0;
+
+    $('.mandi-card').each(function() {
+      var card = $(this);
+      var state = card.data('state').toString().toLowerCase();
+      var commodity = card.data('commodity').toString().toLowerCase();
+      var status = card.data('status');
+      var cardText = card.text().toLowerCase();
+
+      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1;
+      var matchState = stateVal === 'all' || state === stateVal;
+      var matchComm = commVal === 'all' || commodity.indexOf(commVal) !== -1;
+      var matchMsp = mspVal === 'all' || (mspVal === 'above' && status === 'Above MSP') || (mspVal === 'below' && status === 'Below MSP');
+
+      if (matchSearch && matchState && matchComm && matchMsp) {
+        card.show();
+        visibleCount++;
+      } else {
+        card.hide();
+      }
+    });
+
+    if (visibleCount === 0) {
+      $('#noMandiResults').show();
+    } else {
+      $('#noMandiResults').hide();
+    }
+  }
+
+  $('#mandiSearch').on('input', filterMandi);
+  $('#stateFilter, #commodityFilter, #mspFilter').on('change', filterMandi);
+});
+</script>
+{% endblock %}

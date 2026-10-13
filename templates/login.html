@@ -1,0 +1,51 @@
+{% extends "base.html" %} {% block title %}Login - Krishi Mitra{% endblock %} {%
+block content %}
+<div class="page-container">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img
+          src="{{ url_for('static', filename='logo.png') }}"
+          alt="Krishi Mitra"
+          class="auth-logo"
+        />
+        <h1 data-i18n="login_welcome">Welcome Back</h1>
+        <p data-i18n="login_sub">Login to access Krishi Mitra</p>
+      </div>
+
+      <!-- Auth Tab Switcher -->
+      <div class="auth-tabs">
+        <a href="{{ url_for('login') }}" class="auth-tab active"><i class="fas fa-sign-in-alt"></i> <span data-i18n="tab_login">Login</span></a>
+        <a href="{{ url_for('signup') }}" class="auth-tab"><i class="fas fa-user-plus"></i> <span data-i18n="tab_signup">Create Account</span></a>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <div class="form-group">
+          <label for="username"><i class="fas fa-user"></i> Username</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password"><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <button type="submit" class="auth-btn">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>
+          Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

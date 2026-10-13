@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="{{ current_lang or 'en' }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      id="favicon"
+      rel="shortcut icon"
+      href="../static/logo.png"
+      type="image/x-png"
+    />
+    <title>{% block title %}Krishi Mitra - Smart Farming Assistant{% endblock %}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-brand">
+        <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:white;">
+          <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            alt="Logo"
+            class="nav-logo"
+          />
+          <span>Krishi Mitra</span>
+        </a>
+      </div>
+      <ul class="nav-links">
+        <li class="mobile-drawer-header">
+          <div class="mobile-drawer-top">
+            <span class="mobile-drawer-title"><i class="fas fa-seedling"></i> Krishi Mitra</span>
+            <button type="button" id="closeNavBtn" class="close-nav-btn" aria-label="Close menu"><i class="fas fa-times"></i></button>
+          </div>
+        </li>
+        <li>
+          <a
+            href="/"
+            class="{% if request.endpoint == 'index' %}active{% endif %}"
+            data-i18n="nav_home"
+            ><i class="fas fa-home"></i> Home</a
+          >
+        </li>
+
+        <!-- Features Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-i18n="nav_features">
+            <i class="fas fa-th"></i> Features <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/mandi-prices" data-i18n="nav_mandi">
+                <i class="fas fa-chart-line"></i> Mandi Prices & MSP (मंडी भाव)
+              </a>
+            </li>
+            <li>
+              <a href="/crop-recommendation" data-i18n="nav_crop_rec">
+                <i class="fas fa-seedling"></i> Crop Recommendation
+              </a>
+            </li>
+            <li>
+              <a href="/crop-guide" data-i18n="nav_crop_guide"> 
+                <i class="fas fa-book"></i> Crop Guide 
+              </a>
+            </li>
+            <li>
+              <a href="/weather" data-i18n="nav_weather"> 
+                <i class="fas fa-cloud-sun"></i> Live Agro Weather 
+              </a>
+            </li>
+            <li>
+              <a href="/disease" data-i18n="nav_disease">
+                <i class="fas fa-leaf"></i> Disease Detection
+              </a>
+            </li>
+            <li>
+              <a href="/calculator" data-i18n="nav_calc">
+                <i class="fas fa-calculator"></i> Profit Calculator
+              </a>
+            </li>
+            <li>
+              <a href="/sustainability" data-i18n="nav_sustainability">
+                <i class="fas fa-recycle"></i> Sustainability
+              </a>
+            </li>
+            <li>
+              <a href="/krishi-seva" data-i18n="nav_krishi_seva">
+                <i class="fas fa-hands-helping"></i> Krishi Seva & Schemes
+              </a>
+            </li>
+            <li>
+              <a href="/news" data-i18n="nav_news">
+                <i class="fas fa-newspaper"></i> Daily Agri News & Alerts (कृषि समाचार)
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          <a
+            href="/mandi-prices"
+            class="{% if request.endpoint == 'mandi_prices' %}active{% endif %}"
+            data-i18n="nav_mandi_direct"
+            ><i class="fas fa-store"></i> Mandi Bhav</a
+          >
+        </li>
+
+        <li>
+          <a
+            href="/news"
+            class="{% if request.endpoint == 'news_portal' %}active{% endif %}"
+            data-i18n="nav_news_direct"
+            ><i class="fas fa-newspaper"></i> Agri News</a
+          >
+        </li>
+
+        <li>
+          <a
+            href="/chat"
+            class="{% if request.endpoint == 'chat' %}active{% endif %}"
+            data-i18n="nav_chat"
+            ><i class="fas fa-comments"></i> AI Chat</a
+          >
+        </li>
+
+        <!-- Info Pages -->
+        <li>
+          <a
+            href="/about"
+            class="{% if request.endpoint == 'about' %}active{% endif %}"
+            data-i18n="nav_about"
+            ><i class="fas fa-info-circle"></i> About</a
+          >
+        </li>
+
+        <!-- 10 Indian Regional Languages Switcher Dropdown -->
+        <li class="dropdown lang-nav-item">
+          <a href="#" class="dropdown-toggle" id="currentLangBtn" title="Choose Language / भाषा चुनें">
+            <i class="fas fa-globe-asia"></i> <span id="currentLangLabel">English</span> <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu lang-dropdown-menu">
+            <li><a href="#" class="lang-opt" data-lang="en"><span class="lang-tag">Universal</span> <strong>English</strong></a></li>
+            <li><a href="#" class="lang-opt" data-lang="hi"><span class="lang-tag">उत्तर/मध्य</span> <strong>हिन्दी</strong> (Hindi)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="pa"><span class="lang-tag">ਪੰਜਾਬ</span> <strong>ਪੰਜਾਬੀ</strong> (Punjabi)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="bn"><span class="lang-tag">পূর্ব ভারত</span> <strong>বাংলা</strong> (Bengali)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="mr"><span class="lang-tag">महाराष्ट्र</span> <strong>मराठी</strong> (Marathi)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="gu"><span class="lang-tag">ગુજરાત</span> <strong>ગુજરાતી</strong> (Gujarati)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="te"><span class="lang-tag">తెలుగు రాష్ట్రాలు</span> <strong>తెలుగు</strong> (Telugu)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="ta"><span class="lang-tag">தமிழ்நாடு</span> <strong>தமிழ்</strong> (Tamil)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="kn"><span class="lang-tag">ಕರ್ನಾಟಕ</span> <strong>ಕನ್ನಡ</strong> (Kannada)</a></li>
+            <li><a href="#" class="lang-opt" data-lang="ml"><span class="lang-tag">കേരളം</span> <strong>മലയാളം</strong> (Malayalam)</a></li>
+            <li class="dropdown-divider"></li>
+            <li>
+              <a href="/select-language" style="color: #2e7d32; font-weight: 600;">
+                <i class="fas fa-cog"></i> <span data-i18n="settings_lang_title">Language Settings</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- User Menu -->
+        {% if session.user_id %}
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-i18n="nav_account">
+            <i class="fas fa-user-circle"></i> {{ session.username or 'Account' }}
+            <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/profile" data-i18n="nav_profile"> <i class="fas fa-user"></i> Profile </a>
+            </li>
+            <li>
+              <a href="/select-language"> <i class="fas fa-language"></i> <span data-i18n="nav_settings">Language Settings</span> </a>
+            </li>
+            {% if session.is_admin %}
+            <li>
+              <a href="/admin" data-i18n="nav_admin">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+              </a>
+            </li>
+            {% endif %}
+            <li>
+              <a href="/logout" data-i18n="nav_logout"> <i class="fas fa-sign-out-alt"></i> Logout </a>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li>
+          <a
+            href="/login"
+            class="nav-auth-pill {% if request.endpoint in ['login', 'signup'] %}active{% endif %}"
+            data-i18n="nav_signin"
+            ><i class="fas fa-user-circle"></i> <span data-i18n="nav_signin">Sign In</span></a
+          >
+        </li>
+        {% endif %}
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+    <div class="nav-backdrop" id="navBackdrop"></div>
+
+    <main class="main-content">{% block content %}{% endblock %}</main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script>
+      // Enhanced Mobile Navigation Drawer
+      function toggleMobileMenu(open) {
+        if (open) {
+          $(".nav-links").addClass("show");
+          $("#navBackdrop").addClass("active");
+          $("body").addClass("drawer-open");
+        } else {
+          $(".nav-links").removeClass("show");
+          $("#navBackdrop").removeClass("active");
+          $("body").removeClass("drawer-open");
+        }
+      }
+
+      $("#navToggle").click(function () {
+        var isOpen = $(".nav-links").hasClass("show");
+        toggleMobileMenu(!isOpen);
+      });
+
+      $("#closeNavBtn, #navBackdrop").click(function () {
+        toggleMobileMenu(false);
+      });
+
+      // Close mobile drawer when clicking any link inside except dropdown toggles
+      $(".nav-links a:not(.dropdown-toggle)").click(function () {
+        if ($(window).width() <= 1024) {
+          toggleMobileMenu(false);
+        }
+      });
+
+      // Dropdown functionality
+      $(".dropdown-toggle").click(function (e) {
+        e.preventDefault();
+        var parent = $(this).parent();
+        $(".dropdown").not(parent).removeClass("active");
+        parent.toggleClass("active");
+      });
+
+      // Close dropdown when clicking outside
+      $(document).click(function (e) {
+        if (!$(e.target).closest(".dropdown").length) {
+          $(".dropdown").removeClass("active");
+        }
+      });
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

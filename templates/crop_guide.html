@@ -1,0 +1,115 @@
+{% extends "base.html" %} {% block title %}Crop Guide - Krishi Mitra{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="tool-container">
+    <div class="tool-header">
+      <i class="fas fa-book"></i>
+      <h1>Crop Cultivation Guide</h1>
+      <p>Detailed farming guides for different crops</p>
+    </div>
+
+    <div class="tool-form">
+      <div class="form-group">
+        <label for="cropSelect">
+          <i class="fas fa-seedling"></i> Select Crop
+        </label>
+        <select id="cropSelect" class="form-control">
+          <option value="">Choose a crop</option>
+          {% for crop in crops %}
+          <option value="{{ crop }}">{{ crop.title() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div id="guideLoading" class="loading" style="display: none">
+      <div class="spinner"></div>
+      <p>Loading crop guide...</p>
+    </div>
+
+    <div id="guideError" class="error-message" style="display: none"></div>
+
+    <div id="guideResult" class="result-container" style="display: none">
+      <div class="guide-card">
+        <h2 id="cropName"></h2>
+        <div class="guide-section">
+          <h3><i class="fas fa-tint"></i> Watering Schedule</h3>
+          <p id="watering"></p>
+        </div>
+        <div class="guide-section">
+          <h3><i class="fas fa-flask"></i> Fertilizer Plan</h3>
+          <p id="fertilizer"></p>
+        </div>
+        <div class="guide-section">
+          <h3><i class="fas fa-calendar"></i> Duration</h3>
+          <p id="duration"></p>
+        </div>
+        <div class="guide-section">
+          <h3><i class="fas fa-thermometer-half"></i> Ideal Conditions</h3>
+          <p id="conditions"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  $(document).ready(function () {
+    console.log("Crop guide page loaded");
+
+    $("#cropSelect").on("change", function () {
+      const crop = $(this).val();
+      console.log("Selected crop:", crop);
+
+      if (!crop) {
+        $("#guideResult").hide();
+        $("#guideError").hide();
+        return;
+      }
+
+      $("#guideLoading").show();
+      $("#guideResult").hide();
+      $("#guideError").hide();
+
+      $.ajax({
+        url: "/api/get-crop-guide/" + crop,
+        method: "GET",
+        success: function (data) {
+          console.log("Received data:", data);
+          $("#guideLoading").hide();
+
+          if (data.error) {
+            $("#guideError").text(data.error).show();
+            return;
+          }
+
+          $("#cropName").text(data.crop.toUpperCase());
+          $("#watering").text(data.watering_schedule);
+          $("#fertilizer").text(data.fertilizer_plan);
+          $("#duration").text(data.duration_days);
+          $("#conditions").html(
+            "<strong>Temperature:</strong> " +
+              data.ideal_temp_min +
+              "°C - " +
+              data.ideal_temp_max +
+              "°C<br>" +
+              "<strong>Humidity:</strong> " +
+              data.ideal_humidity_min +
+              "% - " +
+              data.ideal_humidity_max +
+              "%",
+          );
+          $("#guideResult").show();
+        },
+        error: function (xhr, status, error) {
+          console.error("Error:", xhr.responseText);
+          $("#guideLoading").hide();
+          $("#guideError")
+            .text("Error loading crop guide. Please try again.")
+            .show();
+        },
+      });
+    });
+  });
+</script>
+{% endblock %}
