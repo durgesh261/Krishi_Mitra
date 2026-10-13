@@ -298,6 +298,45 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertIn('helpline', first_ad)
         print(f"  [PASS] GET /api/farming-ads returned {len(data_ads['ads'])} ads (First: {first_ad['title']})")
 
+    def test_15_multimodal_remote_sensing(self):
+        # 1. GET /remote-sensing
+        res = self.client.get('/remote-sensing')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Multi-Spectral Remote Sensing', res.data)
+        print("  [PASS] GET /remote-sensing rendered successfully")
+
+        # 2. GET /api/sample-remote-sensing/punjab_wheat_rust
+        res_sample = self.client.get('/api/sample-remote-sensing/punjab_wheat_rust')
+        self.assertEqual(res_sample.status_code, 200)
+        sample_data = res_sample.get_json()
+        self.assertTrue(sample_data.get('success'))
+        self.assertIn('image_data_url', sample_data)
+        print("  [PASS] GET /api/sample-remote-sensing loaded Punjab Wheat Rust preset")
+
+        # 3. POST /api/multimodal-predict
+        payload = {
+            'crop_name': 'wheat',
+            'temperature': 21.5,
+            'humidity': 84.0,
+            'rainfall_7d': 42.0,
+            'soil_moisture': 72.0,
+            'vpd': 0.8,
+            'canopy_source': 'Sentinel-2 Multispectral'
+        }
+        res_pred = self.client.post('/api/multimodal-predict',
+                                    data=payload)
+        self.assertEqual(res_pred.status_code, 200)
+        pred_data = res_pred.get_json()
+        self.assertTrue(pred_data.get('success'))
+        self.assertIn('diagnosis', pred_data)
+        self.assertIn('yield_forecast', pred_data)
+        self.assertIn('spectral_indices', pred_data)
+        self.assertIn('gradcam_image', pred_data)
+        diag_name = pred_data['diagnosis']['name']
+        ndvi_val = pred_data['spectral_indices']['ndvi']
+        yield_val = pred_data['yield_forecast']['estimated_yield_q_ha']
+        print(f"  [PASS] Multimodal Inference: Diagnosis = {diag_name}, NDVI = {ndvi_val}, Yield = {yield_val} q/ha")
+
 if __name__ == '__main__':
     unittest.main()
 

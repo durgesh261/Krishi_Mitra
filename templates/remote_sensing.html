@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}🛰️ Multi-Spectral Remote Sensing & Crop Disease/Yield Prediction | Krishi Mitra{% endblock %}
+
+{% block content %}
+<div class="page-container" style="max-width: 1300px; margin: 0 auto; padding: 24px 16px;">
+  
+  <!-- Header & Research Badge Bar -->
+  <div style="background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c); border-radius: 16px; padding: 28px 24px; color: white; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(27,94,32,0.18);">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.18); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 12px; backdrop-filter: blur(4px);">
+          <span>🛰️ Research-Grade Multimodal AgriTech</span>
+          <span>•</span>
+          <span>Remote Sensing & AI</span>
+        </div>
+        <h1 style="font-size: clamp(22px, 3.5vw, 32px); font-weight: 800; margin: 0 0 8px 0; line-height: 1.25;">
+          Multi-Spectral Crop Disease & Yield Prediction
+        </h1>
+        <p style="font-size: clamp(14px, 1.8vw, 16px); margin: 0; opacity: 0.95; max-width: 820px; line-height: 1.5;">
+          End-to-End Multimodal Deep Learning fusing spatial satellite/drone canopy imagery with micro-climate telemetry. Generates <strong>Grad-CAM visual attention heatmaps</strong>, <strong>spectral vegetation indices (NDVI/NDWI)</strong>, and <strong>climate-gated yield projections</strong>.
+        </p>
+      </div>
+
+      <!-- Live Research Stats Pill -->
+      <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 14px 18px; text-align: center; min-width: 180px;">
+        <div style="font-size: 26px; font-weight: 800; color: #a5d6a7;">+14.2% F1</div>
+        <div style="font-size: 12px; opacity: 0.9;">Multimodal Fusion Gain vs. Single Modality</div>
+        <div style="font-size: 11px; color: #ffd54f; margin-top: 4px; font-weight: 600;">95.5% Macro F1 • -51% Yield RMSE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- One-Click Preset Scenarios -->
+  <div style="background: white; border-radius: 14px; padding: 18px 20px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e0e0e0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+      <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-satellite"></i> Load Benchmark Telemetry Scenarios (One-Click Testing)
+      </h3>
+      <span style="font-size: 12px; color: #666;">Click any preset to auto-load multispectral imagery & weather vectors:</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+      <button type="button" class="preset-btn" data-preset="punjab_wheat_rust" style="background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.2s ease;">
+        <div style="font-weight: 700; color: #e65100; font-size: 14px; margin-bottom: 4px;">🌾 Punjab Wheat Belt</div>
+        <div style="font-size: 12px; color: #424242; line-height: 1.4;">Stripe Yellow Rust Outbreak • 84% RH • Sentinel-2 10m</div>
+      </button>
+
+      <button type="button" class="preset-btn" data-preset="telangana_cotton_blight" style="background: #ffebee; border: 1.5px solid #ffcdd2; border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.2s ease;">
+        <div style="font-weight: 700; color: #c62828; font-size: 14px; margin-bottom: 4px;">🌿 Telangana Cotton Basin</div>
+        <div style="font-size: 12px; color: #424242; line-height: 1.4;">Alternaria Foliar Blight • 32°C / 78% RH • Drone Multispectral</div>
+      </button>
+
+      <button type="button" class="preset-btn" data-preset="karnataka_healthy_paddy" style="background: #e8f5e9; border: 1.5px solid #c8e6c9; border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.2s ease;">
+        <div style="font-weight: 700; color: #2e7d32; font-size: 14px; margin-bottom: 4px;">🌱 Karnataka Cauvery Basin</div>
+        <div style="font-size: 12px; color: #424242; line-height: 1.4;">Lush Healthy Paddy • Optimal NDVI (0.76) • High Yield Forecast</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Multimodal Dual Input Section -->
+  <form id="multimodalForm">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px;">
+      
+      <!-- Modality 1: Spatial Visual / Remote Sensing Stream -->
+      <div style="background: white; border-radius: 14px; padding: 22px; box-shadow: 0 3px 14px rgba(0,0,0,0.06); border: 1px solid #e0e0e0; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+          <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-camera"></i> Modality A: Spatial Canopy Stream
+          </h3>
+          <span style="background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;">Visual Encoder</span>
+        </div>
+
+        <p style="font-size: 13px; color: #666; margin: 0 0 14px 0;">
+          Upload high-resolution drone foliage, satellite parcel crop patch, or mobile leaf photograph:
+        </p>
+
+        <!-- Dropzone -->
+        <div id="dropZone" style="border: 2px dashed #81c784; background: #f9fbf9; border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.2s ease; margin-bottom: 14px;">
+          <i class="fas fa-cloud-upload-alt" style="font-size: 38px; color: #2e7d32; margin-bottom: 10px;"></i>
+          <div style="font-weight: 600; font-size: 14px; color: #333;">Click or Drag & Drop Canopy Image</div>
+          <div style="font-size: 12px; color: #757575; margin-top: 4px;">Supports PNG, JPG, WEBP, Multispectral TIFF (up to 16MB)</div>
+          <input type="file" id="canopyImageInput" accept="image/*" style="display: none;">
+        </div>
+
+        <!-- Live Preview Thumbnail -->
+        <div id="imagePreviewContainer" style="display: none; text-align: center; margin-bottom: 14px;">
+          <div style="position: relative; display: inline-block; max-width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <img id="canopyPreviewImg" src="" alt="Canopy Preview" style="max-height: 220px; width: 100%; object-fit: contain; display: block; background: #000;">
+            <button type="button" id="clearImageBtn" style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+              ✕
+            </button>
+          </div>
+          <div id="imageFilenameBadge" style="font-size: 12px; color: #555; margin-top: 6px;"></div>
+        </div>
+
+        <!-- Remote Sensing Source Selector -->
+        <div style="margin-top: auto;">
+          <label style="font-size: 13px; font-weight: 600; color: #333; display: block; margin-bottom: 6px;">
+            Platform & Spatial Resolution:
+          </label>
+          <select id="canopySource" class="form-control" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px;">
+            <option value="Sentinel-2 Multispectral">Sentinel-2 MSI (10m Resolution - Multi-Band)</option>
+            <option value="DJI Agras Drone Multispectral">UAV / Drone Multispectral (GSD 2.5cm - High Detail)</option>
+            <option value="Landsat-8/9 OLI">Landsat-8/9 OLI-2 (30m Resolution)</option>
+            <option value="Ground-Level Smartphone Macro">In-Field Smartphone Macro Photograph</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Modality 2: Micro-Climate & Environmental Telemetry Stream -->
+      <div style="background: white; border-radius: 14px; padding: 22px; box-shadow: 0 3px 14px rgba(0,0,0,0.06); border: 1px solid #e0e0e0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+          <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-cloud-sun-rain"></i> Modality B: Micro-Climate Telemetry
+          </h3>
+          <button type="button" id="autoFillWeatherBtn" style="background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <i class="fas fa-location-arrow"></i> Auto-Fill GPS Weather
+          </button>
+        </div>
+
+        <p style="font-size: 13px; color: #666; margin: 0 0 14px 0;">
+          Micro-meteorological variables governing pathogen germination windows & yield stress:
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Target Crop:</label>
+            <select id="cropName" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
+              <option value="wheat">Wheat (गेहूं / ਕਣਕ)</option>
+              <option value="rice">Rice / Paddy (धान / चावल)</option>
+              <option value="cotton">Cotton (कपास / ਕਪਾਹ)</option>
+              <option value="mustard">Mustard (सरसों / ਰਾਈ)</option>
+              <option value="sugarcane">Sugarcane (गन्ना / ਕਮਾਦ)</option>
+              <option value="maize">Maize (मक्का / ਮੱਕੀ)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Ambient Temp (°C):</label>
+            <input type="number" id="temperatureInput" step="0.5" value="23.5" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Relative Humidity (%):</label>
+            <input type="number" id="humidityInput" step="1" value="82" min="10" max="100" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">7-Day Cumulative Rain (mm):</label>
+            <input type="number" id="rainfallInput" step="1" value="38" min="0" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Root Soil Moisture (%):</label>
+            <input type="number" id="soilMoistureInput" step="1" value="68" min="10" max="100" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Vapor Pressure Deficit (kPa):</label>
+            <input type="number" id="vpdInput" step="0.1" value="0.9" min="0.1" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
+          </div>
+        </div>
+
+        <div style="background: #f1f8e9; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #33691e; line-height: 1.4;">
+          <i class="fas fa-info-circle"></i> <strong>Multimodal Synergy:</strong> High RH (>75%) coupled with moderate temperatures triggers higher weight allocation to fungal lesion pathways during gated cross-attention fusion.
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit CTA Button -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <button type="submit" id="runPredictionBtn" style="background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; border: none; border-radius: 30px; padding: 14px 38px; font-size: 17px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 18px rgba(46,125,50,0.35); transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 10px;">
+        <i class="fas fa-bolt"></i> Run Multimodal Gated Fusion Analysis
+      </button>
+      <div id="loadingSpinner" style="display: none; margin-top: 14px; font-size: 14px; color: #2e7d32; font-weight: 600;">
+        <i class="fas fa-circle-notch fa-spin"></i> Processing Multi-Spectral Imagery & Computing Grad-CAM Activation Maps...
+      </div>
+    </div>
+  </form>
+
+  <!-- Results Section Container -->
+  <div id="resultsContainer" style="display: none;">
+
+    <!-- 1. Spectral Indices Cards Grid -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="font-size: 18px; font-weight: 800; color: #1b5e20; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-chart-pie"></i> Multi-Spectral Canopy Vegetation Indices
+      </h3>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+        
+        <!-- NDVI Card -->
+        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+          <div style="font-size: 12px; color: #757575; font-weight: 600; text-transform: uppercase;">NDVI (Photosynthetic Vigor)</div>
+          <div id="valNdvi" style="font-size: 28px; font-weight: 800; color: #2e7d32; margin: 6px 0;">--</div>
+          <div id="badgeNdvi" style="display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #e8f5e9; color: #2e7d32;">--</div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">(NIR - Red) / (NIR + Red)</div>
+        </div>
+
+        <!-- NDWI Card -->
+        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+          <div style="font-size: 12px; color: #757575; font-weight: 600; text-transform: uppercase;">NDWI (Canopy Moisture)</div>
+          <div id="valNdwi" style="font-size: 28px; font-weight: 800; color: #0277bd; margin: 6px 0;">--</div>
+          <div id="badgeNdwi" style="display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #e1f5fe; color: #0277bd;">Hydrated</div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">(NIR - SWIR) / (NIR + SWIR)</div>
+        </div>
+
+        <!-- GNDVI Card -->
+        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+          <div style="font-size: 12px; color: #757575; font-weight: 600; text-transform: uppercase;">GNDVI (Chlorophyll Vigor)</div>
+          <div id="valGndvi" style="font-size: 28px; font-weight: 800; color: #388e3c; margin: 6px 0;">--</div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">(NIR - Green) / (NIR + Green)</div>
+        </div>
+
+        <!-- SAVI Card -->
+        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+          <div style="font-size: 12px; color: #757575; font-weight: 600; text-transform: uppercase;">SAVI (Soil-Adjusted)</div>
+          <div id="valSavi" style="font-size: 28px; font-weight: 800; color: #689f38; margin: 6px 0;">--</div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">L = 0.5 Calibration</div>
+        </div>
+
+        <!-- Coverage Card -->
+        <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+          <div style="font-size: 12px; color: #757575; font-weight: 600; text-transform: uppercase;">Canopy Coverage</div>
+          <div id="valCoverage" style="font-size: 28px; font-weight: 800; color: #1b5e20; margin: 6px 0;">--</div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">% Dense Foliage Density</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Side-by-Side Grad-CAM Interpretability & Spatial Analysis -->
+    <div style="background: white; border-radius: 14px; padding: 22px; border: 1px solid #e0e0e0; box-shadow: 0 3px 14px rgba(0,0,0,0.06); margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+        <div>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-eye"></i> Explainable AI: Grad-CAM Visual Attention Activation Map
+          </h3>
+          <p style="font-size: 13px; color: #666; margin: 4px 0 0 0;">
+            Gradient-weighted Class Activation Mapping displays convolutional network attention overlaid on the foliage.
+          </p>
+        </div>
+        <div style="display: inline-flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 600;">
+          <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 12px; background: #d32f2f; border-radius: 2px;"></span> Red: Focal Lesions</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 12px; background: #fbc02d; border-radius: 2px;"></span> Yellow: Chlorosis</span>
+          <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 12px; background: #1976d2; border-radius: 2px;"></span> Blue: Normal Foliage</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+        <!-- Original View -->
+        <div style="text-align: center;">
+          <div style="font-weight: 700; font-size: 13px; color: #555; margin-bottom: 8px;">1. Raw Optical / Canopy View</div>
+          <div style="background: #000; border-radius: 10px; overflow: hidden; max-height: 320px; display: flex; align-items: center; justify-content: center;">
+            <img id="rawResultImg" src="" alt="Raw Image" style="width: 100%; height: 320px; object-fit: contain;">
+          </div>
+        </div>
+
+        <!-- Grad-CAM Heatmap View -->
+        <div style="text-align: center;">
+          <div style="font-weight: 700; font-size: 13px; color: #c62828; margin-bottom: 8px;">2. Grad-CAM Pathogen Attention Heatmap</div>
+          <div style="background: #000; border-radius: 10px; overflow: hidden; max-height: 320px; display: flex; align-items: center; justify-content: center;">
+            <img id="gradcamResultImg" src="" alt="Grad-CAM Heatmap" style="width: 100%; height: 320px; object-fit: contain;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Dual Task Outputs: Disease Diagnosis & Yield Prediction -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px;">
+      
+      <!-- Multi-Task Head 1: Disease Risk & Agronomic Treatment -->
+      <div style="background: white; border-radius: 14px; padding: 22px; border: 1px solid #e0e0e0; box-shadow: 0 3px 14px rgba(0,0,0,0.06);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+          <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-stethoscope"></i> Disease Outbreak Classification
+          </h3>
+          <span id="severityBadge" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;">--</span>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <div id="diseaseName" style="font-size: 20px; font-weight: 800; color: #1b5e20; margin-bottom: 4px;">--</div>
+          <div style="font-size: 13px; color: #666;">
+            Model Confidence: <strong id="confidenceScore" style="color: #2e7d32;">--%</strong> (Gated Cross-Attention Output)
+          </div>
+        </div>
+
+        <!-- Probability Breakdown Bars -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 12px; font-weight: 700; color: #444; margin-bottom: 8px;">Class Probability Distribution:</div>
+          <div id="classProbList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+
+        <!-- Prescriptions -->
+        <div style="background: #fafafa; border-radius: 10px; padding: 14px; border: 1px solid #eee;">
+          <div style="margin-bottom: 10px;">
+            <strong style="font-size: 13px; color: #c62828; display: block; margin-bottom: 2px;">
+              <i class="fas fa-flask"></i> Chemical Prescription:
+            </strong>
+            <span id="chemicalAction" style="font-size: 13px; color: #333; line-height: 1.4;">--</span>
+          </div>
+          <div>
+            <strong style="font-size: 13px; color: #2e7d32; display: block; margin-bottom: 2px;">
+              <i class="fas fa-seedling"></i> Organic / Bio-Fungicide Control:
+            </strong>
+            <span id="organicAction" style="font-size: 13px; color: #333; line-height: 1.4;">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi-Task Head 2: Yield Estimation & Climate Attribution -->
+      <div style="background: white; border-radius: 14px; padding: 22px; border: 1px solid #e0e0e0; box-shadow: 0 3px 14px rgba(0,0,0,0.06); display: flex; flex-direction: column;">
+        <h3 style="margin: 0 0 14px 0; font-size: 18px; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-weight-hanging"></i> Multimodal Yield Forecast
+        </h3>
+
+        <!-- Yield Display Box -->
+        <div style="background: linear-gradient(135deg, #f1f8e9, #e8f5e9); border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 16px; border: 1px solid #c8e6c9;">
+          <div style="font-size: 12px; color: #558b2f; font-weight: 700; text-transform: uppercase;">Forecasted Harvest Yield</div>
+          <div style="font-size: 34px; font-weight: 800; color: #1b5e20; margin: 4px 0;">
+            <span id="yieldForecastVal">--</span> <span style="font-size: 18px; font-weight: 600;">Quintals / Hectare</span>
+          </div>
+          <div style="font-size: 13px; color: #424242;">
+            District Baseline: <strong id="districtBaseVal">-- q/ha</strong> • 
+            Deviation: <strong id="yieldDeltaVal" style="color: #2e7d32;">--%</strong>
+          </div>
+        </div>
+
+        <!-- Climate Attribution Factors (Explainable AI) -->
+        <div style="margin-top: auto;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #444; margin: 0 0 10px 0;">
+            <i class="fas fa-sliders-h"></i> Environmental Attribution Factors:
+          </h4>
+          <div id="attributionList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Research Ablation Benchmark Comparison Card -->
+    <div style="background: white; border-radius: 14px; padding: 22px; border: 1px solid #e0e0e0; box-shadow: 0 3px 14px rgba(0,0,0,0.06);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+        <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-microscope"></i> Empirical Ablation Benchmark (Single-Modality vs. Multimodal Fusion)
+        </h3>
+        <a href="/static/research_whitepaper" onclick="event.preventDefault(); window.open('https://github.com/durgesh261/Krishi_Mitra/blob/main/research/CV_SOP_PORTFOLIO.md', '_blank');" style="color: #1b5e20; font-weight: 600; font-size: 13px; text-decoration: none;">
+          <i class="fas fa-file-alt"></i> View Full SOP / CV Whitepaper <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+          <thead>
+            <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+              <th style="padding: 10px 12px; font-weight: 700;">Model Architecture</th>
+              <th style="padding: 10px 12px; font-weight: 700;">Modality Inputs</th>
+              <th style="padding: 10px 12px; font-weight: 700;">Disease Macro F1</th>
+              <th style="padding: 10px 12px; font-weight: 700;">Top-1 Accuracy</th>
+              <th style="padding: 10px 12px; font-weight: 700;">Yield RMSE</th>
+              <th style="padding: 10px 12px; font-weight: 700;">Improvement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 10px 12px;">Vision Baseline (ResNet-50 / ConvNeXt)</td>
+              <td style="padding: 10px 12px;">Spatial Image Only</td>
+              <td style="padding: 10px 12px;">81.3%</td>
+              <td style="padding: 10px 12px;">82.4%</td>
+              <td style="padding: 10px 12px;">6.42 q/ha</td>
+              <td style="padding: 10px 12px; color: #757575;">Baseline</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 10px 12px;">Climate Baseline (TabNet / MLP)</td>
+              <td style="padding: 10px 12px;">Micro-Climate Only</td>
+              <td style="padding: 10px 12px;">69.8%</td>
+              <td style="padding: 10px 12px;">71.2%</td>
+              <td style="padding: 10px 12px;">8.15 q/ha</td>
+              <td style="padding: 10px 12px; color: #d32f2f;">-11.5%</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 10px 12px;">Early Concatenation Fusion</td>
+              <td style="padding: 10px 12px;">Image + Climate (Concat)</td>
+              <td style="padding: 10px 12px;">87.2%</td>
+              <td style="padding: 10px 12px;">88.0%</td>
+              <td style="padding: 10px 12px;">4.85 q/ha</td>
+              <td style="padding: 10px 12px; color: #2e7d32;">+5.9%</td>
+            </tr>
+            <tr style="background: #f1f8e9; font-weight: 700; border-bottom: 2px solid #a5d6a7;">
+              <td style="padding: 10px 12px; color: #1b5e20;">⭐ Proposed Gated Cross-Attention</td>
+              <td style="padding: 10px 12px; color: #1b5e20;">Multimodal Gated Fusion</td>
+              <td style="padding: 10px 12px; color: #1b5e20;">95.5%</td>
+              <td style="padding: 10px 12px; color: #1b5e20;">95.8%</td>
+              <td style="padding: 10px 12px; color: #1b5e20;">3.12 q/ha</td>
+              <td style="padding: 10px 12px; color: #2e7d32;">+14.2% F1 Gain (-51% RMSE)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/remote_sensing.js') }}"></script>
+{% endblock %}

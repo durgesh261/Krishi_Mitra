@@ -29,6 +29,11 @@ from crop_recommendation import (
     predict_crops, get_district_averages, get_crop_guide, 
     get_crop_finance, get_government_schemes, get_soil_labs, load_model
 )
+from multimodal_remote_sensing import (
+    predict_multimodal_disease_and_yield,
+    get_preset_scenario,
+    create_synthetic_preset_image
+)
 
 load_dotenv()
 
@@ -295,6 +300,10 @@ def weather():
 @app.route('/disease')
 def disease():
     return render_template('disease.html')
+
+@app.route('/remote-sensing')
+def remote_sensing():
+    return render_template('remote_sensing.html')
 
 @app.route('/calculator')
 def calculator():
@@ -597,6 +606,80 @@ def api_disease():
         return jsonify({"diagnosis": diagnosis})
     except Exception as e:
         return jsonify({"error": f"Error analyzing image: {str(e)}"})
+
+@app.route('/api/multimodal-predict', methods=['POST'])
+def api_multimodal_predict():
+    """
+    Multimodal Remote Sensing & Micro-Climate Telemetry Prediction API
+    Executes Gated Cross-Attention Fusion -> Grad-CAM Heatmap + Disease Risk + Yield Forecast
+    """
+    try:
+        # 1. Extract image bytes (multipart file OR base64 payload)
+        image_bytes = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename:
+                image_bytes = file.read()
+        elif request.is_json:
+            json_data = request.get_json()
+            b64_img = json_data.get('image_base64', '')
+            if b64_img:
+                if ',' in b64_img:
+                    b64_img = b64_img.split(',', 1)[1]
+                image_bytes = base64.b64decode(b64_img)
+
+        # 2. Extract telemetry features (form or json)
+        form_data = request.form if request.form else (request.get_json() or {})
+        crop_name = form_data.get('crop_name', 'wheat')
+        temperature = float(form_data.get('temperature', 26.5))
+        humidity = float(form_data.get('humidity', 75.0))
+        rainfall_7d = float(form_data.get('rainfall_7d', 25.0))
+        soil_moisture = float(form_data.get('soil_moisture', 60.0))
+        vpd = float(form_data.get('vpd', 1.2))
+        canopy_source = form_data.get('canopy_source', 'Sentinel-2 Multispectral')
+
+        # Fallback to synthetic preset if no image provided
+        if not image_bytes:
+            image_bytes = create_synthetic_preset_image('punjab_wheat_rust')
+
+        results = predict_multimodal_disease_and_yield(
+            image_bytes=image_bytes,
+            crop_name=crop_name,
+            temperature=temperature,
+            humidity=humidity,
+            rainfall_7d=rainfall_7d,
+            soil_moisture=soil_moisture,
+            vpd=vpd,
+            canopy_source=canopy_source
+        )
+
+        user_id = session.get('user_id')
+        if user_id:
+            log_prediction(
+                user_id,
+                'multimodal_remote_sensing',
+                f"{crop_name}, T={temperature}C, RH={humidity}%",
+                f"{results['diagnosis']['name']} | Yield: {results['yield_forecast']['estimated_yield_q_ha']} q/ha"
+            )
+
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+@app.route('/api/sample-remote-sensing/<scenario_id>', methods=['GET'])
+def api_sample_remote_sensing(scenario_id):
+    """Returns preset scenario parameters and synthetic multispectral canopy imagery"""
+    try:
+        scenario = get_preset_scenario(scenario_id)
+        img_bytes = create_synthetic_preset_image(scenario_id)
+        b64_img = base64.b64encode(img_bytes).decode('utf-8')
+        return jsonify({
+            "success": True,
+            "scenario": scenario,
+            "image_data_url": f"data:image/jpeg;base64,{b64_img}"
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 @app.route('/api/calculate', methods=['POST'])
 def api_calculate():
