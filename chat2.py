@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_CHAT_MODEL = os.getenv("GROQ_CHAT_MODEL", os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"))
+GROQ_VISION_MODEL = os.getenv("GROQ_VISION_MODEL", "llama-3.2-11b-vision-preview")
 
 # Initialize Groq client safely
 groq_client = None
@@ -19,21 +21,38 @@ if GROQ_API_KEY and GROQ_API_KEY != "your_groq_api_key_here":
         print(f"[Warning] Groq client initialization note: {e}")
         groq_client = None
 
-def call_groq_chat(messages, model="llama-3.3-70b-versatile", temperature=0.2, max_tokens=800):
-    """Safely call Groq API with automatic fallback if key is invalid or rate limited"""
+def call_groq_chat(messages, model=None, temperature=0.2, max_tokens=800):
+    """Safely call Groq API with cascading automatic fallback across latest models"""
     if not groq_client:
         return None
-    try:
-        response = groq_client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        # 401, quota exceeded, or network issue - fail gracefully to expert engine
-        return None
+        
+    candidate_models = [model] if model else [
+        GROQ_CHAT_MODEL,
+        "llama-3.3-70b-versatile",
+        "llama-3.1-70b-versatile",
+        "llama-3.1-8b-instant",
+        "deepseek-r1-distill-llama-70b"
+    ]
+    
+    # Deduplicate while preserving priority order
+    models_to_try = []
+    for m in candidate_models:
+        if m and m not in models_to_try:
+            models_to_try.append(m)
+
+    for target_model in models_to_try:
+        try:
+            response = groq_client.chat.completions.create(
+                model=target_model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+        except Exception:
+            # If model is unavailable or rate limited, try next candidate
+            continue
+    return None
 
 def analyze_crop_image_locally(image_base64):
     """
@@ -111,7 +130,11 @@ def analyze_crop_disease(image_base64, mime_type="image/jpeg"):
     """Specialized crop disease detection with Groq Vision and built-in Agricultural Expert System fallback."""
     # 1. Try Groq Vision if configured
     if groq_client:
-        for vision_model in ["llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview", "meta-llama/llama-4-scout-17b-16e-instruct"]:
+        vision_models = [m for m in [GROQ_VISION_MODEL, "llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview"] if m]
+        # Deduplicate
+        seen_vm = set()
+        vision_candidates = [m for m in vision_models if not (m in seen_vm or seen_vm.add(m))]
+        for vision_model in vision_candidates:
             try:
                 response = groq_client.chat.completions.create(
                     model=vision_model,
@@ -187,7 +210,10 @@ def analyze_image_with_text(image_base64, user_query="What do you see in this im
     """Analyze image using Groq Vision or fallback agricultural engine."""
     # 1. Try Groq
     if groq_client:
-        for vision_model in ["llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview", "meta-llama/llama-4-scout-17b-16e-instruct"]:
+        vision_models = [m for m in [GROQ_VISION_MODEL, "llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview"] if m]
+        seen_vm = set()
+        vision_candidates = [m for m in vision_models if not (m in seen_vm or seen_vm.add(m))]
+        for vision_model in vision_candidates:
             try:
                 response = groq_client.chat.completions.create(
                     model=vision_model,
