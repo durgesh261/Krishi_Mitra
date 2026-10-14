@@ -33,11 +33,16 @@ body {
 }
 
 .nav-logo {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: white;
-  padding: 3px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.nav-logo:hover {
+  transform: scale(1.06);
 }
 
 .nav-links {
@@ -344,9 +349,15 @@ body.drawer-open {
 }
 
 .hero-image img {
-  width: 250px;
-  height: 250px;
+  width: 275px;
+  height: 275px;
   object-fit: contain;
+  filter: drop-shadow(0 15px 35px rgba(20, 83, 45, 0.28));
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hero-image img:hover {
+  transform: scale(1.05) rotate(1deg);
 }
 
 .features-section {
@@ -769,18 +780,20 @@ body.drawer-open {
 }
 
 .logo-circle {
-  width: 50px;
-  height: 50px;
-  background: white;
+  width: 52px;
+  height: 52px;
+  background: transparent;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.25));
 }
 
 .logo-image {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
 }
 
 .chat-header h1 {
@@ -1249,9 +1262,11 @@ body.drawer-open {
 }
 
 .auth-logo {
-  width: 80px;
-  height: 80px;
+  width: 85px;
+  height: 85px;
+  object-fit: contain;
   margin-bottom: 20px;
+  filter: drop-shadow(0 4px 12px rgba(20, 83, 45, 0.2));
 }
 
 .auth-header h1 {
