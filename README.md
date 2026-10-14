@@ -36,12 +36,45 @@ Combining **Machine Learning crop models**, **Domain-Enforced RAG (Retrieval-Aug
 - **Agricultural Domain Guardrails**: Automatically detects and rejects non-farming questions (coding, politics, entertainment) with a polite guidance message, keeping conversations 100% focused on agriculture.
 - **Instant Response**: Dual fallback mechanism ensures zero-latency expert answers even if external cloud APIs experience rate limits.
 
-### 2. 🌾 Smart Crop Recommendation Engine
+### 3. 🌾 Smart Crop Recommendation Engine
 - **35+ Major Indian Crops**: Recommends optimal crops including Cereals (Rice, Wheat, Maize, Barley), Pulses (Gram, Arhar, Moong, Urad), Cash Crops (Cotton, Sugarcane, Jute), Oilseeds (Mustard, Soybean, Groundnut), and Spices/Millets.
 - **Multi-Factor Input**: Analyzes soil nutrients ($N, P, K$), soil $pH$, temperature, relative humidity, and annual rainfall.
 - **Confidence Scoring**: Delivers top recommendation along with secondary crop alternatives and probability metrics.
 
-### 3. 🌐 10 Indian Regional Languages
+### 4. 📚 Comprehensive Crop Cultivation Guide (`/crop-guide`)
+- **Dual Option Architecture**:
+  - **🌾 General Crops (61 Crops)**: Full package of agronomic practices for Indian Field Crops — Cereals (Wheat, Rice, Maize, Bajra, Jowar, Ragi, Barley), Millets (Kangni, Kodo, Kutki, Sanwa, Cheena), Pulses (Chana, Arhar, Moong, Urad, Masoor, Rajma, Matki, Lobia, Green Peas, Kulthi), Cash Crops (Sugarcane, Cotton, Jute, Tea, Coffee, Rubber, Tobacco), Oilseeds (Mustard, Soybean, Groundnut, Sunflower, Til, Castor, Alsi, Kusum), Spices (Haldi, Mirch, Adrak, Lahsun, Elaichi, Dhaniya, Jeera, Saunf, Methi, Black Pepper), and Vegetables (Potato, Tomato, Onion, Gobhi, Brinjal, Okra, Gajar, Mooli, Palak, Lauki, Karela, Kheera, Capsicum).
+  - **🍎 Fruit Crops (29 Crops)**: Complete horticulture & orchard management guides for Indian Fruit Crops — Mango, Banana, Apple, Orange/Kinnow, Papaya, Pomegranate, Grapes, Guava, Pineapple, Lemon, Watermelon, Muskmelon, Coconut, Litchi, Sapota (Chiku), Custard Apple (Sharifa), Strawberry, Jamun, Amla, Jackfruit, Dragon Fruit (Kamalam), Ber, Fig (Anjeer), Peach, Plum, Apricot, Pear, Walnut, and Almond.
+- **Detailed Package of Practices (PoP) for Every Crop**:
+  - **Expected Yield**: Yield targets in $q/ha$ and $q/acre$.
+  - **Precision Irrigation**: Critical growth moisture stages (e.g. CRI, Tillering, Panicle Initiation, Flowering, AWD irrigation).
+  - **Fertilizer & Nutrition**: Recommended NPK split ratios, zinc sulfate, sulfur, and organic manure.
+  - **Soil & Climate**: Ideal soil texture, drainage, optimal pH range, temperature, and relative humidity.
+  - **Pest & Disease Advisory**: Symptom identification and integrated IPM spray schedules.
+- **Live Search & Multi-Lingual Sync**: Instant dual-language search and quick-select pills translating smoothly across all 10 Indian regional languages.
+
+### 5. 📊 Real-Time Mandi Bhav & MSP Tracking (`/mandi-prices`)
+- **State & Commodity Search**: Filter real-time mandi prices across 28 states and Union Territories.
+- **MSP Price Benchmarks**: Displays Minimum Support Price (MSP) guaranteed rates alongside current market prices so farmers know when their produce is being underpriced.
+- **Market Dynamics**: Live modal price, minimum/maximum price ranges, and arrival volumes.
+
+### 6. 📰 Daily Agri News Portal (`/news`)
+- **Curated Farming Newsfeed**: Filterable by Subsidies, Mandi & MSP, Weather & Monsoon, Agri Tech, and Policy Reforms.
+- **Rotating Farming Advertisements**: Dynamic agricultural advisories showcasing verified solar pump subsidies, micro-irrigation discounts, and organic seeds.
+
+### 7. 🏛️ Krishi Seva Hub & PM Schemes (`/krishi-seva`)
+- **Direct Government Schemes**: Complete guidelines, eligibility criteria, subsidy percentages, and official application portals for PM-KISAN, PMFBY, PM-KUSUM, Soil Health Card, e-NAM, and Agriculture Infrastructure Fund.
+- **Certified Soil Testing Laboratories**: Interactive database of accredited soil testing labs across all states with phone numbers, emails, and address locations.
+
+### 8. 🌿 Crop Disease Diagnosis (`/disease`)
+- Computer vision foliage analysis and symptom checklists.
+- Provides immediate chemical spray recommendations (with active ingredients and dosage per liter), organic bio-fungicide treatments (Trichoderma, Pseudomonas), and cultural prevention techniques.
+
+### 9. 🌦️ Live Agro-Weather Advisory (`/weather`)
+- Real-time temperature, humidity, wind velocity, and rainfall forecasts via OpenWeatherMap.
+- Automated agronomist advice advising farmers whether to spray pesticides, irrigate, or prepare for harvest based on upcoming precipitation.
+
+### 10. 🌐 10 Indian Regional Languages
 Complete native language support covering India's major agricultural belts:
 | Language | Script | Primary Regions |
 | :--- | :--- | :--- |
@@ -58,28 +91,7 @@ Complete native language support covering India's major agricultural belts:
 
 Farmers can set their default language on signup or seamlessly switch anytime via the navbar or dedicated `/select-language` page.
 
-### 4. 📊 Real-Time Mandi Bhav & MSP Tracking (`/mandi-prices`)
-- **State & Commodity Search**: Filter real-time mandi prices across 28 states and Union Territories.
-- **MSP Price Benchmarks**: Displays Minimum Support Price (MSP) guaranteed rates alongside current market prices so farmers know when their produce is being underpriced.
-- **Market Dynamics**: Live modal price, minimum/maximum price ranges, and arrival volumes.
-
-### 5. 📰 Daily Agri News Portal (`/news`)
-- **Curated Farming Newsfeed**: Filterable by Subsidies, Mandi & MSP, Weather & Monsoon, Agri Tech, and Policy Reforms.
-- **Rotating Farming Advertisements**: Dynamic agricultural advisories showcasing verified solar pump subsidies, micro-irrigation discounts, and organic seeds.
-
-### 6. 🏛️ Krishi Seva Hub & PM Schemes (`/krishi-seva`)
-- **Direct Government Schemes**: Complete guidelines, eligibility criteria, subsidy percentages, and official application portals for PM-KISAN, PMFBY, PM-KUSUM, Soil Health Card, e-NAM, and Agriculture Infrastructure Fund.
-- **Certified Soil Testing Laboratories**: Interactive database of accredited soil testing labs across all states with phone numbers, emails, and address locations.
-
-### 7. 🌿 Crop Disease Diagnosis (`/disease`)
-- Computer vision foliage analysis and symptom checklists.
-- Provides immediate chemical spray recommendations (with active ingredients and dosage per liter), organic bio-fungicide treatments (Trichoderma, Pseudomonas), and cultural prevention techniques.
-
-### 8. 🌦️ Live Agro-Weather Advisory (`/weather`)
-- Real-time temperature, humidity, wind velocity, and rainfall forecasts via OpenWeatherMap.
-- Automated agronomist advice advising farmers whether to spray pesticides, irrigate, or prepare for harvest based on upcoming precipitation.
-
-### 9. 📱 Mobile Phone-Optimized UI
+### 11. 📱 Mobile Phone-Optimized UI
 - **Zero Horizontal Overflow**: Built on responsive CSS Flexbox and CSS Grid with strict view constraints (`360px` to `430px` screens).
 - **Slide-Out Mobile Drawer**: Custom mobile drawer with header, dedicated close button (`✕`), blurred backdrop overlay, and body scroll locking.
 - **Touch-First Buttons**: 44px+ minimum touch target sizes and 16px form inputs to prevent unwanted iOS Safari zooming.

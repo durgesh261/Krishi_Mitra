@@ -65,12 +65,34 @@ class TestKrishiMitraApp(unittest.TestCase):
 
     def test_03_crop_guide_and_district_averages(self):
         self.login_admin()
-        # Crop guide
+        # Crop guide page
+        res = self.client.get('/crop-guide')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'tabGeneralCrops', res.data)
+        self.assertIn(b'tabFruitCrops', res.data)
+
+        # General Crop guide (rice)
         res = self.client.get('/api/get-crop-guide/rice')
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertEqual(data['crop'].lower(), 'rice')
-        print(f"  [PASS] Crop Guide: {data['crop']} watering schedule loaded")
+        self.assertEqual(data['category'], 'general')
+        print(f"  [PASS] General Crop Guide: {data['crop']} (Category: {data['category']}) loaded")
+
+        # Fruit Crop guide (mango)
+        res = self.client.get('/api/get-crop-guide/mango')
+        self.assertEqual(res.status_code, 200)
+        data_fruit = res.get_json()
+        self.assertEqual(data_fruit['crop'].lower(), 'mango')
+        self.assertEqual(data_fruit['category'], 'fruit')
+        print(f"  [PASS] Fruit Crop Guide: {data_fruit['crop']} (Category: {data_fruit['category']}) loaded")
+
+        # Crop alias resolution (chana -> chickpea)
+        res = self.client.get('/api/get-crop-guide/chana')
+        self.assertEqual(res.status_code, 200)
+        data_alias = res.get_json()
+        self.assertEqual(data_alias['crop'].lower(), 'chickpea')
+        print(f"  [PASS] Crop Alias: chana resolved to {data_alias['crop']}")
 
         # District averages
         res = self.client.post('/api/get-district-averages', 

@@ -1,127 +1,1079 @@
-{% extends "base.html" %} {% block title %}Crop Guide - Krishi Mitra{% endblock %}
+{% extends "base.html" %} 
+{% block title %}Crop Cultivation Guide - Krishi Mitra{% endblock %}
+
 {% block content %}
 <div class="page-container">
-  <div class="tool-container">
-    <div class="tool-header">
-      <i class="fas fa-book"></i>
-      <h1>Crop Cultivation Guide</h1>
-      <p>Detailed farming guides for different crops</p>
-    </div>
-
-    <div class="tool-form">
-      <div class="form-group">
-        <label for="cropSelect">
-          <i class="fas fa-seedling"></i> Select Crop
-        </label>
-        <select id="cropSelect" class="form-control">
-          <option value="">Choose a crop</option>
-          {% for crop in crops %}
-          <option value="{{ crop }}">{{ crop.title() }}</option>
-          {% endfor %}
-        </select>
+  <div class="crop-guide-container">
+    
+    <!-- Header Banner -->
+    <div class="guide-header-card">
+      <div class="guide-header-icon">
+        <i class="fas fa-book-open"></i>
+      </div>
+      <div class="guide-header-text">
+        <h1 data-i18n="crop_guide_title">Crop Cultivation Guide</h1>
+        <p data-i18n="crop_guide_desc">Comprehensive agronomic guides and package of practices for 90+ Indian Field and Fruit crops.</p>
+      </div>
+      <div class="guide-stats-badge">
+        <span class="stat-number">90</span>
+        <span class="stat-label">Indian Crops</span>
       </div>
     </div>
 
-    <div id="guideLoading" class="loading" style="display: none">
-      <div class="spinner"></div>
-      <p>Loading crop guide...</p>
+    <!-- Category Option Selector: 🌾 General Crops vs 🍎 Fruit Crops -->
+    <div class="crop-category-tabs">
+      <button type="button" class="category-tab-btn active" data-category="general" id="tabGeneralCrops">
+        <span class="tab-icon">🌾</span>
+        <span class="tab-text" data-i18n="tab_general_crops">General Crops (सामान्य फसलें)</span>
+        <span class="tab-badge" id="badgeGeneralCount">61</span>
+      </button>
+
+      <button type="button" class="category-tab-btn" data-category="fruit" id="tabFruitCrops">
+        <span class="tab-icon">🍎</span>
+        <span class="tab-text" data-i18n="tab_fruit_crops">Fruit Crops (फल फसलें)</span>
+        <span class="tab-badge" id="badgeFruitCount">29</span>
+      </button>
+
+      <button type="button" class="category-tab-btn" data-category="all" id="tabAllCrops">
+        <span class="tab-icon">🌱</span>
+        <span class="tab-text" data-i18n="tab_all_crops">All Crops (सभी फसलें)</span>
+        <span class="tab-badge" id="badgeAllCount">90</span>
+      </button>
     </div>
 
-    <div id="guideError" class="error-message" style="display: none"></div>
+    <!-- Search & Crop Selector Section -->
+    <div class="guide-controls-card">
+      <div class="controls-grid">
+        <!-- Live Search Input -->
+        <div class="control-col">
+          <label for="cropSearchInput" class="control-label">
+            <i class="fas fa-search"></i> <span data-i18n="search_crop_label">Instant Crop Search</span>
+          </label>
+          <div class="search-input-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+              type="text" 
+              id="cropSearchInput" 
+              class="form-control search-field" 
+              placeholder="Search by name in English or Hindi (e.g. Wheat, आम, Mustard, केला, Cotton)..."
+              autocomplete="off"
+            >
+            <button type="button" id="clearSearchBtn" class="clear-search-btn" style="display: none;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
 
-    <div id="guideResult" class="result-container" style="display: none">
-      <div class="guide-card">
-        <h2 id="cropName"></h2>
-        <div class="guide-section">
-          <h3><i class="fas fa-tint"></i> Watering Schedule</h3>
-          <p id="watering"></p>
+        <!-- Dropdown Selector -->
+        <div class="control-col">
+          <label for="cropSelect" class="control-label">
+            <i class="fas fa-seedling"></i> <span data-i18n="select_crop_label">Select Crop to View Guide</span>
+          </label>
+          <select id="cropSelect" class="form-control select-crop-field">
+            <option value="">-- Choose a crop from 90+ Indian varieties --</option>
+            {% for crop in all_crops %}
+            <option 
+              value="{{ crop.crop }}" 
+              data-crop="{{ crop.crop }}"
+              data-category="{{ crop.category }}"
+              data-subcat="{{ crop.sub_category }}"
+              data-name="{{ crop.crop_name }}"
+            >
+              {{ crop.crop_name }}
+            </option>
+            {% endfor %}
+          </select>
         </div>
-        <div class="guide-section">
-          <h3><i class="fas fa-flask"></i> Fertilizer Plan</h3>
-          <p id="fertilizer"></p>
-        </div>
-        <div class="guide-section">
-          <h3><i class="fas fa-calendar"></i> Duration</h3>
-          <p id="duration"></p>
-        </div>
-        <div class="guide-section">
-          <h3><i class="fas fa-thermometer-half"></i> Ideal Conditions</h3>
-          <p id="conditions"></p>
+      </div>
+
+      <!-- Quick Select Pills -->
+      <div class="quick-pills-container">
+        <span class="quick-pills-label"><i class="fas fa-bolt"></i> <span data-i18n="quick_pick_label">Popular Picks:</span></span>
+        <div class="quick-pills-list" id="quickPillsList">
+          <!-- Populated dynamically via JS according to active category -->
         </div>
       </div>
     </div>
+
+    <!-- Loading State -->
+    <div id="guideLoading" class="guide-loading-card" style="display: none;">
+      <div class="spinner-grow text-success" role="status"></div>
+      <p data-i18n="loading_guide">Fetching scientific agronomy advisory from Krishi knowledge base...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="guideError" class="guide-error-card" style="display: none;"></div>
+
+    <!-- Default Prompt Card when no crop is selected -->
+    <div id="guidePrompt" class="guide-prompt-card">
+      <div class="prompt-icon">🌾 ➡️ 🍎</div>
+      <h3 data-i18n="prompt_select_heading">Select Any Indian Crop Above</h3>
+      <p data-i18n="prompt_select_text">Choose between <strong>🌾 General Crops</strong> (Cereals, Pulses, Oilseeds, Commercial, Vegetables) or <strong>🍎 Fruit Crops</strong> (Mango, Banana, Apple, Guava, Papaya, etc.) to access comprehensive package of practices, watering schedules, NPK fertilizer doses, and disease control.</p>
+    </div>
+
+    <!-- Comprehensive Guide Results Card -->
+    <div id="guideResult" class="guide-results-container" style="display: none;">
+      
+      <!-- Crop Hero Banner -->
+      <div class="crop-hero-card">
+        <div class="hero-top-row">
+          <div class="hero-title-group">
+            <span class="crop-cat-tag" id="cropCategoryBadge">🌾 General Crop</span>
+            <span class="crop-subcat-tag" id="cropSubCategoryBadge">Cereal</span>
+            <h2 id="cropName" class="crop-main-title" data-crop="">Wheat (गेहूँ)</h2>
+          </div>
+          <div class="hero-yield-badge">
+            <div class="yield-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="yield-details">
+              <span class="yield-label" data-i18n="expected_yield">Expected Yield</span>
+              <span class="yield-val" id="expectedYield">45-55 Quintals / Hectare</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Grid of 6 Agronomy Cards -->
+      <div class="guide-grid">
+        
+        <!-- 1. Season & Sowing -->
+        <div class="guide-box">
+          <div class="box-icon-header icon-season">
+            <i class="fas fa-calendar-alt"></i>
+            <h3 data-i18n="card_season">Season & Sowing Period</h3>
+          </div>
+          <div class="box-body">
+            <p id="seasonText" class="box-text">Rabi (Sow: Nov; Harvest: Mar-Apr)</p>
+          </div>
+        </div>
+
+        <!-- 2. Soil Type & pH -->
+        <div class="guide-box">
+          <div class="box-icon-header icon-soil">
+            <i class="fas fa-mountain"></i>
+            <h3 data-i18n="card_soil">Soil Type & Ideal pH</h3>
+          </div>
+          <div class="box-body">
+            <p id="soilTypeText" class="box-text">Well-drained fertile loamy & clay-loam soils (pH 6.0-7.5)</p>
+          </div>
+        </div>
+
+        <!-- 3. Watering & Precision Irrigation -->
+        <div class="guide-box">
+          <div class="box-icon-header icon-water">
+            <i class="fas fa-tint"></i>
+            <h3 data-i18n="card_watering">Watering & Irrigation Schedule</h3>
+          </div>
+          <div class="box-body">
+            <p id="watering" class="box-text">Critical moisture stages and irrigation intervals.</p>
+          </div>
+        </div>
+
+        <!-- 4. Fertilizer Plan -->
+        <div class="guide-box">
+          <div class="box-icon-header icon-fert">
+            <i class="fas fa-flask"></i>
+            <h3 data-i18n="card_fertilizer">Fertilizer & Nutrient Schedule (NPK)</h3>
+          </div>
+          <div class="box-body">
+            <p id="fertilizer" class="box-text">Basal doses, top dressing stages, and micronutrient advisory.</p>
+          </div>
+        </div>
+
+        <!-- 5. Growth Duration & Cycle -->
+        <div class="guide-box">
+          <div class="box-icon-header icon-clock">
+            <i class="fas fa-clock"></i>
+            <h3 data-i18n="card_duration">Crop Duration & Maturity</h3>
+          </div>
+          <div class="box-body">
+            <p id="duration" class="box-text">110-135 days</p>
+          </div>
+        </div>
+
+        <!-- 6. Ideal Climate Conditions -->
+        <div class="guide-box">
+          <div class="box-icon-header icon-climate">
+            <i class="fas fa-temperature-high"></i>
+            <h3 data-i18n="card_climate">Ideal Climate Conditions</h3>
+          </div>
+          <div class="box-body">
+            <div id="conditions" class="box-text">
+              <strong>Temperature:</strong> 12°C - 25°C<br>
+              <strong>Humidity:</strong> 50% - 70%
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 7. Full-Width Pest & Disease Advisory Card -->
+      <div class="pest-advisory-card">
+        <div class="pest-header">
+          <div class="pest-icon"><i class="fas fa-shield-virus"></i></div>
+          <div class="pest-title-wrap">
+            <h3 data-i18n="card_pest_advisory">Pest & Disease Advisory (आईपीएम कीट एवं रोग प्रबंधन)</h3>
+            <p data-i18n="card_pest_sub">Symptoms to monitor in field and recommended biological / chemical intervention</p>
+          </div>
+        </div>
+        <div class="pest-content" id="pestAdvisory">
+          Watch for Yellow/Stripe Rust (Puccinia striiformis) and Karnal Bunt. Spray Propiconazole 25% EC @ 1ml/L at first sign of rust pustules.
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
-{% endblock %} {% block extra_js %}
+
+<style>
+/* =========================================================
+   Crop Cultivation Guide - Modern Responsive Agronomy Styles
+   ========================================================= */
+.crop-guide-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* Header Card */
+.guide-header-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  color: #ffffff;
+  padding: 1.75rem 2rem;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px rgba(27, 67, 50, 0.2);
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+}
+
+.guide-header-icon {
+  font-size: 2.8rem;
+  color: #ffd166;
+  background: rgba(255, 255, 255, 0.12);
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  flex-shrink: 0;
+}
+
+.guide-header-text h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.guide-header-text p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #d8f3dc;
+  max-width: 650px;
+  line-height: 1.45;
+}
+
+.guide-stats-badge {
+  background: rgba(255, 209, 102, 0.18);
+  border: 1.5px solid rgba(255, 209, 102, 0.4);
+  padding: 0.75rem 1.25rem;
+  border-radius: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.guide-stats-badge .stat-number {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffd166;
+  line-height: 1;
+}
+
+.guide-stats-badge .stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #d8f3dc;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* Category Tabs (General vs Fruit) */
+.crop-category-tabs {
+  display: flex;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.category-tab-btn {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.95rem 1.25rem;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.category-tab-btn .tab-icon {
+  font-size: 1.4rem;
+}
+
+.category-tab-btn .tab-badge {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  transition: all 0.25s ease;
+}
+
+.category-tab-btn:hover {
+  border-color: #52b788;
+  color: #1b4332;
+  transform: translateY(-2px);
+}
+
+.category-tab-btn.active {
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  color: #ffffff;
+  border-color: #2d6a4f;
+  box-shadow: 0 6px 18px rgba(45, 106, 79, 0.25);
+}
+
+.category-tab-btn.active .tab-badge {
+  background: #ffd166;
+  color: #1b4332;
+}
+
+/* Controls Card */
+.guide-controls-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.4rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+  margin-bottom: 1.5rem;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.control-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.45rem;
+}
+
+.control-label i {
+  color: #2d6a4f;
+  margin-right: 0.35rem;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrap .search-icon {
+  position: absolute;
+  left: 1rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.search-field {
+  padding-left: 2.5rem !important;
+  padding-right: 2.2rem !important;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 0.95rem;
+  height: 48px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-field:focus {
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.select-crop-field {
+  height: 48px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select-crop-field:focus {
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+}
+
+/* Quick Select Pills */
+.quick-pills-container {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.quick-pills-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.quick-pills-label i {
+  color: #f59e0b;
+}
+
+.quick-pills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.quick-pill {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.quick-pill:hover {
+  background: #e8f5e9;
+  border-color: #2d6a4f;
+  color: #1b4332;
+  transform: translateY(-1px);
+}
+
+.quick-pill.active {
+  background: #2d6a4f;
+  border-color: #2d6a4f;
+  color: #ffffff;
+}
+
+/* Prompt Card */
+.guide-prompt-card {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 18px;
+  color: #64748b;
+  margin-top: 1.5rem;
+}
+
+.prompt-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.guide-prompt-card h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.guide-prompt-card p {
+  max-width: 650px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+/* Loading & Error */
+.guide-loading-card {
+  text-align: center;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+.guide-loading-card p {
+  margin-top: 0.75rem;
+  font-weight: 600;
+  color: #2d6a4f;
+}
+
+.guide-error-card {
+  padding: 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Results Hero Card */
+.crop-hero-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1.5px solid #bbf7d0;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 18px rgba(45, 106, 79, 0.08);
+}
+
+.hero-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.hero-title-group .crop-cat-tag {
+  display: inline-block;
+  background: #2d6a4f;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  margin-right: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hero-title-group .crop-subcat-tag {
+  display: inline-block;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+}
+
+.crop-main-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1b4332;
+  margin: 0.4rem 0 0;
+  letter-spacing: -0.02em;
+}
+
+.hero-yield-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #ffffff;
+  border: 1.5px solid #86efac;
+  padding: 0.75rem 1.25rem;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+}
+
+.yield-icon {
+  width: 42px;
+  height: 42px;
+  background: #dcfce7;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 1.25rem;
+}
+
+.yield-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.yield-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #15803d;
+}
+
+/* 6 Card Agronomy Grid */
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.guide-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.guide-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.box-icon-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.box-icon-header i {
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.box-icon-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1e293b;
+}
+
+.icon-season i { background: #fef3c7; color: #b45309; }
+.icon-soil i { background: #ede9fe; color: #6d28d9; }
+.icon-water i { background: #e0f2fe; color: #0284c7; }
+.icon-fert i { background: #dcfce7; color: #15803d; }
+.icon-clock i { background: #ffedd5; color: #c2410c; }
+.icon-climate i { background: #fee2e2; color: #b91c1c; }
+
+.box-text {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #334155;
+  margin: 0;
+}
+
+/* Pest Advisory Card */
+.pest-advisory-card {
+  background: #ffffff;
+  border-left: 5px solid #dc2626;
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.06);
+  border: 1px solid #fee2e2;
+  border-left-width: 6px;
+}
+
+.pest-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.pest-icon {
+  width: 44px;
+  height: 44px;
+  background: #fee2e2;
+  color: #b91c1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.pest-title-wrap h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #991b1b;
+  margin: 0 0 0.2rem;
+}
+
+.pest-title-wrap p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.pest-content {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #1e293b;
+  background: #fdf2f2;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px dashed #fca5a5;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .guide-header-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem 1.2rem;
+  }
+  .guide-header-text p {
+    font-size: 0.88rem;
+  }
+  .crop-category-tabs {
+    flex-direction: column;
+  }
+  .category-tab-btn {
+    min-width: 100%;
+    padding: 0.85rem 1rem;
+  }
+  .controls-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .crop-main-title {
+    font-size: 1.6rem;
+  }
+  .hero-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hero-yield-badge {
+    width: 100%;
+  }
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  $(document).ready(function () {
-    console.log("Crop guide page loaded");
+$(document).ready(function () {
+  console.log("Crop Cultivation Guide Engine Loaded: 90 Indian Crops");
 
-    $("#cropSelect").on("change", function () {
-      const crop = $(this).val();
-      console.log("Selected crop:", crop);
+  // Cache of all crop options
+  const $cropSelect = $("#cropSelect");
+  const allCropOptions = Array.from($cropSelect.find("option")).filter(opt => opt.value !== "");
 
-      if (!crop) {
-        $("#guideResult").hide();
-        $("#guideError").hide();
-        return;
+  // Popular quick pick presets for each category
+  const POPULAR_PICKS = {
+    general: [
+      { key: "wheat", label: "Wheat (गेहूँ)" },
+      { key: "rice", label: "Rice / Paddy (धान)" },
+      { key: "maize", label: "Maize (मक्का)" },
+      { key: "cotton", label: "Cotton (कपास)" },
+      { key: "mustard", label: "Mustard (सरसों)" },
+      { key: "sugarcane", label: "Sugarcane (गन्ना)" },
+      { key: "chickpea", label: "Chickpea (चना)" },
+      { key: "soybean", label: "Soybean (सोयाबीन)" },
+      { key: "potato", label: "Potato (आलू)" },
+      { key: "tomato", label: "Tomato (टमाटर)" },
+      { key: "onion", label: "Onion (प्याज़)" }
+    ],
+    fruit: [
+      { key: "mango", label: "Mango (आम)" },
+      { key: "banana", label: "Banana (केला)" },
+      { key: "apple", label: "Apple (सेब)" },
+      { key: "guava", label: "Guava (अमरूद)" },
+      { key: "papaya", label: "Papaya (पपीता)" },
+      { key: "orange", label: "Orange / Kinnow (संतरा)" },
+      { key: "pomegranate", label: "Pomegranate (अनार)" },
+      { key: "grapes", label: "Grapes (अंगूर)" },
+      { key: "coconut", label: "Coconut (नारियल)" },
+      { key: "pineapple", label: "Pineapple (अनानास)" },
+      { key: "lemon", label: "Lemon (नींबू)" },
+      { key: "strawberry", label: "Strawberry (स्ट्रॉबेरी)" }
+    ],
+    all: [
+      { key: "wheat", label: "Wheat (गेहूँ)" },
+      { key: "rice", label: "Rice (धान)" },
+      { key: "mango", label: "Mango (आम)" },
+      { key: "apple", label: "Apple (सेब)" },
+      { key: "banana", label: "Banana (केला)" },
+      { key: "cotton", label: "Cotton (कपास)" },
+      { key: "mustard", label: "Mustard (सरसों)" },
+      { key: "guava", label: "Guava (अमरूद)" },
+      { key: "pomegranate", label: "Pomegranate (अनार)" },
+      { key: "sugarcane", label: "Sugarcane (गन्ना)" }
+    ]
+  };
+
+  let currentCategory = "general"; // Default to General Crops as initial view
+
+  // Render quick select pills
+  function renderQuickPills(cat) {
+    const list = POPULAR_PICKS[cat] || POPULAR_PICKS.all;
+    const $container = $("#quickPillsList");
+    $container.empty();
+
+    const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
+
+    list.forEach(item => {
+      const trans = window.getCropTranslation ? window.getCropTranslation(item.key, lang) : item.label;
+      const display = lang === 'en' ? item.label.split('(')[0].trim() : `${trans}`;
+      const $pill = $(`<button type="button" class="quick-pill" data-crop="${item.key}">${display}</button>`);
+      $container.append($pill);
+    });
+  }
+
+  // Filter dropdown options according to category and search query
+  function filterCropDropdown() {
+    const searchVal = $("#cropSearchInput").val().toLowerCase().trim();
+    const activeCat = currentCategory;
+
+    // Reset dropdown options
+    $cropSelect.empty();
+    $cropSelect.append('<option value="">-- Choose a crop from 90+ Indian varieties --</option>');
+
+    let matchCount = 0;
+    allCropOptions.forEach(opt => {
+      const $opt = $(opt);
+      const cropKey = $opt.val().toLowerCase();
+      const cat = $opt.attr("data-category");
+      const name = ($opt.attr("data-name") || $opt.text()).toLowerCase();
+      const subcat = ($opt.attr("data-subcat") || "").toLowerCase();
+
+      // Check category match
+      const catMatch = (activeCat === "all") || (cat === activeCat);
+
+      // Check search match
+      let searchMatch = true;
+      if (searchVal) {
+        searchMatch = cropKey.includes(searchVal) || name.includes(searchVal) || subcat.includes(searchVal);
       }
 
-      $("#guideLoading").show();
-      $("#guideResult").hide();
-      $("#guideError").hide();
+      if (catMatch && searchMatch) {
+        $cropSelect.append($opt.clone());
+        matchCount++;
+      }
+    });
 
-      $.ajax({
-        url: "/api/get-crop-guide/" + crop,
-        method: "GET",
-        success: function (data) {
-          console.log("Received data:", data);
-          $("#guideLoading").hide();
+    // Update clear button visibility
+    if (searchVal) {
+      $("#clearSearchBtn").show();
+    } else {
+      $("#clearSearchBtn").hide();
+    }
 
-          if (data.error) {
-            $("#guideError").text(data.error).show();
-            return;
-          }
+    // Auto-select if exact single match
+    if (searchVal && matchCount === 1) {
+      const singleCrop = $cropSelect.find("option").eq(1).val();
+      if (singleCrop) {
+        $cropSelect.val(singleCrop).trigger("change");
+      }
+    }
 
-          const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
-          const localized = window.getCropTranslation ? window.getCropTranslation(data.crop, lang) : data.crop;
-          const displayHeader = lang === 'en' ? data.crop.toUpperCase() : `${localized} (${data.crop.toUpperCase()})`;
-          $("#cropName").attr('data-crop', data.crop).text(displayHeader);
-          $("#watering").text(data.watering_schedule);
-          $("#fertilizer").text(data.fertilizer_plan);
-          $("#duration").text(data.duration_days);
-          $("#conditions").html(
-            "<strong>Temperature:</strong> " +
-              data.ideal_temp_min +
-              "°C - " +
-              data.ideal_temp_max +
-              "°C<br>" +
-              "<strong>Humidity:</strong> " +
-              data.ideal_humidity_min +
-              "% - " +
-              data.ideal_humidity_max +
-              "%",
-          );
-          $("#guideResult").show();
-        },
-        error: function (xhr, status, error) {
-          console.error("Error:", xhr.responseText);
-          $("#guideLoading").hide();
-          $("#guideError")
-            .text("Error loading crop guide. Please try again.")
-            .show();
-        },
+    // Apply translations to new options
+    if (window.applyLanguage && window.getCurrentLanguage) {
+      const activeLang = window.getCurrentLanguage();
+      Array.from($cropSelect[0].options).forEach(opt => {
+        if (opt.value === "") return;
+        const rawKey = opt.value;
+        const trans = window.getCropTranslation ? window.getCropTranslation(rawKey, activeLang) : rawKey;
+        if (activeLang !== "en" && trans) {
+          const engName = opt.getAttribute("data-name") ? opt.getAttribute("data-name").split("(")[0].trim() : opt.text;
+          opt.textContent = `${trans} (${engName})`;
+        }
       });
-    });
+    }
+  }
 
-    window.addEventListener("krishiLanguageChanged", function (e) {
-      const lang = e.detail?.language || (window.getCurrentLanguage ? window.getCurrentLanguage() : "en");
-      const crop = $("#cropName").attr("data-crop");
-      if (crop && window.getCropTranslation) {
-        const trans = window.getCropTranslation(crop, lang);
-        $("#cropName").text(lang === "en" ? crop.toUpperCase() : `${trans} (${crop.toUpperCase()})`);
+  // Handle Tab Switch (General vs Fruit vs All)
+  $(".category-tab-btn").on("click", function () {
+    $(".category-tab-btn").removeClass("active");
+    $(this).addClass("active");
+
+    currentCategory = $(this).attr("data-category");
+    renderQuickPills(currentCategory);
+    filterCropDropdown();
+  });
+
+  // Handle Live Search
+  $("#cropSearchInput").on("input", function () {
+    filterCropDropdown();
+  });
+
+  $("#clearSearchBtn").on("click", function () {
+    $("#cropSearchInput").val("");
+    filterCropDropdown();
+    $("#cropSearchInput").focus();
+  });
+
+  // Handle Quick Pill Click
+  $(document).on("click", ".quick-pill", function () {
+    $(".quick-pill").removeClass("active");
+    $(this).addClass("active");
+    const cropKey = $(this).attr("data-crop");
+    if (cropKey) {
+      // Ensure dropdown has this option if category was different
+      if (!$cropSelect.find(`option[value="${cropKey}"]`).length) {
+        $("#tabAllCrops").trigger("click");
+      }
+      $cropSelect.val(cropKey).trigger("change");
+    }
+  });
+
+  // Load Crop Guide Details via API
+  function loadCropGuide(crop) {
+    if (!crop) {
+      $("#guideResult").hide();
+      $("#guidePrompt").show();
+      $("#guideError").hide();
+      return;
+    }
+
+    $("#guideLoading").show();
+    $("#guideResult").hide();
+    $("#guidePrompt").hide();
+    $("#guideError").hide();
+
+    $.ajax({
+      url: "/api/get-crop-guide/" + encodeURIComponent(crop),
+      method: "GET",
+      success: function (data) {
+        $("#guideLoading").hide();
+
+        if (data.error) {
+          $("#guideError").text(data.error).show();
+          return;
+        }
+
+        const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
+        const localized = window.getCropTranslation ? window.getCropTranslation(data.crop, lang) : data.crop;
+        
+        // Title formatting
+        const cleanName = (data.crop_name || data.crop).split('(')[0].trim();
+        const displayTitle = lang === 'en' ? cleanName : `${localized} (${cleanName})`;
+        $("#cropName").attr('data-crop', data.crop).text(displayTitle);
+
+        // Category Badges
+        const isFruit = (data.category || "").toLowerCase() === 'fruit';
+        $("#cropCategoryBadge")
+          .text(isFruit ? '🍎 Fruit Crop' : '🌾 General Crop')
+          .css('background', isFruit ? '#e11d48' : '#2d6a4f');
+        
+        $("#cropSubCategoryBadge").text(data.sub_category || (isFruit ? 'Fruit' : 'Field Crop'));
+
+        // Yield
+        $("#expectedYield").text(data.expected_yield || 'Varies by agro-climatic zone');
+
+        // Detailed agronomy sections
+        $("#seasonText").text(data.season || 'Kharif / Rabi');
+        $("#soilTypeText").text(data.soil_type || 'Well-drained fertile loam (pH 6.0-7.5)');
+        $("#watering").text(data.watering_schedule || 'Irrigate based on critical soil moisture stages.');
+        $("#fertilizer").text(data.fertilizer_plan || 'Apply balanced NPK with recommended basal and top dressing.');
+        $("#duration").text(data.duration_days || 'Seasonal / Perennial');
+        
+        $("#conditions").html(
+          "<strong>Temperature:</strong> " + (data.ideal_temp_min || 15) + "°C - " + (data.ideal_temp_max || 30) + "°C<br>" +
+          "<strong>Humidity:</strong> " + (data.ideal_humidity_min || 50) + "% - " + (data.ideal_humidity_max || 80) + "%"
+        );
+
+        $("#pestAdvisory").text(data.pest_disease_advisory || 'Monitor field regularly for leaf spots and sucking pests.');
+
+        $("#guideResult").fadeIn(250);
+      },
+      error: function (xhr) {
+        $("#guideLoading").hide();
+        $("#guideError")
+          .text("Error loading cultivation guide. Please try selecting another crop.")
+          .show();
       }
     });
+  }
+
+  // Dropdown Change Handler
+  $cropSelect.on("change", function () {
+    const crop = $(this).val();
+    loadCropGuide(crop);
   });
+
+  // Handle Multi-lingual updates
+  window.addEventListener("krishiLanguageChanged", function (e) {
+    const lang = e.detail?.language || (window.getCurrentLanguage ? window.getCurrentLanguage() : "en");
+    
+    // Re-render pills with new language names
+    renderQuickPills(currentCategory);
+
+    // Update active crop name in header if result is visible
+    const activeCrop = $("#cropName").attr("data-crop");
+    if (activeCrop && window.getCropTranslation) {
+      const trans = window.getCropTranslation(activeCrop, lang);
+      const cleanName = activeCrop.toUpperCase();
+      $("#cropName").text(lang === "en" ? cleanName : `${trans} (${cleanName})`);
+    }
+
+    // Refresh dropdown option labels
+    filterCropDropdown();
+  });
+
+  // Initial setup: render general crop pills and populate dropdown
+  renderQuickPills("general");
+  filterCropDropdown();
+
+  // If a URL parameter is provided (?crop=wheat or ?category=fruit), select it automatically
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialCategory = urlParams.get('category');
+  const initialCrop = urlParams.get('crop');
+
+  if (initialCategory === 'fruit') {
+    $("#tabFruitCrops").trigger("click");
+  }
+
+  if (initialCrop) {
+    $cropSelect.val(initialCrop).trigger("change");
+  }
+});
 </script>
 {% endblock %}

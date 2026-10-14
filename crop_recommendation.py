@@ -241,12 +241,40 @@ def get_district_averages(state, district):
     return state_data.get('_default', national_default)
 
 def get_crop_guide(crop_name):
-    """Get cultivation guide for a crop"""
+    """Get cultivation guide for a crop with alias and name support"""
     try:
         guides_df = pd.read_csv('train/dataset/crop_guides.csv')
-        guide = guides_df[guides_df['crop'].str.lower() == str(crop_name).strip().lower()]
+        c_clean = str(crop_name).strip().lower()
+        # Direct match by crop key
+        guide = guides_df[guides_df['crop'].str.lower() == c_clean]
         if not guide.empty:
             return guide.iloc[0].to_dict()
+        
+        # Match by crop_name column containing key
+        name_match = guides_df[guides_df['crop_name'].str.lower().str.contains(c_clean, regex=False, na=False)]
+        if not name_match.empty:
+            return name_match.iloc[0].to_dict()
+
+        # Check aliases
+        crop_alias = {
+            'chana': 'chickpea', 'arhar': 'pigeonpeas', 'tur': 'pigeonpeas', 'moong': 'mungbean',
+            'urad': 'blackgram', 'masoor': 'lentil', 'rajma': 'kidneybeans', 'matki': 'mothbeans',
+            'lobia': 'cowpea', 'matar': 'green_peas', 'kulthi': 'horsegram', 'gehu': 'wheat',
+            'dhan': 'rice', 'paddy': 'rice', 'makka': 'maize', 'sarson': 'mustard', 'kapas': 'cotton',
+            'ganna': 'sugarcane', 'aalu': 'potato', 'pyaz': 'onion', 'tamatar': 'tomato',
+            'adrak': 'ginger', 'haldi': 'turmeric', 'mirch': 'chilli', 'lahsun': 'garlic',
+            'chiku': 'sapota', 'sitaphal': 'custard_apple', 'amrood': 'guava', 'anar': 'pomegranate',
+            'tarbooj': 'watermelon', 'kharbooja': 'muskmelon', 'nimbu': 'lemon', 'lauki': 'bottle_gourd',
+            'karela': 'bitter_gourd', 'kheera': 'cucumber', 'shimla_mirch': 'capsicum', 'aam': 'mango',
+            'kela': 'banana', 'seb': 'apple', 'santra': 'orange', 'papita': 'papaya', 'angoor': 'grapes',
+            'nariyal': 'coconut', 'badam': 'almond', 'akhrot': 'walnut', 'nashpati': 'pear'
+        }
+        if c_clean in crop_alias:
+            target = crop_alias[c_clean]
+            guide = guides_df[guides_df['crop'].str.lower() == target]
+            if not guide.empty:
+                return guide.iloc[0].to_dict()
+
         return None
     except Exception as e:
         print(f"Error loading crop guide: {e}")

@@ -351,8 +351,15 @@ def api_mandi_prices():
 def crop_guide():
     import pandas as pd
     guides_df = pd.read_csv('train/dataset/crop_guides.csv')
+    general_crops = guides_df[guides_df['category'] == 'general'].to_dict('records')
+    fruit_crops = guides_df[guides_df['category'] == 'fruit'].to_dict('records')
+    all_crops = guides_df.to_dict('records')
     crops = sorted(guides_df['crop'].unique())
-    return render_template('crop_guide.html', crops=crops)
+    return render_template('crop_guide.html', 
+                           crops=crops, 
+                           general_crops=general_crops, 
+                           fruit_crops=fruit_crops,
+                           all_crops=all_crops)
 
 @app.route('/krishi-seva')
 def krishi_seva():
@@ -857,10 +864,12 @@ def api_get_district_averages():
     return jsonify(averages)
 
 @app.route('/api/get-crop-guide/<crop>', methods=['GET'])
-@login_required
 def api_get_crop_guide(crop):
     guide = get_crop_guide(crop)
     if guide:
+        user_id = session.get('user_id')
+        if user_id:
+            log_analytics(user_id, 'crop_guide', crop)
         return jsonify(guide)
     return jsonify({"error": "Crop guide not found"}), 404
 
