@@ -231,6 +231,32 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('valSavi').textContent = s.savi.toFixed(3);
     document.getElementById('valCoverage').textContent = `${s.vegetation_coverage_pct}%`;
 
+    // Populate Printable Report Header Metadata
+    const cropSelect = document.getElementById('cropName');
+    const selectedCropText = cropSelect && cropSelect.selectedIndex >= 0 ? cropSelect.options[cropSelect.selectedIndex].text : 'Crop';
+    const sourceSelect = document.getElementById('canopySource');
+    const selectedSourceText = sourceSelect && sourceSelect.selectedIndex >= 0 ? sourceSelect.options[sourceSelect.selectedIndex].text : 'Multispectral Sensor';
+    const tempVal = document.getElementById('temperatureInput') ? document.getElementById('temperatureInput').value : '--';
+    const rhVal = document.getElementById('humidityInput') ? document.getElementById('humidityInput').value : '--';
+    const rainVal = document.getElementById('rainfallInput') ? document.getElementById('rainfallInput').value : '--';
+    const smVal = document.getElementById('soilMoistureInput') ? document.getElementById('soilMoistureInput').value : '--';
+    const vpdVal = document.getElementById('vpdInput') ? document.getElementById('vpdInput').value : '--';
+
+    if (document.getElementById('printCropName')) document.getElementById('printCropName').textContent = selectedCropText;
+    if (document.getElementById('printCanopySource')) document.getElementById('printCanopySource').textContent = selectedSourceText;
+    if (document.getElementById('printWeatherSummary')) document.getElementById('printWeatherSummary').textContent = `${tempVal}°C / ${rhVal}% RH (${rainVal}mm Rain)`;
+    if (document.getElementById('printSoilSummary')) document.getElementById('printSoilSummary').textContent = `${smVal}% Moisture / ${vpdVal} kPa VPD`;
+    if (document.getElementById('printReportId')) {
+      const rndId = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('printReportId').textContent = `KM-MS-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${rndId}`;
+    }
+    if (document.getElementById('printTimestamp')) {
+      document.getElementById('printTimestamp').textContent = new Date().toLocaleString('en-IN', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+    }
+
     // 2. Images: Raw & Grad-CAM
     document.getElementById('rawResultImg').src = currentImageBase64 || canopyPreviewImg.src;
     document.getElementById('gradcamResultImg').src = res.gradcam_image;

@@ -1,6 +1,67 @@
 {% extends "base.html" %}
 
-{% block title %}🛰️ Multi-Spectral Remote Sensing & Crop Disease/Yield Prediction | Krishi Mitra{% endblock %}
+{% block extra_css %}
+<style>
+@media print {
+  /* Hide interactive web chrome, navbars, form inputs, buttons */
+  nav, .navbar, footer, .footer, #multimodalForm, .no-print, .preset-card, .cta-button, #loadingSpinner, .header-left, .mobile-drawer-header, .mobile-drawer-top {
+    display: none !important;
+  }
+  
+  body, html {
+    background: white !important;
+    color: #111 !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .page-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #resultsContainer {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-only-header {
+    display: flex !important;
+  }
+
+  .print-only-meta {
+    display: block !important;
+  }
+
+  .print-only-footer {
+    display: block !important;
+  }
+
+  /* Prevent card shadow & awkward breaks in printing */
+  div[style*="background: white"] {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid;
+    margin-bottom: 14px !important;
+    padding: 14px !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-container" style="max-width: 1300px; margin: 0 auto; padding: 24px 16px;">
@@ -182,11 +243,44 @@
   <!-- Results Section Container -->
   <div id="resultsContainer" style="display: none;">
 
+    <!-- Official Printable Report Header (Visible in Print / PDF Export) -->
+    <div class="print-only-header" style="display: none; align-items: center; justify-content: space-between; border-bottom: 2px solid #1b5e20; padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Krishi Mitra Emblem" style="width: 58px; height: 58px; object-fit: contain;">
+        <div>
+          <h2 style="margin: 0; font-size: 19px; font-weight: 800; color: #1b5e20; letter-spacing: 0.5px;">KRISHI MITRA • MULTI-SPECTRAL DIAGNOSTIC &amp; YIELD REPORT</h2>
+          <div style="font-size: 11px; color: #555; margin-top: 2px;">
+            Govt. Research-Grade Precision Agronomy • Sentinel-2 L2A &amp; UAV Multi-Spectral Field Assessment
+          </div>
+        </div>
+      </div>
+      <div style="text-align: right; font-size: 11px; color: #444; line-height: 1.4;">
+        <div><strong>Report ID:</strong> <span id="printReportId">KM-MS-2024-001</span></div>
+        <div><strong>Generated:</strong> <span id="printTimestamp">Today</span></div>
+        <div><strong>Status:</strong> <span style="color: #2e7d32; font-weight: 700;">Verified Multi-Modal Inference</span></div>
+      </div>
+    </div>
+
+    <!-- Printable Field Metadata Strip (Visible in Print) -->
+    <div class="print-only-meta" style="display: none; background: #f9fbf9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 11px; color: #333;">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div><strong>Target Crop:</strong> <span id="printCropName">--</span></div>
+        <div><strong>Sensor Source:</strong> <span id="printCanopySource">--</span></div>
+        <div><strong>Weather (Temp/RH):</strong> <span id="printWeatherSummary">--</span></div>
+        <div><strong>Soil &amp; VPD:</strong> <span id="printSoilSummary">--</span></div>
+      </div>
+    </div>
+
     <!-- 1. Spectral Indices Cards Grid -->
     <div style="margin-bottom: 24px;">
-      <h3 style="font-size: 18px; font-weight: 800; color: #1b5e20; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-chart-pie"></i> Multi-Spectral Canopy Vegetation Indices
-      </h3>
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-chart-pie"></i> Multi-Spectral Canopy Vegetation Indices
+        </h3>
+        <button type="button" onclick="window.print();" class="no-print" style="background: #e8f5e9; color: #1b5e20; border: 1.5px solid #81c784; border-radius: 20px; padding: 7px 18px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+          <i class="fas fa-print"></i> Print Report
+        </button>
+      </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
         
@@ -342,9 +436,6 @@
         <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
           <i class="fas fa-microscope"></i> Empirical Ablation Benchmark (Single-Modality vs. Multimodal Fusion)
         </h3>
-        <a href="/static/research_whitepaper" onclick="event.preventDefault(); window.open('https://github.com/durgesh261/Krishi_Mitra/blob/main/research/CV_SOP_PORTFOLIO.md', '_blank');" style="color: #1b5e20; font-weight: 600; font-size: 13px; text-decoration: none;">
-          <i class="fas fa-file-alt"></i> View Full SOP / CV Whitepaper <i class="fas fa-arrow-right"></i>
-        </a>
       </div>
 
       <div style="overflow-x: auto;">
@@ -395,6 +486,24 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Action Bar: Print & Export Diagnostic Report -->
+    <div class="no-print" style="margin-top: 26px; padding: 24px; background: white; border-radius: 14px; border: 1.5px solid #a5d6a7; box-shadow: 0 4px 18px rgba(46,125,50,0.12); text-align: center;">
+      <div style="font-size: 17px; font-weight: 800; color: #1b5e20; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="fas fa-file-invoice"></i> Certified Agro-Diagnostic &amp; Yield Advisory Report
+      </div>
+      <p style="font-size: 13px; color: #555; max-width: 640px; margin: 0 auto 16px auto;">
+        Generate an official printable report formatted for physical printouts or PDF export, containing Grad-CAM foliage heatmaps, spectral vegetation indices, and verified chemical &amp; biological prescriptions.
+      </p>
+      <button type="button" id="printReportBtn" onclick="window.print();" style="background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; border: none; border-radius: 30px; padding: 14px 40px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 18px rgba(27,94,32,0.32); display: inline-flex; align-items: center; gap: 10px; transition: all 0.25s ease;">
+        <i class="fas fa-print"></i> Print Full Diagnostic &amp; Yield Report
+      </button>
+    </div>
+
+    <!-- Official Printable Report Footer (Visible in Print) -->
+    <div class="print-only-footer" style="display: none; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 20px; text-align: center; font-size: 10px; color: #666;">
+      Krishi Mitra Smart Farming Assistant • Multi-Spectral Remote Sensing &amp; Gated Cross-Attention Architecture • Official Field Advisory Report
     </div>
 
   </div>

@@ -29,7 +29,7 @@ Combining **Machine Learning crop models**, **Domain-Enforced RAG (Retrieval-Aug
 - **Grad-CAM Visual Interpretability**: Generates real-time visual attention heatmaps overlaying raw canopy imagery, delineating active pathogen sporulation margins from healthy background foliage.
 - **Multi-Spectral Indices**: Real-time extraction of NDVI (Photosynthetic Vigor), NDWI (Canopy Water Stress), GNDVI (Chlorophyll Absorption), and SAVI (Soil-Adjusted Index).
 - **Empirical Ablation Benchmark**: Outperforms single-modality vision baselines by **+14.2% Macro F1-score** (81.3% → 95.5%) while reducing yield prediction RMSE by **51.4%** (6.42 → 3.12 q/ha).
-- **Academic Whitepaper & SOP Dossier**: Complete PyTorch models, dataset loaders, training scripts, and CV/SOP pitch writeup available in [`research/CV_SOP_PORTFOLIO.md`](research/CV_SOP_PORTFOLIO.md).
+- **Academic Whitepaper & SOP Dossier**: Complete PyTorch models, dataset loaders, training scripts, CV/SOP pitch writeup, and full research paper available in the dedicated [`research_paper_and_sop/`](research_paper_and_sop/) folder.
 
 ### 2. 🤖 AI Kisan Agronomist (RAG & Groq LLaMA 3.3 70B)
 - **415+ Curated Knowledge Chunks**: In-memory agricultural knowledge base sourced from government scheme guidelines, ICAR agronomy handbooks, and crop protection manuals.
@@ -151,6 +151,10 @@ Krishi_Mitra/
 ├── requirements.txt            # Python dependencies
 ├── run.bat                     # Quick-start Windows launch script
 ├── .env.example                # Sample environment configuration template
+├── research_paper_and_sop/     # Special Research Archive: Whitepaper, SOP Pitch & CV Dossier
+│   ├── README.md               # Guide to research papers & SOP assets
+│   ├── RESEARCH_WHITEPAPER_MULTIMODAL_AGRICULTURE.md  # Full academic whitepaper
+│   └── STATEMENT_OF_PURPOSE_AND_CV_PORTFOLIO.md       # SOP narrative & CV bullet points
 ├── research/                   # PyTorch Research Pipeline & Benchmark Experiments
 │   ├── models/multimodal_net.py# MultimodalCropNet PyTorch class & Grad-CAM hooks
 │   ├── dataset/dataloader.py   # Multimodal dataset loader & benchmark generator

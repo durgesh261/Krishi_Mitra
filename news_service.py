@@ -19,19 +19,19 @@ _NEWS_CACHE = {
 }
 CACHE_TTL_SECONDS = 900  # 15 minutes
 
-# Curated daily authentic agricultural news as high-reliability fallback
+# Curated daily authentic agricultural news as high-reliability fallback (sorted newest to oldest)
 FALLBACK_DAILY_NEWS = [
     {
-        'id': 'news-1',
-        'title': 'Cabinet Approves Minimum Support Price (MSP) Hike for Rabi Crops 2024-25 Season',
-        'summary': 'Government increases MSP for Wheat to ₹2,425/quintal (+₹150) and Mustard to ₹5,950/quintal (+₹300) to ensure remunerative prices and boost crop diversification for farmers.',
-        'category': 'Policy & MSP',
-        'source': 'PIB Agriculture',
-        'source_url': 'https://pib.gov.in',
-        'published_at': 'Today, 08:30 AM',
-        'read_time': '3 min read',
-        'tag': 'Breaking',
-        'image_icon': 'fas fa-landmark'
+        'id': 'news-3',
+        'title': 'IMD Weather Outlook: Favorable Soil Moisture Conditions Predicted for Rabi Sowing',
+        'summary': 'India Meteorological Department forecasts mild winter onset across Punjab, Haryana, Rajasthan, and Western UP, recommending early sowing of high-yielding wheat (PBW-826, HD-2967) and mustard varieties.',
+        'category': 'Weather & Monsoon',
+        'source': 'IMD Agro-Meteorology',
+        'source_url': 'https://mausam.imd.gov.in',
+        'published_at': 'Today, 11:45 AM',
+        'read_time': '2 min read',
+        'tag': 'Weather Advisory',
+        'image_icon': 'fas fa-cloud-sun-rain'
     },
     {
         'id': 'news-2',
@@ -46,16 +46,16 @@ FALLBACK_DAILY_NEWS = [
         'image_icon': 'fas fa-solar-panel'
     },
     {
-        'id': 'news-3',
-        'title': 'IMD Weather Outlook: Favorable Soil Moisture Conditions Predicted for Rabi Sowing',
-        'summary': 'India Meteorological Department forecasts mild winter onset across Punjab, Haryana, Rajasthan, and Western UP, recommending early sowing of high-yielding wheat (PBW-826, HD-2967) and mustard varieties.',
-        'category': 'Weather & Monsoon',
-        'source': 'IMD Agro-Meteorology',
-        'source_url': 'https://mausam.imd.gov.in',
-        'published_at': 'Today, 11:45 AM',
-        'read_time': '2 min read',
-        'tag': 'Weather Advisory',
-        'image_icon': 'fas fa-cloud-sun-rain'
+        'id': 'news-1',
+        'title': 'Cabinet Approves Minimum Support Price (MSP) Hike for Rabi Crops 2024-25 Season',
+        'summary': 'Government increases MSP for Wheat to ₹2,425/quintal (+₹150) and Mustard to ₹5,950/quintal (+₹300) to ensure remunerative prices and boost crop diversification for farmers.',
+        'category': 'Policy & MSP',
+        'source': 'PIB Agriculture',
+        'source_url': 'https://pib.gov.in',
+        'published_at': 'Today, 08:30 AM',
+        'read_time': '3 min read',
+        'tag': 'Breaking',
+        'image_icon': 'fas fa-landmark'
     },
     {
         'id': 'news-4',
@@ -238,6 +238,71 @@ def get_icon_for_category(cat):
     }
     return icons.get(cat, 'fas fa-newspaper')
 
+from email.utils import parsedate_to_datetime
+from datetime import timedelta
+
+def parse_published_time_to_epoch(pub_str):
+    """
+    Convert relative or absolute publication time string to numeric unix epoch.
+    Handles 'Today, 10:15 AM', 'Today, 08:30 AM', 'Yesterday, 04:20 PM', 'X days ago', etc.
+    Ensures newer news is strictly sorted before older news.
+    """
+    now = datetime.now()
+    today_date = now.date()
+
+    if not pub_str:
+        return now.timestamp() - 86400
+
+    # Match "Today, 10:15 AM"
+    m_today = re.search(r'Today,\s*(\d{1,2}):(\d{2})\s*(AM|PM)', pub_str, re.I)
+    if m_today:
+        hr, mn, ap = int(m_today.group(1)), int(m_today.group(2)), m_today.group(3).upper()
+        if ap == 'PM' and hr != 12:
+            hr += 12
+        elif ap == 'AM' and hr == 12:
+            hr = 0
+        try:
+            return datetime(today_date.year, today_date.month, today_date.day, hr, mn).timestamp()
+        except Exception:
+            pass
+
+    # Match "Yesterday, 04:20 PM"
+    m_yest = re.search(r'Yesterday,\s*(\d{1,2}):(\d{2})\s*(AM|PM)', pub_str, re.I)
+    if m_yest:
+        yest_date = today_date - timedelta(days=1)
+        hr, mn, ap = int(m_yest.group(1)), int(m_yest.group(2)), m_yest.group(3).upper()
+        if ap == 'PM' and hr != 12:
+            hr += 12
+        elif ap == 'AM' and hr == 12:
+            hr = 0
+        try:
+            return datetime(yest_date.year, yest_date.month, yest_date.day, hr, mn).timestamp()
+        except Exception:
+            pass
+
+    # Match "X days ago"
+    m_days = re.search(r'(\d+)\s*days?\s*ago', pub_str, re.I)
+    if m_days:
+        days_ago = int(m_days.group(1))
+        past_date = today_date - timedelta(days=days_ago)
+        return datetime(past_date.year, past_date.month, past_date.day, 12, 0).timestamp()
+
+    # Plain date e.g. "14 Oct 2024"
+    try:
+        dt = datetime.strptime(pub_str.strip()[:11], '%d %b %Y')
+        return dt.timestamp()
+    except Exception:
+        pass
+
+    return now.timestamp() - 86400
+
+def sort_news_descending(news_list):
+    """Sort news items by publication timestamp in reverse chronological order (latest news first)"""
+    for item in news_list:
+        if 'sort_epoch' not in item:
+            item['sort_epoch'] = parse_published_time_to_epoch(item.get('published_at', ''))
+    return sorted(news_list, key=lambda x: x.get('sort_epoch', 0), reverse=True)
+
 def fetch_live_agri_news(limit=60, force_refresh=False):
     """
     Fetch live real-time Indian agricultural news from Google News RSS.
@@ -276,18 +341,19 @@ def fetch_live_agri_news(limit=60, force_refresh=False):
                     if not source or source == 'Agri News Bureau':
                         source = parts[1]
 
-                # Format date string
+                # Format date string with time
                 pub_clean = 'Today'
+                sort_epoch = now - (idx * 60)
                 if pub_date:
                     try:
-                        # e.g. Mon, 14 Oct 2024 07:15:00 GMT
-                        dt = datetime.strptime(pub_date[:16], '%a, %d %b %Y')
+                        dt = parsedate_to_datetime(pub_date)
+                        sort_epoch = dt.timestamp()
                         if dt.date() == date.today():
-                            pub_clean = 'Today'
+                            pub_clean = f"Today, {dt.strftime('%I:%M %p')}"
                         else:
-                            pub_clean = dt.strftime('%d %b %Y')
+                            pub_clean = dt.strftime('%d %b %Y, %I:%M %p')
                     except Exception:
-                        pub_clean = 'Recent'
+                        pub_clean = 'Today'
 
                 cat = categorize_article(title, desc)
 
@@ -301,12 +367,13 @@ def fetch_live_agri_news(limit=60, force_refresh=False):
                     'published_at': pub_clean,
                     'read_time': '3 min read',
                     'tag': 'Live',
-                    'image_icon': get_icon_for_category(cat)
+                    'image_icon': get_icon_for_category(cat),
+                    'sort_epoch': sort_epoch
                 })
 
             if fetched:
-                # Merge curated authentic items with live items to guarantee complete category coverage
-                combined = FALLBACK_DAILY_NEWS + fetched
+                # Merge curated authentic items with live items, and sort newest first
+                combined = sort_news_descending(fetched + FALLBACK_DAILY_NEWS)
                 _NEWS_CACHE['timestamp'] = now
                 _NEWS_CACHE['last_updated_str'] = datetime.now().strftime("%I:%M %p, %d %b %Y")
                 _NEWS_CACHE['data'] = combined
@@ -315,11 +382,12 @@ def fetch_live_agri_news(limit=60, force_refresh=False):
     except Exception as e:
         print(f"Notice: Live RSS fetch fallback triggered ({e})")
 
-    # Fallback to curated daily items
+    # Fallback to curated daily items sorted newest to oldest
+    fallback_sorted = sort_news_descending(FALLBACK_DAILY_NEWS)
     _NEWS_CACHE['timestamp'] = now
     _NEWS_CACHE['last_updated_str'] = datetime.now().strftime("%I:%M %p, %d %b %Y")
-    _NEWS_CACHE['data'] = FALLBACK_DAILY_NEWS
-    return FALLBACK_DAILY_NEWS
+    _NEWS_CACHE['data'] = fallback_sorted
+    return fallback_sorted
 
 def get_news_last_updated_time():
     """Return formatted timestamp of when news was last retrieved"""
