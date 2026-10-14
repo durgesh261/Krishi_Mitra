@@ -627,9 +627,15 @@ def api_multimodal_predict():
             file = request.files['image']
             if file and file.filename:
                 image_bytes = file.read()
-        elif request.is_json:
-            json_data = request.get_json()
-            b64_img = json_data.get('image_base64', '')
+        
+        if not image_bytes:
+            b64_img = None
+            if request.is_json:
+                json_data = request.get_json() or {}
+                b64_img = json_data.get('image_base64', '')
+            elif 'image_base64' in request.form:
+                b64_img = request.form.get('image_base64', '')
+            
             if b64_img:
                 if ',' in b64_img:
                     b64_img = b64_img.split(',', 1)[1]
