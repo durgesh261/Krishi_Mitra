@@ -116,6 +116,21 @@
         <div style="font-weight: 700; color: #2e7d32; font-size: 14px; margin-bottom: 4px;">🌱 Karnataka Cauvery Basin</div>
         <div style="font-size: 12px; color: #424242; line-height: 1.4;">Lush Healthy Paddy • Optimal NDVI (0.76) • High Yield Forecast</div>
       </button>
+
+      <button type="button" class="preset-btn" data-preset="kashmir_apple_scab" style="background: #f3e5f5; border: 1.5px solid #e1bee7; border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.2s ease;">
+        <div style="font-weight: 700; color: #6a1b9a; font-size: 14px; margin-bottom: 4px;">🍎 Kashmir Apple Orchard</div>
+        <div style="font-size: 12px; color: #424242; line-height: 1.4;">Apple Scab & Foliar Necrosis • 17.5°C / 86% RH • UAV Drone</div>
+      </button>
+
+      <button type="button" class="preset-btn" data-preset="maharashtra_soybean_mosaic" style="background: #e0f2f1; border: 1.5px solid #b2dfdb; border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.2s ease;">
+        <div style="font-weight: 700; color: #00695c; font-size: 14px; margin-bottom: 4px;">🌻 Maharashtra Soybean Belt</div>
+        <div style="font-size: 12px; color: #424242; line-height: 1.4;">Mosaic Chlorosis Stress • 29.5°C / 79% RH • Sentinel-2 10m</div>
+      </button>
+
+      <button type="button" class="preset-btn" data-preset="up_sugarcane_red_rot" style="background: #fbe9e7; border: 1.5px solid #ffccbc; border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.2s ease;">
+        <div style="font-weight: 700; color: #d84315; font-size: 14px; margin-bottom: 4px;">🎋 UP Terai Sugarcane</div>
+        <div style="font-size: 12px; color: #424242; line-height: 1.4;">High-Biomass Red Rot Risk • 31°C / 88% RH • PlanetScope 3m</div>
+      </button>
     </div>
   </div>
 
@@ -186,15 +201,116 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
           <div>
-            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">Target Crop:</label>
+            <label style="font-size: 12px; font-weight: 600; color: #444; display: block; margin-bottom: 4px;">
+              Target Crop (All 90 Indian Crops Supported):
+            </label>
             <select id="cropName" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px;">
-              <option value="wheat">Wheat (गेहूं / ਕਣਕ)</option>
-              <option value="rice">Rice / Paddy (धान / चावल)</option>
-              <option value="cotton">Cotton (कपास / ਕਪਾਹ)</option>
-              <option value="mustard">Mustard (सरसों / ਰਾਈ)</option>
-              <option value="sugarcane">Sugarcane (गन्ना / ਕਮਾਦ)</option>
-              <option value="maize">Maize (मक्का / ਮੱਕੀ)</option>
+              <optgroup label="🌾 Cereals & Millets">
+                <option value="barley">Barley (Jau) (जौ)</option>
+                <option value="barnyard_millet">Barnyard Millet (Sanwa) (सांवा / झंगोरा)</option>
+                <option value="ragi">Finger Millet (Ragi) (रागी / मडुआ)</option>
+                <option value="foxtail_millet">Foxtail Millet (Kangni) (कंगनी / काकुन)</option>
+                <option value="kodo_millet">Kodo Millet (Kodra) (कोदो / कोदरा)</option>
+                <option value="little_millet">Little Millet (Kutki) (कुटकी)</option>
+                <option value="maize">Maize / Corn (मक्का)</option>
+                <option value="bajra">Pearl Millet (Bajra) (बाजरा)</option>
+                <option value="proso_millet">Proso Millet (Cheena) (चीना / बारी)</option>
+                <option value="rice">Rice / Paddy (धान / चावल)</option>
+                <option value="jowar">Sorghum (Jowar) (ज्वार)</option>
+                <option value="wheat" selected>Wheat (गेहूँ)</option>
+              </optgroup>
+              <optgroup label="🌱 Pulses & Legumes">
+                <option value="blackgram">Black Gram (Urad) (उड़द)</option>
+                <option value="chickpea">Chickpea (Chana) (चना)</option>
+                <option value="cowpea">Cowpea (Lobia) (लोबिया / चौली)</option>
+                <option value="green_peas">Green Peas (Matar) (हरी मटर)</option>
+                <option value="horsegram">Horse Gram (Kulthi) (कुलथी)</option>
+                <option value="kidneybeans">Kidney Beans (Rajma) (राजमा)</option>
+                <option value="lentil">Lentil (Masoor) (मसूर)</option>
+                <option value="mothbeans">Moth Bean (Matki) (मोठ)</option>
+                <option value="mungbean">Mung Bean (Moong) (मूंग)</option>
+                <option value="pigeonpeas">Pigeonpeas (Arhar / Tur) (अरहर / तुअर)</option>
+              </optgroup>
+              <optgroup label="🌻 Oilseeds & Commercial Cash Crops">
+                <option value="castor">Castor (Arandi) (अरण्डी)</option>
+                <option value="coffee">Coffee (कॉफ़ी)</option>
+                <option value="cotton">Cotton (Kapas) (कपास)</option>
+                <option value="groundnut">Groundnut / Peanut (मूंगफली)</option>
+                <option value="jute">Jute (Pat) (पटसन / जूट)</option>
+                <option value="linseed">Linseed (Alsi) (अलसी)</option>
+                <option value="mustard">Mustard (Sarson) (सरसों / राई)</option>
+                <option value="rubber">Rubber (रबर)</option>
+                <option value="safflower">Safflower (Kusum) (कुसुम / करड़ी)</option>
+                <option value="sesame">Sesame (Til) (तिल)</option>
+                <option value="soybean">Soybean (सोयाबीन)</option>
+                <option value="sugarcane">Sugarcane (गन्ना)</option>
+                <option value="sunflower">Sunflower (सूरजमुखी)</option>
+                <option value="tea">Tea (चाय)</option>
+                <option value="tobacco">Tobacco (तंबाकू)</option>
+              </optgroup>
+              <optgroup label="🥔 Vegetables & Tubers">
+                <option value="bitter_gourd">Bitter Gourd (Karela) (करेला)</option>
+                <option value="bottle_gourd">Bottle Gourd (Lauki) (लौकी / घिया)</option>
+                <option value="brinjal">Brinjal (Baingan) (बैंगन)</option>
+                <option value="cabbage">Cabbage (पत्तागोभी)</option>
+                <option value="capsicum">Capsicum / Bell Pepper (शिमला मिर्च)</option>
+                <option value="carrot">Carrot (Gajar) (गाजर)</option>
+                <option value="cauliflower">Cauliflower (फूलगोभी)</option>
+                <option value="cucumber">Cucumber (Kheera) (खीरा / ककड़ी)</option>
+                <option value="okra">Okra / Bhindi (भिंडी)</option>
+                <option value="onion">Onion (Pyaz) (प्याज़)</option>
+                <option value="potato">Potato (Aalu) (आलू)</option>
+                <option value="radish">Radish (Mooli) (मूली)</option>
+                <option value="spinach">Spinach (Palak) (पालक)</option>
+                <option value="tomato">Tomato (Tamatar) (टमाटर)</option>
+              </optgroup>
+              <optgroup label="🍎 Fruits & Plantation Orchards">
+                <option value="almond">Almond (Badam) (बादाम)</option>
+                <option value="apple">Apple (सेब)</option>
+                <option value="apricot">Apricot (Khurmani) (खुबानी)</option>
+                <option value="banana">Banana (केला)</option>
+                <option value="jamun">Black Plum (Jamun) (जामुन)</option>
+                <option value="coconut">Coconut (Nariyal) (नारियल)</option>
+                <option value="custard_apple">Custard Apple (Sharifa) (शरीफा / सीताफल)</option>
+                <option value="dragon_fruit">Dragon Fruit (Kamalam) (ड्रैगन फ्रूट / कमलम)</option>
+                <option value="fig">Fig (Anjeer) (अंजीर)</option>
+                <option value="grapes">Grapes (अंगूर)</option>
+                <option value="guava">Guava (Amrood) (अमरूद)</option>
+                <option value="amla">Indian Gooseberry (Amla) (आंवला)</option>
+                <option value="ber">Indian Jujube (Ber) (बेर)</option>
+                <option value="jackfruit">Jackfruit (Kathal) (कटहल)</option>
+                <option value="lemon">Lemon / Lime (Nimbu) (नींबू)</option>
+                <option value="litchi">Litchi / Lychee (लीची)</option>
+                <option value="mango">Mango (आम)</option>
+                <option value="muskmelon">Muskmelon (Kharbooja) (खरबूजा)</option>
+                <option value="orange">Orange / Kinnow (संतरा / किन्नू)</option>
+                <option value="papaya">Papaya (पपीता)</option>
+                <option value="peach">Peach (Aadu) (आड़ू)</option>
+                <option value="pear">Pear (Nashpati) (नाशपाती)</option>
+                <option value="pineapple">Pineapple (Ananas) (अनानास)</option>
+                <option value="plum">Plum (Alobukhara) (आलू बुखारा)</option>
+                <option value="pomegranate">Pomegranate (Anar) (अनार)</option>
+                <option value="sapota">Sapota (Chiku) (चीकू)</option>
+                <option value="strawberry">Strawberry (स्ट्रॉबेरी)</option>
+                <option value="walnut">Walnut (Akhrot) (अखरोट)</option>
+                <option value="watermelon">Watermelon (Tarbooj) (तरबूज)</option>
+              </optgroup>
+              <optgroup label="🌿 Spices & Condiments">
+                <option value="black_pepper">Black Pepper (Kali Mirch) (काली मिर्च)</option>
+                <option value="cardamom">Cardamom (Elaichi) (इलायची)</option>
+                <option value="chilli">Chilli / Red Pepper (मिर्च)</option>
+                <option value="coriander">Coriander (Dhaniya) (धनिया)</option>
+                <option value="cumin">Cumin (Jeera) (जीरा)</option>
+                <option value="fennel">Fennel (Saunf) (सौंफ)</option>
+                <option value="fenugreek">Fenugreek (Methi) (मेथी)</option>
+                <option value="garlic">Garlic (Lahsun) (लहसुन)</option>
+                <option value="ginger">Ginger (Adrak) (अदरक)</option>
+                <option value="turmeric">Turmeric (Haldi) (हल्दी)</option>
+              </optgroup>
             </select>
+            <div id="cropAgronomicHint" style="font-size: 11px; color: #2e7d32; margin-top: 4px; font-weight: 600;">
+              🌾 Baseline: 50.0 q/ha • Comfort: 12-25°C • 50-70% RH
+            </div>
           </div>
 
           <div>
@@ -398,6 +514,14 @@
               <i class="fas fa-seedling"></i> Organic / Bio-Fungicide Control:
             </strong>
             <span id="organicAction" style="font-size: 13px; color: #333; line-height: 1.4;">--</span>
+          </div>
+
+          <!-- ICAR Crop-Specific Pathogen Advisory -->
+          <div id="cropSpecificAdvisoryContainer" style="margin-top: 12px; padding: 10px 12px; background: #e8f5e9; border-radius: 8px; border: 1px solid #c8e6c9;">
+            <strong style="font-size: 12px; color: #1b5e20; display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+              <i class="fas fa-certificate" style="color: #2e7d32;"></i> ICAR Crop Pathogen Advisory (<span id="advisoryCropTitle">Crop</span>):
+            </strong>
+            <span id="cropSpecificAdvisoryText" style="font-size: 12px; color: #2e7d32; line-height: 1.4;">--</span>
           </div>
         </div>
       </div>

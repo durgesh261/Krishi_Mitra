@@ -327,15 +327,21 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertIn(b'Multi-Spectral Remote Sensing', res.data)
         print("  [PASS] GET /remote-sensing rendered successfully")
 
-        # 2. GET /api/sample-remote-sensing/punjab_wheat_rust
+        # 2. GET /api/sample-remote-sensing/punjab_wheat_rust & kashmir_apple_scab
         res_sample = self.client.get('/api/sample-remote-sensing/punjab_wheat_rust')
         self.assertEqual(res_sample.status_code, 200)
         sample_data = res_sample.get_json()
         self.assertTrue(sample_data.get('success'))
         self.assertIn('image_data_url', sample_data)
-        print("  [PASS] GET /api/sample-remote-sensing loaded Punjab Wheat Rust preset")
 
-        # 3. POST /api/multimodal-predict
+        res_apple = self.client.get('/api/sample-remote-sensing/kashmir_apple_scab')
+        self.assertEqual(res_apple.status_code, 200)
+        apple_data = res_apple.get_json()
+        self.assertTrue(apple_data.get('success'))
+        self.assertEqual(apple_data['scenario']['crop'], 'apple')
+        print("  [PASS] GET /api/sample-remote-sensing loaded Punjab Wheat & Kashmir Apple presets")
+
+        # 3. POST /api/multimodal-predict for Cereal (Wheat)
         payload = {
             'crop_name': 'wheat',
             'temperature': 21.5,
@@ -345,8 +351,7 @@ class TestKrishiMitraApp(unittest.TestCase):
             'vpd': 0.8,
             'canopy_source': 'Sentinel-2 Multispectral'
         }
-        res_pred = self.client.post('/api/multimodal-predict',
-                                    data=payload)
+        res_pred = self.client.post('/api/multimodal-predict', data=payload)
         self.assertEqual(res_pred.status_code, 200)
         pred_data = res_pred.get_json()
         self.assertTrue(pred_data.get('success'))
@@ -354,10 +359,33 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertIn('yield_forecast', pred_data)
         self.assertIn('spectral_indices', pred_data)
         self.assertIn('gradcam_image', pred_data)
+        self.assertTrue(len(pred_data['diagnosis']['crop_specific_advisory']) > 0)
         diag_name = pred_data['diagnosis']['name']
         ndvi_val = pred_data['spectral_indices']['ndvi']
         yield_val = pred_data['yield_forecast']['estimated_yield_q_ha']
-        print(f"  [PASS] Multimodal Inference: Diagnosis = {diag_name}, NDVI = {ndvi_val}, Yield = {yield_val} q/ha")
+        print(f"  [PASS] Wheat Multimodal: Diagnosis = {diag_name}, NDVI = {ndvi_val}, Yield = {yield_val} q/ha")
+
+        # 4. Multimodal test across Fruit (Apple), Commercial (Sugarcane), and Pulse (Chickpea)
+        for crop_test, temp_t, rh_t in [('apple', 16.0, 85.0), ('sugarcane', 30.0, 85.0), ('chickpea', 22.0, 55.0)]:
+            p = {
+                'crop_name': crop_test,
+                'temperature': temp_t,
+                'humidity': rh_t,
+                'rainfall_7d': 25.0,
+                'soil_moisture': 65.0,
+                'vpd': 1.0,
+                'canopy_source': 'Drone Multispectral'
+            }
+            r = self.client.post('/api/multimodal-predict', data=p)
+            self.assertEqual(r.status_code, 200)
+            d = r.get_json()
+            self.assertTrue(d.get('success'))
+            base_q = d['yield_forecast']['district_baseline_q_ha']
+            est_q = d['yield_forecast']['estimated_yield_q_ha']
+            self.assertTrue(base_q > 0)
+            self.assertTrue(est_q > 0)
+            self.assertTrue(len(d['diagnosis']['crop_specific_advisory']) > 0)
+            print(f"  [PASS] {crop_test.capitalize()} Multimodal ({d['crop_category']}/{d['crop_sub_category']}): Baseline={base_q} q/ha, Est={est_q} q/ha")
 
 if __name__ == '__main__':
     unittest.main()

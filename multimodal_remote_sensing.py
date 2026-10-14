@@ -14,6 +14,8 @@ Implements:
 
 import io
 import os
+import re
+import csv
 import base64
 import math
 import numpy as np
@@ -71,16 +73,111 @@ DISEASE_CLASSES = [
     }
 ]
 
-# Baseline yields for Indian crops (Quintals / Hectare)
-CROP_YIELD_BASELINES = {
-    "wheat": {"base": 38.5, "optimal_ndvi": 0.72, "optimal_temp": (16, 24), "optimal_rh": (50, 75)},
-    "rice": {"base": 42.0, "optimal_ndvi": 0.75, "optimal_temp": (24, 33), "optimal_rh": (70, 88)},
-    "cotton": {"base": 18.5, "optimal_ndvi": 0.65, "optimal_temp": (25, 35), "optimal_rh": (55, 75)},
-    "mustard": {"base": 16.2, "optimal_ndvi": 0.68, "optimal_temp": (15, 25), "optimal_rh": (50, 70)},
-    "sugarcane": {"base": 780.0, "optimal_ndvi": 0.82, "optimal_temp": (26, 36), "optimal_rh": (65, 85)},
-    "maize": {"base": 34.0, "optimal_ndvi": 0.70, "optimal_temp": (21, 30), "optimal_rh": (55, 75)},
-    "general": {"base": 30.0, "optimal_ndvi": 0.70, "optimal_temp": (20, 30), "optimal_rh": (60, 80)}
+# Comprehensive Crop Aliases for Indian Agriculture
+CROP_ALIASES = {
+    "paddy": "rice", "dhan": "rice", "chawal": "rice",
+    "gehu": "wheat", "kanak": "wheat",
+    "chana": "chickpea", "gram": "chickpea",
+    "arhar": "pigeonpeas", "tur": "pigeonpeas", "toor": "pigeonpeas",
+    "moong": "mungbean", "mung": "mungbean", "green_gram": "mungbean",
+    "urad": "blackgram", "mash": "blackgram", "black_gram": "blackgram",
+    "sarson": "mustard", "rai": "mustard",
+    "kapas": "cotton", "narma": "cotton",
+    "makka": "maize", "makki": "maize", "corn": "maize",
+    "jau": "barley", "bajri": "bajra", "jowari": "jowar",
+    "matar": "green_peas", "peas": "green_peas",
+    "masoor": "lentil", "rajma": "kidneybeans", "matki": "mothbeans", "lobia": "cowpea",
+    "aloo": "potato", "aalu": "potato", "tamatar": "tomato", "pyaz": "onion",
+    "baingan": "brinjal", "eggplant": "brinjal", "bhindi": "okra", "ladyfinger": "okra",
+    "gajar": "carrot", "mooli": "radish", "karela": "bitter_gourd", "lauki": "bottle_gourd",
+    "kheera": "cucumber", "palak": "spinach", "shimla_mirch": "capsicum",
+    "aam": "mango", "kela": "banana", "seb": "apple", "anar": "pomegranate",
+    "angoor": "grapes", "amrood": "guava", "nimbu": "lemon", "santra": "orange",
+    "kinnow": "orange", "papita": "papaya", "ananas": "pineapple", "tarbooj": "watermelon",
+    "kharbooja": "muskmelon", "nariyal": "coconut", "chiku": "sapota",
+    "ganna": "sugarcane", "mungfali": "groundnut", "peanut": "groundnut",
+    "soya": "soybean", "til": "sesame", "arandi": "castor", "alsi": "linseed",
+    "kusum": "safflower", "pat": "jute", "chai": "tea", "coffee": "coffee"
 }
+
+def _build_crop_yield_baselines():
+    """
+    Dynamically loads all 90 authentic Indian crops from train/dataset/crop_guides.csv
+    Maps yield baselines (q/ha), optimal temperature envelope, humidity range, and ICAR advisory.
+    """
+    baselines = {
+        "wheat": {"base": 45.0, "optimal_ndvi": 0.72, "optimal_temp": (12, 25), "optimal_rh": (50, 70), "name": "Wheat", "category": "general", "sub_category": "Cereal", "advisory": "Yellow Rust (Puccinia striiformis). Spray Propiconazole 25% EC @ 1ml/L."},
+        "rice": {"base": 52.0, "optimal_ndvi": 0.76, "optimal_temp": (20, 35), "optimal_rh": (70, 90), "name": "Rice / Paddy", "category": "general", "sub_category": "Cereal", "advisory": "Blast & Brown Spot. Spray Tricyclazole 75% WP @ 0.6g/L."},
+        "cotton": {"base": 24.0, "optimal_ndvi": 0.68, "optimal_temp": (21, 36), "optimal_rh": (55, 80), "name": "Cotton", "category": "general", "sub_category": "Commercial", "advisory": "Foliar Blight & Pink Bollworm. Spray Mancozeb 75% WP @ 2.5g/L."},
+        "mustard": {"base": 18.0, "optimal_ndvi": 0.68, "optimal_temp": (14, 25), "optimal_rh": (50, 70), "name": "Mustard", "category": "general", "sub_category": "Oilseed", "advisory": "White Rust & Alternaria Blight. Spray Mancozeb @ 2g/L."},
+        "sugarcane": {"base": 820.0, "optimal_ndvi": 0.82, "optimal_temp": (20, 38), "optimal_rh": (65, 88), "name": "Sugarcane", "category": "general", "sub_category": "Commercial", "advisory": "Red Rot (Colletotrichum falcatum). Use disease-free setts; spray Carbendazim."},
+        "maize": {"base": 42.0, "optimal_ndvi": 0.70, "optimal_temp": (18, 32), "optimal_rh": (55, 75), "name": "Maize", "category": "general", "sub_category": "Cereal", "advisory": "Fall Armyworm & Turcicum Leaf Blight. Spray Chlorantraniliprole @ 0.4ml/L."},
+        "general": {"base": 30.0, "optimal_ndvi": 0.70, "optimal_temp": (20, 30), "optimal_rh": (60, 80), "name": "General Field Crop", "category": "general", "sub_category": "Field Crop", "advisory": "Maintain balanced NPK fertigation and monitor canopy moisture."}
+    }
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(base_dir, 'train', 'dataset', 'crop_guides.csv')
+
+    if os.path.exists(csv_path):
+        try:
+            with open(csv_path, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    c = row.get('crop', '').lower().strip()
+                    if not c:
+                        continue
+                    val_str = str(row.get('expected_yield', ''))
+                    m = re.search(r'(\d+)(?:\s*-\s*(\d+))?', val_str)
+                    if m:
+                        low = float(m.group(1))
+                        high = float(m.group(2)) if m.group(2) else low
+                        y_base = round((low + high) / 2.0, 1)
+                    else:
+                        y_base = 30.0
+
+                    try:
+                        t_min = float(row.get('ideal_temp_min', 18))
+                        t_max = float(row.get('ideal_temp_max', 30))
+                    except (ValueError, TypeError):
+                        t_min, t_max = 18.0, 30.0
+
+                    try:
+                        rh_min = float(row.get('ideal_humidity_min', 50))
+                        rh_max = float(row.get('ideal_humidity_max', 80))
+                    except (ValueError, TypeError):
+                        rh_min, rh_max = 50.0, 80.0
+
+                    cat = row.get('category', 'general').lower().strip()
+                    sub = row.get('sub_category', 'Cereal').strip()
+                    advisory = row.get('pest_disease_advisory', '').strip()
+
+                    # Calibrate expected healthy NDVI by canopy architecture
+                    if cat == 'fruit' or sub in ['Fruit', 'Plantation']:
+                        opt_ndvi = 0.80
+                    elif sub in ['Cereal', 'Commercial']:
+                        opt_ndvi = 0.75
+                    elif sub in ['Vegetable', 'Pulse']:
+                        opt_ndvi = 0.70
+                    else:
+                        opt_ndvi = 0.66
+
+                    baselines[c] = {
+                        "base": y_base,
+                        "optimal_ndvi": opt_ndvi,
+                        "optimal_temp": (t_min, t_max),
+                        "optimal_rh": (rh_min, rh_max),
+                        "category": cat,
+                        "sub_category": sub,
+                        "name": row.get('crop_name', c.capitalize()),
+                        "advisory": advisory
+                    }
+        except Exception as e:
+            print(f"[RemoteSensing] Warning loading crop guides: {e}")
+
+    return baselines
+
+# Active baseline catalog populated with all 90 crops
+CROP_YIELD_BASELINES = _build_crop_yield_baselines()
 
 def compute_multispectral_indices(rgb_img_np):
     """
@@ -231,7 +328,8 @@ def predict_multimodal_disease_and_yield(
     Executes End-to-End Multimodal Remote Sensing Inference:
     Spatial Visual Stream + Climate Telemetry Stream -> Gated Fusion -> Multi-Task Predictions
     """
-    crop_key = crop_name.lower().strip()
+    raw_key = crop_name.lower().strip().replace(' ', '_').replace('-', '_')
+    crop_key = CROP_ALIASES.get(raw_key, raw_key)
     if crop_key not in CROP_YIELD_BASELINES:
         crop_key = "general"
 
@@ -340,7 +438,10 @@ def predict_multimodal_disease_and_yield(
 
     return {
         "success": True,
-        "crop": crop_name.capitalize(),
+        "crop": crop_meta.get("name", crop_name.capitalize()),
+        "crop_key": crop_key,
+        "crop_category": crop_meta.get("category", "general").capitalize(),
+        "crop_sub_category": crop_meta.get("sub_category", "Field Crop"),
         "canopy_source": canopy_source,
         "spectral_indices": {
             "ndvi": spectral["ndvi"],
@@ -359,6 +460,7 @@ def predict_multimodal_disease_and_yield(
             "color": top_diagnosis["color"],
             "recommended_chemical": top_diagnosis["action"],
             "recommended_organic": top_diagnosis["organic"],
+            "crop_specific_advisory": crop_meta.get("advisory", ""),
             "probabilities": [
                 {"class": DISEASE_CLASSES[i]["name"], "prob": probs[i], "color": DISEASE_CLASSES[i]["color"]}
                 for i in range(len(DISEASE_CLASSES))
@@ -377,6 +479,7 @@ def predict_multimodal_disease_and_yield(
 def get_preset_scenario(scenario_id):
     """
     Returns curated multispectral sample presets with synthetic RGB images for immediate one-click testing
+    Across diverse Indian crops (Cereals, Pulses, Commercial, Fruit Orchards)
     """
     presets = {
         "punjab_wheat_rust": {
@@ -417,6 +520,45 @@ def get_preset_scenario(scenario_id):
             "vpd": 1.2,
             "canopy_source": "Sentinel-2 Multi-Spectral (10m Res)",
             "description": "Optimum NPK fertigation and regulated canal irrigation with high NDVI (0.76), indicating optimal tillering and healthy canopy."
+        },
+        "kashmir_apple_scab": {
+            "id": "kashmir_apple_scab",
+            "title": "Kashmir Valley (Shopian) - Apple Scab & Foliar Necrosis",
+            "crop": "apple",
+            "location": "Jammu & Kashmir (Shopian Apple Belt)",
+            "temperature": 17.5,
+            "humidity": 86.0,
+            "rainfall_7d": 34.0,
+            "soil_moisture": 74.0,
+            "vpd": 0.6,
+            "canopy_source": "DJI Phantom 4 Multispectral (Orchard GSD 1.8cm)",
+            "description": "Cool temperate fog and prolonged leaf wetness triggering incubation of Apple Scab (Venturia inaequalis) across high-density orchards."
+        },
+        "maharashtra_soybean_mosaic": {
+            "id": "maharashtra_soybean_mosaic",
+            "title": "Maharashtra Marathwada (Latur) - Soybean Canopy Chlorosis",
+            "crop": "soybean",
+            "location": "Maharashtra (Latur District)",
+            "temperature": 29.5,
+            "humidity": 79.0,
+            "rainfall_7d": 26.0,
+            "soil_moisture": 58.0,
+            "vpd": 1.3,
+            "canopy_source": "Sentinel-2 Multi-Spectral (10m Res)",
+            "description": "Mid-monsoon dry-wet spells causing Girdle beetle activity and interveinal mosaic chlorosis across oilseed soybean foliage."
+        },
+        "up_sugarcane_red_rot": {
+            "id": "up_sugarcane_red_rot",
+            "title": "UP Terai Basin (Muzaffarnagar) - Sugarcane High-Biomass Red Rot",
+            "crop": "sugarcane",
+            "location": "Uttar Pradesh (Muzaffarnagar Sugarcane Belt)",
+            "temperature": 31.0,
+            "humidity": 88.0,
+            "rainfall_7d": 52.0,
+            "soil_moisture": 82.0,
+            "vpd": 0.7,
+            "canopy_source": "PlanetScope SuperDove (3m Ultra-Dense Multispectral)",
+            "description": "Waterlogged monsoon conditions and saturated relative humidity promoting midrib lesions and Red Rot (Colletotrichum falcatum)."
         }
     }
     return presets.get(scenario_id, presets["punjab_wheat_rust"])
@@ -438,17 +580,50 @@ def create_synthetic_preset_image(scenario_id):
         r = np.random.randint(60, 110, (h, w), dtype=np.uint8)
         g = np.random.randint(110, 160, (h, w), dtype=np.uint8)
         b = np.random.randint(20, 50, (h, w), dtype=np.uint8)
-        # Yellow stripe pustules
         for col in range(40, w - 40, 35):
             r[:, col:col+14] = np.random.randint(210, 245, (h, 14), dtype=np.uint8)
             g[:, col:col+14] = np.random.randint(170, 215, (h, 14), dtype=np.uint8)
             b[:, col:col+14] = np.random.randint(20, 45, (h, 14), dtype=np.uint8)
+    elif scenario_id == "kashmir_apple_scab":
+        # Apple orchard foliage with dark olive-brown circular scab lesions
+        r = np.random.randint(25, 60, (h, w), dtype=np.uint8)
+        g = np.random.randint(90, 145, (h, w), dtype=np.uint8)
+        b = np.random.randint(20, 45, (h, w), dtype=np.uint8)
+        for _ in range(22):
+            cx, cy = np.random.randint(25, w - 25), np.random.randint(25, h - 25)
+            radius = np.random.randint(8, 20)
+            y, x = np.ogrid[:h, :w]
+            mask = (x - cx)**2 + (y - cy)**2 <= radius**2
+            r[mask] = np.random.randint(45, 75)
+            g[mask] = np.random.randint(55, 80)
+            b[mask] = np.random.randint(20, 35)
+    elif scenario_id == "maharashtra_soybean_mosaic":
+        # Soybean foliage with yellow mosaic chlorosis patches
+        r = np.random.randint(60, 110, (h, w), dtype=np.uint8)
+        g = np.random.randint(120, 175, (h, w), dtype=np.uint8)
+        b = np.random.randint(25, 55, (h, w), dtype=np.uint8)
+        for _ in range(16):
+            cx, cy = np.random.randint(20, w - 20), np.random.randint(20, h - 20)
+            radius = np.random.randint(14, 30)
+            y, x = np.ogrid[:h, :w]
+            mask = (x - cx)**2 + (y - cy)**2 <= radius**2
+            r[mask] = np.random.randint(185, 225)
+            g[mask] = np.random.randint(180, 215)
+            b[mask] = np.random.randint(30, 60)
+    elif scenario_id == "up_sugarcane_red_rot":
+        # Sugarcane dense canopy with reddish-brown midrib streaks
+        r = np.random.randint(40, 85, (h, w), dtype=np.uint8)
+        g = np.random.randint(130, 195, (h, w), dtype=np.uint8)
+        b = np.random.randint(30, 65, (h, w), dtype=np.uint8)
+        for row in range(50, h - 50, 40):
+            r[row:row+12, :] = np.random.randint(170, 220, (12, w), dtype=np.uint8)
+            g[row:row+12, :] = np.random.randint(40, 80, (12, w), dtype=np.uint8)
+            b[row:row+12, :] = np.random.randint(30, 60, (12, w), dtype=np.uint8)
     else:  # Cotton blight
         # Green foliage with brown necrotic lesions
         r = np.random.randint(50, 95, (h, w), dtype=np.uint8)
         g = np.random.randint(100, 155, (h, w), dtype=np.uint8)
         b = np.random.randint(30, 60, (h, w), dtype=np.uint8)
-        # Brown lesion spots
         for _ in range(18):
             cx, cy = np.random.randint(30, w - 30), np.random.randint(30, h - 30)
             radius = np.random.randint(12, 28)
