@@ -12,9 +12,9 @@ $(function () {
     var messageClass = isUser ? "user-message" : "bot-message";
     var logoHTML = isUser
       ? ""
-      : '<div class="bot-logo"><img src="../static/robo.png" alt="Krishi Mitra Logo"></div>';
+      : '<div class="bot-logo"><img src="/static/logo.png" alt="Krishi Mitra Logo"></div>';
     var userImageHTML = isUser
-      ? '<div class="user-image"><img src="../static/user.png" alt="User"></div>'
+      ? '<div class="user-image"><img src="/static/user.png" alt="User"></div>'
       : "";
 
     var imageHTML = "";

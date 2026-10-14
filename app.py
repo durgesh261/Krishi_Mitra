@@ -3,7 +3,7 @@ import base64
 import requests
 import json
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, send_from_directory
 from chat1 import fetch_website_content, extract_pdf_text, initialize_vector_store
 from chat2 import (
     analyze_image_with_text, 
@@ -256,6 +256,10 @@ def contact():
             flash('Error submitting form. Please try again.', 'danger')
     
     return render_template('contact.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 # Admin routes
 @app.route('/admin')
