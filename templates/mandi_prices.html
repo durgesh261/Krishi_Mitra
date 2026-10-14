@@ -47,9 +47,9 @@
     </div>
 
     <div class="filter-group">
-      <label for="stateFilter"><i class="fas fa-map-marker-alt"></i> State:</label>
+      <label for="stateFilter"><i class="fas fa-map-marker-alt"></i> <span data-i18n="mandi_filter_state">State:</span></label>
       <select id="stateFilter" class="mandi-select">
-        <option value="all">All States / सभी राज्य</option>
+        <option value="all" data-i18n="mandi_all_states">All States / सभी राज्य</option>
         {% for st in states %}
         <option value="{{ st }}">{{ st }}</option>
         {% endfor %}
@@ -57,21 +57,21 @@
     </div>
 
     <div class="filter-group">
-      <label for="commodityFilter"><i class="fas fa-seedling"></i> Commodity:</label>
+      <label for="commodityFilter"><i class="fas fa-seedling"></i> <span data-i18n="mandi_filter_comm">Commodity:</span></label>
       <select id="commodityFilter" class="mandi-select">
-        <option value="all">All Commodities / सभी फसलें</option>
+        <option value="all" data-i18n="mandi_all_comm">All Commodities / सभी फसलें</option>
         {% for cmd in commodities %}
-        <option value="{{ cmd }}">{{ cmd }}</option>
+        <option value="{{ cmd }}" data-crop="{{ cmd }}">{{ cmd }}</option>
         {% endfor %}
       </select>
     </div>
 
     <div class="filter-group">
-      <label for="mspFilter"><i class="fas fa-shield-alt"></i> MSP Status:</label>
+      <label for="mspFilter"><i class="fas fa-shield-alt"></i> <span data-i18n="mandi_filter_msp">MSP Status:</span></label>
       <select id="mspFilter" class="mandi-select">
-        <option value="all">All Rates</option>
-        <option value="above">Above MSP (लाभकारी)</option>
-        <option value="below">Below MSP</option>
+        <option value="all" data-i18n="mandi_all_rates">All Rates</option>
+        <option value="above" data-i18n="mandi_opt_above">Above MSP (लाभकारी)</option>
+        <option value="below" data-i18n="mandi_opt_below">Below MSP</option>
       </select>
     </div>
   </div>
@@ -79,7 +79,7 @@
   <!-- Price Summary Alert -->
   <div class="mandi-info-banner">
     <i class="fas fa-info-circle"></i>
-    <span>
+    <span data-i18n="mandi_advisory_text">
       <strong>Farmer Advisory:</strong> Mandi prices are updated daily from APMC eNAM benchmarks. If market rates fall below Govt MSP, farmers can sell at designated government procurement centers (FCI/NAFED).
     </span>
   </div>
@@ -90,8 +90,8 @@
     <div class="mandi-card" data-state="{{ item.state }}" data-commodity="{{ item.commodity }}" data-status="{{ item.status }}">
       <div class="mandi-card-header">
         <div>
-          <span class="commodity-tag {{ item.category|lower }}">{{ item.category }}</span>
-          <h3 class="crop-title">{{ item.commodity }}</h3>
+          <span class="commodity-tag {{ item.category|lower }}" data-cat="{{ item.category }}">{{ item.category }}</span>
+          <h3 class="crop-title" data-crop="{{ item.commodity }}">{{ item.commodity }}</h3>
           <span class="crop-variety">{{ item.variety }}</span>
         </div>
         <div class="mandi-location">
@@ -102,20 +102,20 @@
 
       <div class="mandi-price-box">
         <div class="modal-price">
-          <span class="price-lbl">Modal Mandi Rate</span>
+          <span class="price-lbl" data-i18n="mandi_modal_rate">Modal Mandi Rate</span>
           <span class="price-val">₹{{ item.modal_price }}</span>
-          <span class="price-unit">per Quintal</span>
+          <span class="price-unit" data-i18n="mandi_per_quintal">per Quintal</span>
         </div>
 
         <div class="msp-comparison">
-          <span class="msp-lbl">Govt MSP 2024-25: <strong>₹{{ item.msp }}</strong></span>
+          <span class="msp-lbl"><span data-i18n="mandi_govt_msp">Govt MSP 2024-25</span>: <strong>₹{{ item.msp }}</strong></span>
           {% if item.msp_difference >= 0 %}
           <span class="diff-badge positive">
-            <i class="fas fa-arrow-up"></i> +₹{{ item.msp_difference }} ({{ item.msp_diff_percent }}% Above MSP)
+            <i class="fas fa-arrow-up"></i> +₹{{ item.msp_difference }} ({{ item.msp_diff_percent }}% <span data-i18n="mandi_above_msp">Above MSP</span>)
           </span>
           {% else %}
           <span class="diff-badge negative">
-            <i class="fas fa-arrow-down"></i> -₹{{ item.msp_difference|abs }} (Below MSP)
+            <i class="fas fa-arrow-down"></i> -₹{{ item.msp_difference|abs }} (<span data-i18n="mandi_below_msp">Below MSP</span>)
           </span>
           {% endif %}
         </div>
@@ -123,17 +123,17 @@
 
       <div class="mandi-card-footer">
         <div class="footer-stat">
-          <span class="f-lbl">Range:</span>
+          <span class="f-lbl" data-i18n="mandi_range">Range:</span>
           <span class="f-val">₹{{ item.min_price }} - ₹{{ item.max_price }}</span>
         </div>
         <div class="footer-stat">
-          <span class="f-lbl">Arrivals:</span>
+          <span class="f-lbl" data-i18n="mandi_arrivals">Arrivals:</span>
           <span class="f-val">{{ item.arrivals }}</span>
         </div>
         <div class="footer-stat">
-          <span class="f-lbl">Trend:</span>
-          <span class="trend-badge {{ item.trend|lower }}">
-            {% if item.trend == 'Rising' %}🟢 Rising{% elif item.trend == 'Steady' %}🟡 Steady{% else %}🔴 Soft{% endif %}
+          <span class="f-lbl" data-i18n="mandi_trend">Trend:</span>
+          <span class="trend-badge {{ item.trend|lower }}" data-trend="{{ item.trend }}">
+            {% if item.trend == 'Rising' %}🟢 <span class="trend-text" data-i18n="trend_rising">Rising</span>{% elif item.trend == 'Steady' %}🟡 <span class="trend-text" data-i18n="trend_steady">Steady</span>{% else %}🔴 <span class="trend-text" data-i18n="trend_soft">Soft</span>{% endif %}
           </span>
         </div>
       </div>
@@ -453,9 +453,7 @@ $(document).ready(function() {
       var state = card.data('state').toString().toLowerCase();
       var commodity = card.data('commodity').toString().toLowerCase();
       var status = card.data('status');
-      var cardText = card.text().toLowerCase();
-
-      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1;
+      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1 || commodity.indexOf(searchVal) !== -1;
       var matchState = stateVal === 'all' || state === stateVal;
       var matchComm = commVal === 'all' || commodity.indexOf(commVal) !== -1;
       var matchMsp = mspVal === 'all' || (mspVal === 'above' && status === 'Above MSP') || (mspVal === 'below' && status === 'Below MSP');

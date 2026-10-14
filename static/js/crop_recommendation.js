@@ -189,10 +189,13 @@ $(function () {
     let cropsHTML = "";
     data.top_crops.forEach((crop, index) => {
       const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
+      const currentLang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
+      const localizedName = window.getCropTranslation ? window.getCropTranslation(crop.crop, currentLang) : crop.crop;
+      const displayLabel = currentLang === 'en' ? crop.crop : `${localizedName} (${crop.crop})`;
       cropsHTML += `
         <div class="crop-item">
           <span class="crop-rank">${medal}</span>
-          <span class="crop-name">${crop.crop}</span>
+          <span class="crop-name" data-crop="${crop.crop}">${displayLabel}</span>
           <div class="crop-probability">
             <div class="prob-bar" style="width: ${crop.probability}%"></div>
             <span class="prob-text">${crop.probability}%</span>
@@ -224,4 +227,16 @@ $(function () {
 
     $("#results").show();
   }
+
+  // Update crop names if language changes while recommendations are displayed
+  window.addEventListener("krishiLanguageChanged", function (e) {
+    const lang = e.detail?.language || (window.getCurrentLanguage ? window.getCurrentLanguage() : "en");
+    $(".crop-item .crop-name").each(function () {
+      const orig = $(this).attr("data-crop");
+      if (orig && window.getCropTranslation) {
+        const trans = window.getCropTranslation(orig, lang);
+        $(this).text(lang === "en" ? orig : `${trans} (${orig})`);
+      }
+    });
+  });
 });

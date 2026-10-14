@@ -83,7 +83,10 @@
             return;
           }
 
-          $("#cropName").text(data.crop.toUpperCase());
+          const lang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
+          const localized = window.getCropTranslation ? window.getCropTranslation(data.crop, lang) : data.crop;
+          const displayHeader = lang === 'en' ? data.crop.toUpperCase() : `${localized} (${data.crop.toUpperCase()})`;
+          $("#cropName").attr('data-crop', data.crop).text(displayHeader);
           $("#watering").text(data.watering_schedule);
           $("#fertilizer").text(data.fertilizer_plan);
           $("#duration").text(data.duration_days);
@@ -109,6 +112,15 @@
             .show();
         },
       });
+    });
+
+    window.addEventListener("krishiLanguageChanged", function (e) {
+      const lang = e.detail?.language || (window.getCurrentLanguage ? window.getCurrentLanguage() : "en");
+      const crop = $("#cropName").attr("data-crop");
+      if (crop && window.getCropTranslation) {
+        const trans = window.getCropTranslation(crop, lang);
+        $("#cropName").text(lang === "en" ? crop.toUpperCase() : `${trans} (${crop.toUpperCase()})`);
+      }
     });
   });
 </script>
