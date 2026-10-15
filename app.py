@@ -20,13 +20,13 @@ from database import (
     log_activity, log_analytics, get_analytics_summary,
     log_prediction, get_user_predictions,
     update_user_language, get_user_language,
-    upvote_farmer_news
+    upvote_farmer_news, upvote_farmer_deal
 )
 from location_service import get_location_from_coordinates, normalize_state_name, get_open_meteo_weather
 from mandi_service import get_mandi_prices, get_all_states, get_all_commodities, get_mandi_summary_stats
 from news_service import (
     get_daily_agri_news, get_daily_farming_ads, get_news_categories, 
-    get_news_last_updated_time, add_farmer_report
+    get_news_last_updated_time, add_farmer_report, add_farmer_deal
 )
 from auth import login_required, admin_required
 from crop_recommendation import (
@@ -532,6 +532,63 @@ def api_farming_ads():
         'success': True,
         'count': len(ads),
         'ads': ads
+    })
+
+@app.route('/api/deals/submit', methods=['POST'])
+def api_submit_deal():
+    """Endpoint for farmers and community members to post agricultural deals and verified offers"""
+    data = request.get_json() if request.is_json else request.form
+    if not data:
+        data = request.args
+
+    title = (data.get('title') or '').strip()
+    category = (data.get('category') or 'General Agri Deal').strip()
+    description = (data.get('description') or '').strip()
+    price_terms = (data.get('price_terms') or '').strip()
+    seller_name = (data.get('seller_name') or 'Local Farmer').strip()
+    contact_number = (data.get('contact_number') or data.get('contact') or '').strip()
+    location = (data.get('location') or data.get('village_district') or '').strip()
+    state = (data.get('state') or '').strip()
+    image_url = (data.get('image_url') or '').strip() or None
+
+    if not title:
+        return jsonify({'success': False, 'error': 'Deal title / equipment name is required'}), 400
+    if not description:
+        return jsonify({'success': False, 'error': 'Deal details and description are required'}), 400
+    if not seller_name:
+        return jsonify({'success': False, 'error': 'Seller / contact person name is required'}), 400
+
+    # If image_url is not provided, try to resolve from crop or equipment name
+    if not image_url:
+        from crop_images import get_crop_image_url
+        image_url = get_crop_image_url(title)
+
+    new_id = add_farmer_deal(
+        title=title,
+        category=category,
+        description=description,
+        price_terms=price_terms,
+        seller_name=seller_name,
+        contact_number=contact_number,
+        location=location,
+        state=state,
+        image_url=image_url
+    )
+
+    return jsonify({
+        'success': True,
+        'message': 'Your agricultural deal / verified offer has been posted successfully!',
+        'deal_id': new_id
+    })
+
+@app.route('/api/deals/upvote/<int:deal_id>', methods=['POST'])
+def api_upvote_farmer_deal(deal_id):
+    """Upvote helpful community deal or offer"""
+    new_count = upvote_farmer_deal(deal_id)
+    return jsonify({
+        'success': True,
+        'deal_id': deal_id,
+        'upvotes': new_count
     })
 
 # API Endpoints

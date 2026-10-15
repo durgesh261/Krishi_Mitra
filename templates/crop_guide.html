@@ -130,6 +130,14 @@
             </div>
           </div>
         </div>
+
+        <!-- Authentic Crop Image Showcase Banner -->
+        <div class="crop-hero-media" id="cropHeroMedia">
+          <img id="cropHeroImg" src="" alt="Crop Photography" class="crop-hero-img" onerror="this.src='https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80';" />
+          <div class="crop-media-badge">
+            <i class="fas fa-camera"></i> <span id="cropPhotoCaption">Crop Variety & Growth Visualization</span>
+          </div>
+        </div>
       </div>
 
       <!-- Detail Grid of 6 Agronomy Cards -->
@@ -565,6 +573,45 @@
   padding: 1.5rem 1.75rem;
   margin-bottom: 1.25rem;
   box-shadow: 0 4px 18px rgba(45, 106, 79, 0.08);
+}
+
+.crop-hero-media {
+  margin-top: 1.25rem;
+  position: relative;
+  width: 100%;
+  height: 240px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border: 2px solid #ffffff;
+}
+
+.crop-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.crop-hero-media:hover .crop-hero-img {
+  transform: scale(1.03);
+}
+
+.crop-media-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  background: rgba(15, 35, 20, 0.75);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .hero-top-row {
@@ -1004,6 +1051,16 @@ $(document).ready(function () {
           .css('background', isFruit ? '#e11d48' : '#2d6a4f');
         
         $("#cropSubCategoryBadge").text(data.sub_category || (isFruit ? 'Fruit' : 'Field Crop'));
+
+        // Crop Photography
+        const cropImgUrl = data.image_url || (window.getCropImageUrl ? window.getCropImageUrl(data.crop) : '');
+        if (cropImgUrl) {
+          $("#cropHeroImg").attr("src", cropImgUrl).attr("alt", displayTitle);
+          $("#cropPhotoCaption").text(`${displayTitle} • Scientific Agronomy Visualization`);
+          $("#cropHeroMedia").show();
+        } else {
+          $("#cropHeroMedia").hide();
+        }
 
         // Yield
         $("#expectedYield").text(data.expected_yield || 'Varies by agro-climatic zone');

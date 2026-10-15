@@ -192,10 +192,18 @@ $(function () {
       const currentLang = window.getCurrentLanguage ? window.getCurrentLanguage() : 'en';
       const localizedName = window.getCropTranslation ? window.getCropTranslation(crop.crop, currentLang) : crop.crop;
       const displayLabel = currentLang === 'en' ? crop.crop : `${localizedName} (${crop.crop})`;
+      const imgUrl = crop.image_url || (window.getCropImageUrl ? window.getCropImageUrl(crop.crop) : '');
+
       cropsHTML += `
         <div class="crop-item">
           <span class="crop-rank">${medal}</span>
-          <span class="crop-name" data-crop="${crop.crop}">${displayLabel}</span>
+          ${imgUrl ? `<img src="${imgUrl}" alt="${crop.crop}" class="crop-thumb-img" onerror="this.style.display='none';" />` : ''}
+          <div class="crop-info-col">
+            <span class="crop-name" data-crop="${crop.crop}">${displayLabel}</span>
+            <a href="/crop-guide?crop=${encodeURIComponent(crop.crop.toLowerCase())}" class="crop-guide-pill" title="View Full Cultivation Guide">
+              <i class="fas fa-book-open"></i> Cultivation Guide
+            </a>
+          </div>
           <div class="crop-probability">
             <div class="prob-bar" style="width: ${crop.probability}%"></div>
             <span class="prob-text">${crop.probability}%</span>

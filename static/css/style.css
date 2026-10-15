@@ -2205,11 +2205,48 @@ body.drawer-open {
   font-size: 32px;
 }
 
+.crop-thumb-img {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #a5d6a7;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.crop-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+}
+
 .crop-name {
-  font-size: 20px;
+  font-size: 19px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.crop-guide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 3px 10px;
+  border-radius: 14px;
+  text-decoration: none;
   font-weight: 600;
-  color: #333;
-  min-width: 150px;
+  width: fit-content;
+  border: 1px solid #c8e6c9;
+  transition: all 0.2s;
+}
+
+.crop-guide-pill:hover {
+  background: #2e7d32;
+  color: #ffffff;
 }
 
 .crop-probability {

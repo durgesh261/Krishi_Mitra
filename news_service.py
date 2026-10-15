@@ -544,14 +544,116 @@ def get_daily_agri_news(category=None, search_query=None, limit=100, force_refre
 
     return filtered
 
+def add_farmer_deal(title, category, description, price_terms="", seller_name="Farmer", contact_number="", location="", state="", image_url=None):
+    """Add a farmer deal / verified agricultural offer to the database"""
+    from database import create_farmer_deal
+    return create_farmer_deal(
+        title=title,
+        category=category,
+        description=description,
+        price_terms=price_terms,
+        seller_name=seller_name,
+        contact_number=contact_number,
+        location=location,
+        state=state,
+        image_url=image_url
+    )
+
 def get_daily_farming_ads():
-    """Return daily farming advertisements and verified marketplace offers"""
+    """Return daily farming advertisements and verified marketplace offers combining community deals and partner ads"""
     today_str = datetime.now().strftime("%d %B %Y")
     ads = []
+
+    # 1. Fetch community & local farmer deals from database
+    try:
+        from database import get_all_farmer_deals
+        farmer_deals = get_all_farmer_deals(limit=25)
+        for deal in farmer_deals:
+            cat = deal.get('category') or 'General Farming'
+            theme_colors = {
+                'Seeds & Plant Material': '#2e7d32',
+                'Machinery & Equipment Rental': '#b71c1c',
+                'Fertilizers & Organic Inputs': '#2e7d32',
+                'Drone & Tech Services': '#1565c0',
+                'Irrigation & Solar': '#e65100',
+                'Crop Output & Harvest Sale': '#f57f17'
+            }
+            theme_color = theme_colors.get(cat, '#2e7d32')
+
+            bg_gradient = "linear-gradient(135deg, #f1f8e9 0%, #dcedc8 50%, #c5e1a5 100%)"
+            if 'Machinery' in cat:
+                bg_gradient = "linear-gradient(135deg, #ffebee 0%, #ffcdd2 50%, #ef9a9a 100%)"
+            elif 'Drone' in cat or 'Tech' in cat:
+                bg_gradient = "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)"
+            elif 'Solar' in cat or 'Irrigation' in cat:
+                bg_gradient = "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%)"
+            elif 'Output' in cat:
+                bg_gradient = "linear-gradient(135deg, #fffde7 0%, #fff9c4 50%, #fff59d 100%)"
+
+            icons = {
+                'Seeds & Plant Material': 'fas fa-seedling',
+                'Machinery & Equipment Rental': 'fas fa-tractor',
+                'Fertilizers & Organic Inputs': 'fas fa-leaf',
+                'Drone & Tech Services': 'fas fa-drone',
+                'Irrigation & Solar': 'fas fa-solar-panel',
+                'Crop Output & Harvest Sale': 'fas fa-boxes-stacked'
+            }
+            icon = icons.get(cat, 'fas fa-handshake')
+
+            badge_text = deal.get('badge') or f"Farmer Deal • {cat}"
+
+            benefits = []
+            if deal.get('price_terms'):
+                benefits.append(f"Rate / Terms: {deal.get('price_terms')}")
+            if deal.get('location'):
+                benefits.append(f"Location: {deal.get('location')}, {deal.get('state', '')}")
+            if deal.get('is_verified'):
+                benefits.append("Verified Community Listing")
+            else:
+                benefits.append("Direct Farmer-to-Farmer Deal")
+
+            # Resolve crop image if relevant
+            crop_img = deal.get('image_url')
+            if not crop_img:
+                from crop_images import get_crop_image_url
+                crop_img = get_crop_image_url(deal.get('title', ''))
+
+            ads.append({
+                'id': f"deal-{deal['id']}",
+                'deal_id': deal['id'],
+                'is_farmer_deal': True,
+                'badge': badge_text,
+                'title': deal['title'],
+                'subtitle': f"Offered by {deal.get('seller_name', 'Local Farmer')} ({deal.get('location', 'India')})",
+                'description': deal.get('description', ''),
+                'benefits': benefits,
+                'partner': f"{deal.get('seller_name', 'Community Farmer')} ({deal.get('location', '')})",
+                'cta_text': "Call / Contact Seller",
+                'cta_link': f"tel:{deal.get('contact_number')}" if deal.get('contact_number') else '#',
+                'helpline': deal.get('contact_number') or 'Community Listing',
+                'theme_color': theme_color,
+                'bg_gradient': bg_gradient,
+                'icon': icon,
+                'deal_tag': f"₹ {deal.get('price_terms')}" if deal.get('price_terms') else "Verified Deal",
+                'date_stamp': today_str,
+                'upvotes': deal.get('upvotes', 0),
+                'location': deal.get('location'),
+                'state': deal.get('state'),
+                'seller_name': deal.get('seller_name'),
+                'contact_number': deal.get('contact_number'),
+                'image_url': crop_img
+            })
+    except Exception as e:
+        print(f"Error loading farmer deals: {e}")
+
+    # 2. Partner & Institutional Ads
     for item in FARMING_ADVERTISEMENTS:
         ad = dict(item)
         ad['date_stamp'] = today_str
+        ad['is_farmer_deal'] = False
+        ad['upvotes'] = 15
         ads.append(ad)
+
     return ads
 
 def get_news_categories():

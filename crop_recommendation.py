@@ -8,6 +8,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import os
+from crop_images import get_crop_image_url
 
 # Load model and encoder
 MODEL_PATH = 'train/models/crop_recommendation_model.pkl'
@@ -69,9 +70,11 @@ def predict_crops(N, P, K, temperature, humidity, ph, rainfall):
     for idx in top_3_idx:
         crop = le.inverse_transform([idx])[0]
         prob = probabilities[idx]
+        crop_title = str(crop).title()
         results.append({
-            'crop': str(crop).title(),
-            'probability': round(float(prob) * 100, 2)
+            'crop': crop_title,
+            'probability': round(float(prob) * 100, 2),
+            'image_url': get_crop_image_url(crop)
         })
     
     # Determine confidence based on top probability and Shannon Entropy (Research Paper Eq 1)
@@ -245,35 +248,43 @@ def get_crop_guide(crop_name):
     try:
         guides_df = pd.read_csv('train/dataset/crop_guides.csv')
         c_clean = str(crop_name).strip().lower()
+        guide_dict = None
         # Direct match by crop key
         guide = guides_df[guides_df['crop'].str.lower() == c_clean]
         if not guide.empty:
-            return guide.iloc[0].to_dict()
+            guide_dict = guide.iloc[0].to_dict()
         
         # Match by crop_name column containing key
-        name_match = guides_df[guides_df['crop_name'].str.lower().str.contains(c_clean, regex=False, na=False)]
-        if not name_match.empty:
-            return name_match.iloc[0].to_dict()
+        if not guide_dict:
+            name_match = guides_df[guides_df['crop_name'].str.lower().str.contains(c_clean, regex=False, na=False)]
+            if not name_match.empty:
+                guide_dict = name_match.iloc[0].to_dict()
 
         # Check aliases
-        crop_alias = {
-            'chana': 'chickpea', 'arhar': 'pigeonpeas', 'tur': 'pigeonpeas', 'moong': 'mungbean',
-            'urad': 'blackgram', 'masoor': 'lentil', 'rajma': 'kidneybeans', 'matki': 'mothbeans',
-            'lobia': 'cowpea', 'matar': 'green_peas', 'kulthi': 'horsegram', 'gehu': 'wheat',
-            'dhan': 'rice', 'paddy': 'rice', 'makka': 'maize', 'sarson': 'mustard', 'kapas': 'cotton',
-            'ganna': 'sugarcane', 'aalu': 'potato', 'pyaz': 'onion', 'tamatar': 'tomato',
-            'adrak': 'ginger', 'haldi': 'turmeric', 'mirch': 'chilli', 'lahsun': 'garlic',
-            'chiku': 'sapota', 'sitaphal': 'custard_apple', 'amrood': 'guava', 'anar': 'pomegranate',
-            'tarbooj': 'watermelon', 'kharbooja': 'muskmelon', 'nimbu': 'lemon', 'lauki': 'bottle_gourd',
-            'karela': 'bitter_gourd', 'kheera': 'cucumber', 'shimla_mirch': 'capsicum', 'aam': 'mango',
-            'kela': 'banana', 'seb': 'apple', 'santra': 'orange', 'papita': 'papaya', 'angoor': 'grapes',
-            'nariyal': 'coconut', 'badam': 'almond', 'akhrot': 'walnut', 'nashpati': 'pear'
-        }
-        if c_clean in crop_alias:
-            target = crop_alias[c_clean]
-            guide = guides_df[guides_df['crop'].str.lower() == target]
-            if not guide.empty:
-                return guide.iloc[0].to_dict()
+        if not guide_dict:
+            crop_alias = {
+                'chana': 'chickpea', 'arhar': 'pigeonpeas', 'tur': 'pigeonpeas', 'moong': 'mungbean',
+                'urad': 'blackgram', 'masoor': 'lentil', 'rajma': 'kidneybeans', 'matki': 'mothbeans',
+                'lobia': 'cowpea', 'matar': 'green_peas', 'kulthi': 'horsegram', 'gehu': 'wheat',
+                'dhan': 'rice', 'paddy': 'rice', 'makka': 'maize', 'sarson': 'mustard', 'kapas': 'cotton',
+                'ganna': 'sugarcane', 'aalu': 'potato', 'pyaz': 'onion', 'tamatar': 'tomato',
+                'adrak': 'ginger', 'haldi': 'turmeric', 'mirch': 'chilli', 'lahsun': 'garlic',
+                'chiku': 'sapota', 'sitaphal': 'custard_apple', 'amrood': 'guava', 'anar': 'pomegranate',
+                'tarbooj': 'watermelon', 'kharbooja': 'muskmelon', 'nimbu': 'lemon', 'lauki': 'bottle_gourd',
+                'karela': 'bitter_gourd', 'kheera': 'cucumber', 'shimla_mirch': 'capsicum', 'aam': 'mango',
+                'kela': 'banana', 'seb': 'apple', 'santra': 'orange', 'papita': 'papaya', 'angoor': 'grapes',
+                'nariyal': 'coconut', 'badam': 'almond', 'akhrot': 'walnut', 'nashpati': 'pear'
+            }
+            if c_clean in crop_alias:
+                target = crop_alias[c_clean]
+                guide = guides_df[guides_df['crop'].str.lower() == target]
+                if not guide.empty:
+                    guide_dict = guide.iloc[0].to_dict()
+
+        if guide_dict:
+            crop_key = guide_dict.get('crop') or crop_name
+            guide_dict['image_url'] = get_crop_image_url(crop_key)
+            return guide_dict
 
         return None
     except Exception as e:

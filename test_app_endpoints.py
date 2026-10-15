@@ -442,6 +442,80 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertIn('last_updated', ref_data)
         print(f"  [PASS] News Live Refresh API: Live feed synchronized with {ref_data['count']} stories (Last sync: {ref_data['last_updated']})")
 
+    def test_17_featured_deals_and_crop_images(self):
+        # 1. Homepage Deals Carousel & Modal
+        res = self.client.get('/')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'openDealModalBtn', res.data)
+        self.assertIn(b'submitDealModal', res.data)
+        self.assertIn(b'adCarouselTrack', res.data)
+        print("  [PASS] Homepage Deals Section: Verified Post Deal button and submission modal")
+
+        # 2. Farming Ads API returning community and partner deals with images
+        res_ads = self.client.get('/api/farming-ads')
+        self.assertEqual(res_ads.status_code, 200)
+        ads_data = res_ads.get_json()
+        self.assertTrue(ads_data['success'])
+        self.assertTrue(ads_data['count'] > 0)
+        first_ad = ads_data['ads'][0]
+        self.assertIn('title', first_ad)
+        self.assertIn('badge', first_ad)
+        print(f"  [PASS] Farming Ads API: {ads_data['count']} active deals returned (Top: '{first_ad['title']}')")
+
+        # 3. Post a new community agricultural deal
+        deal_payload = {
+            'title': 'High Germination PBW-826 Certified Wheat Seeds',
+            'category': 'Seeds & Plant Material',
+            'description': 'PAU Ludhiana released heat-tolerant wheat seed with 98% germination. Graded and chemically treated.',
+            'price_terms': '₹2,350 / 40kg bag',
+            'seller_name': 'Gurjit Agro Seeds',
+            'contact_number': '9876543210',
+            'location': 'Samrala',
+            'state': 'Punjab'
+        }
+        res_post = self.client.post('/api/deals/submit',
+                                    data=json.dumps(deal_payload),
+                                    content_type='application/json')
+        self.assertEqual(res_post.status_code, 200)
+        post_data = res_post.get_json()
+        self.assertTrue(post_data['success'])
+        self.assertIn('deal_id', post_data)
+        deal_id = post_data['deal_id']
+        print(f"  [PASS] Post Deal API: Successfully posted community deal (ID #{deal_id})")
+
+        # 4. Upvote the community deal
+        res_up = self.client.post(f'/api/deals/upvote/{deal_id}')
+        self.assertEqual(res_up.status_code, 200)
+        up_data = res_up.get_json()
+        self.assertTrue(up_data['success'])
+        self.assertEqual(up_data['upvotes'], 1)
+        print(f"  [PASS] Deal Upvote API: Incremented deal upvotes to {up_data['upvotes']}")
+
+        # 5. Crop guide endpoint returns authentic crop image URL
+        res_guide = self.client.get('/api/get-crop-guide/wheat')
+        self.assertEqual(res_guide.status_code, 200)
+        guide_data = res_guide.get_json()
+        self.assertIn('image_url', guide_data)
+        self.assertTrue(guide_data['image_url'].startswith('http'))
+        print(f"  [PASS] Crop Guide Imagery: Wheat photo URL resolved -> {guide_data['image_url'][:55]}...")
+
+        # 6. Crop recommendation prediction includes image_url for each crop
+        self.login_admin()
+        crop_payload = {
+            'N': 80, 'P': 40, 'K': 40,
+            'temperature': 25.0, 'humidity': 75.0,
+            'ph': 6.5, 'rainfall': 150.0
+        }
+        res_pred = self.client.post('/api/predict-crop',
+                                    data=json.dumps(crop_payload),
+                                    content_type='application/json')
+        self.assertEqual(res_pred.status_code, 200)
+        pred_data = res_pred.get_json()
+        for c in pred_data['top_crops']:
+            self.assertIn('image_url', c)
+            self.assertTrue(c['image_url'].startswith('http'))
+        print(f"  [PASS] Crop Recommendation Imagery: Top {len(pred_data['top_crops'])} crops all include authentic photo URLs")
+
 if __name__ == '__main__':
     unittest.main()
 

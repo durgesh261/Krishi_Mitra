@@ -169,6 +169,125 @@ def init_db():
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', seed_farmer_news)
 
+    # Farmer Deals & Verified Marketplace Offers table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS farmer_deals_offers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subtitle TEXT,
+            description TEXT NOT NULL,
+            badge TEXT DEFAULT 'Verified Farmer Offer',
+            deal_tag TEXT DEFAULT 'Special Farmer Offer',
+            category TEXT DEFAULT 'Machinery & Rentals',
+            partner TEXT NOT NULL,
+            location TEXT,
+            state TEXT,
+            helpline TEXT,
+            cta_text TEXT DEFAULT 'Inquire / Connect',
+            cta_link TEXT DEFAULT '#',
+            benefits TEXT,
+            theme_color TEXT DEFAULT '#2e7d32',
+            bg_gradient TEXT DEFAULT 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+            icon TEXT DEFAULT 'fas fa-tractor',
+            image_url TEXT,
+            upvotes INTEGER DEFAULT 0,
+            is_farmer_deal INTEGER DEFAULT 1,
+            status TEXT DEFAULT 'approved',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Seed initial community deals if table empty
+    cursor.execute("SELECT COUNT(*) as count FROM farmer_deals_offers")
+    if cursor.fetchone()['count'] == 0:
+        seed_deals = [
+            (
+                "55 HP Tractor with Laser Land Leveler & Happy Seeder for Hire",
+                "Cut diesel and save 30% sowing time with GPS-guided land leveling",
+                "Complete custom hiring package available for Rabi sowing across Sangrur & Patiala. Includes experienced operator and diesel support.",
+                "Custom Hiring Center • Punjab",
+                "Seasonal Hire Available",
+                "Farm Machinery & Rentals",
+                "Sardar Harjit Singh Dhillon",
+                "Sangrur & Sunam",
+                "Punjab",
+                "98765-22441",
+                "Book Tractor Rental",
+                "tel:9876522441",
+                "₹800/Hour All-Inclusive||GPS-Precision ±1cm Leveling||Doorstep Delivery to Farm",
+                "#1565c0",
+                "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)",
+                "fas fa-tractor",
+                "",
+                18
+            ),
+            (
+                "NSC Certified High-Yield Wheat (PBW-826 & HD-3086) Seed Stock",
+                "ICAR Recommended varieties with 98% germination guarantee",
+                "Direct from registered cooperative seed growers. Pre-treated with bio-fungicide (Trichoderma) to resist yellow rust and smut.",
+                "National Seeds Cooperative",
+                "Certified Seed Subsidy",
+                "Certified Seeds",
+                "Kisan Beej Sahyog Kendra",
+                "Khanna Mandi, Ludhiana",
+                "Punjab",
+                "1800-180-1551",
+                "Order Certified Seeds",
+                "tel:18001801551",
+                "₹42/kg Government Subsidized||Treated against Rust||Doorstep PACS Delivery",
+                "#2e7d32",
+                "linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)",
+                "fas fa-seedling",
+                "",
+                24
+            ),
+            (
+                "Agricultural Drone Spraying Service for Nano Urea & Insecticides",
+                "Spray 1 Acre in 7 Minutes with 95% Uniform Canopy Coverage",
+                "DGCA-certified drone pilot service covering wheat, mustard, sugarcane, and cotton. Saves 50% water and eliminates health risks of manual backpack spraying.",
+                "Kisan Drone Seva",
+                "DGCA Certified Pilot",
+                "Drone & Technology",
+                "Krishi Drone Sahyog Network",
+                "Karnal & Kurukshetra",
+                "Haryana",
+                "98120-77889",
+                "Book Drone Spraying",
+                "tel:9812077889",
+                "Just ₹350 per Acre||Zero Crop Trampling Damage||Battery & Water Self-Supplied",
+                "#6a1b9a",
+                "linear-gradient(135deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%)",
+                "fas fa-helicopter",
+                "",
+                31
+            ),
+            (
+                "100% Earthworm Enriched Organic Vermicompost Bulk Supply",
+                "Lab-tested organic manure with high nitrogen, humic acid and micro-nutrients",
+                "Prepared using desi cow dung and Eisenia fetida earthworms. Improves soil water retention, restores beneficial microflora, and cuts chemical DAP need by 40%.",
+                "Organic Farmers Group",
+                "Bulk Tractor-Trolley Discount",
+                "Bio-Fertilizers & Nutrients",
+                "Meena Organic Agro Farm",
+                "Ramganj Mandi, Kota",
+                "Rajasthan",
+                "94140-33211",
+                "Inquire Bulk Compost",
+                "tel:9414033211",
+                "₹6/kg in 50kg Bags||Free Testing Certificate||Bulk Delivery across Rajasthan & MP",
+                "#b71c1c",
+                "linear-gradient(135deg, #ffebee 0%, #ffcdd2 50%, #ef9a9a 100%)",
+                "fas fa-leaf",
+                "",
+                15
+            )
+        ]
+        cursor.executemany('''
+            INSERT INTO farmer_deals_offers
+            (title, subtitle, description, badge, deal_tag, category, partner, location, state, helpline, cta_text, cta_link, benefits, theme_color, bg_gradient, icon, image_url, upvotes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', seed_deals)
+
     # Create default admin user if not exists
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
     if not cursor.fetchone():
@@ -455,6 +574,124 @@ def upvote_farmer_news(news_id):
     ''', (news_id,))
     conn.commit()
     cursor.execute('SELECT upvotes FROM farmer_community_news WHERE id = ?', (news_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row['upvotes'] if row else 0
+
+# Farmer Deals & Marketplace Offers Functions
+def create_farmer_deal(title, description, partner=None, category='Machinery & Rentals',
+                       subtitle='', badge=None, deal_tag=None,
+                       location='', state='', helpline=None, cta_text=None,
+                       cta_link=None, benefits='', theme_color=None, icon=None,
+                       image_url='', price_terms=None, seller_name=None, contact_number=None):
+    """Save a community-submitted agricultural deal or equipment offer"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Resolve aliases
+    partner_name = partner or seller_name or 'Local Farmer'
+    contact_phone = helpline or contact_number or ''
+    tag = deal_tag or (f"₹ {price_terms}" if price_terms else 'Verified Offer')
+    deal_badge = badge or f"Farmer Deal • {category}"
+    cta = cta_text or ("Call Seller" if contact_phone else "Inquire / Connect")
+    link = cta_link or (f"tel:{contact_phone}" if contact_phone else "#")
+    sub = subtitle or (f"Offered by {partner_name} ({location}, {state})" if location else f"Offered by {partner_name}")
+
+    # Build benefits if price_terms given
+    b_list = [b.strip() for b in benefits.split('||') if b.strip()] if benefits else []
+    if price_terms and not any('Rate' in b for b in b_list):
+        b_list.insert(0, f"Rate / Terms: {price_terms}")
+    if location and not any('Location' in b for b in b_list):
+        b_list.append(f"Location: {location}, {state}".strip(', '))
+    if not any('Verified' in b or 'Farmer' in b for b in b_list):
+        b_list.append("Direct Farmer-to-Farmer Deal")
+    benefits_str = "||".join(b_list)
+
+    # Determine theme color & icon based on category
+    cat_lower = category.lower()
+    if not theme_color:
+        if 'seed' in cat_lower:
+            theme_color = '#2e7d32'
+            deal_icon = 'fas fa-seedling'
+        elif 'machinery' in cat_lower or 'tractor' in cat_lower:
+            theme_color = '#1565c0'
+            deal_icon = 'fas fa-tractor'
+        elif 'drone' in cat_lower or 'tech' in cat_lower:
+            theme_color = '#6a1b9a'
+            deal_icon = 'fas fa-drone'
+        elif 'fertilizer' in cat_lower or 'organic' in cat_lower or 'compost' in cat_lower:
+            theme_color = '#b71c1c'
+            deal_icon = 'fas fa-leaf'
+        elif 'solar' in cat_lower or 'irrigation' in cat_lower:
+            theme_color = '#e65100'
+            deal_icon = 'fas fa-solar-panel'
+        else:
+            theme_color = '#2e7d32'
+            deal_icon = 'fas fa-handshake'
+    else:
+        deal_icon = icon or 'fas fa-tag'
+
+    if icon:
+        deal_icon = icon
+
+    color_map = {
+        '#1565c0': 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+        '#2e7d32': 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+        '#6a1b9a': 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%)',
+        '#b71c1c': 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 50%, #ef9a9a 100%)',
+        '#e65100': 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%)'
+    }
+    bg_gradient = color_map.get(theme_color, 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)')
+
+    cursor.execute('''
+        INSERT INTO farmer_deals_offers 
+        (title, subtitle, description, badge, deal_tag, category, partner, location, state, 
+         helpline, cta_text, cta_link, benefits, theme_color, bg_gradient, icon, image_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title.strip(), sub.strip(), description.strip(), deal_badge.strip(), tag.strip(),
+          category.strip(), partner_name.strip(), location.strip(), state.strip(),
+          contact_phone.strip(), cta.strip(), link.strip(), benefits_str.strip(),
+          theme_color.strip(), bg_gradient, deal_icon.strip(), (image_url or '').strip()))
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
+    return new_id
+
+def get_all_farmer_deals(limit=50):
+    """Retrieve community-submitted and partner agricultural deals"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM farmer_deals_offers 
+        WHERE status = 'approved'
+        ORDER BY created_at DESC LIMIT ?
+    ''', (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    results = []
+    for row in rows:
+        d = dict(row)
+        d['seller_name'] = d.get('partner')
+        d['contact_number'] = d.get('helpline')
+        if isinstance(d.get('benefits'), str):
+            d['benefits_list'] = [b.strip() for b in d['benefits'].split('||') if b.strip()]
+        else:
+            d['benefits_list'] = []
+        d['price_terms'] = d.get('deal_tag', '').replace('₹', '').strip()
+        results.append(d)
+    return results
+
+def upvote_farmer_deal(deal_id):
+    """Increment upvote/interest count for agricultural deal"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE farmer_deals_offers 
+        SET upvotes = upvotes + 1 
+        WHERE id = ?
+    ''', (deal_id,))
+    conn.commit()
+    cursor.execute('SELECT upvotes FROM farmer_deals_offers WHERE id = ?', (deal_id,))
     row = cursor.fetchone()
     conn.close()
     return row['upvotes'] if row else 0

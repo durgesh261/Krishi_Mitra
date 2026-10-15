@@ -45,14 +45,24 @@
         <span class="live-flair"><i class="fas fa-bullhorn"></i> <span data-i18n="ad_flair">Farmer Marketplace & Subsidies</span></span>
         <h2 data-i18n="ad_carousel_title">🚜 Featured Agricultural Deals & Verified Offers</h2>
       </div>
-      <div class="carousel-controls">
-        <button class="carousel-arrow prev-btn" id="prevAdBtn" aria-label="Previous Slide">
-          <i class="fas fa-chevron-left"></i>
+      <div class="carousel-header-actions">
+        <button type="button" class="post-deal-btn" id="openDealModalBtn" title="Post your crop harvest, equipment rental, seed batch, or drone service">
+          <i class="fas fa-plus-circle"></i> <span>Post Deal / Offer</span>
         </button>
-        <button class="carousel-arrow next-btn" id="nextAdBtn" aria-label="Next Slide">
-          <i class="fas fa-chevron-right"></i>
-        </button>
+        <div class="carousel-controls">
+          <button class="carousel-arrow prev-btn" id="prevAdBtn" aria-label="Previous Slide">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="carousel-arrow next-btn" id="nextAdBtn" aria-label="Next Slide">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
+    </div>
+
+    <!-- Deal Toast Notification Alert -->
+    <div id="dealToastAlert" class="deal-toast-alert" style="display: none;">
+      <i class="fas fa-check-circle"></i> <span id="dealToastMsg"></span>
     </div>
 
     <div class="ad-carousel-container" id="adCarouselContainer">
@@ -83,21 +93,35 @@
               </div>
 
               <div class="ad-cta-row">
-                <a href="{{ ad.cta_link }}" target="_blank" rel="noopener noreferrer" class="ad-main-btn" style="background: {{ ad.theme_color }};">
+                <a href="{{ ad.cta_link }}" {% if not ad.cta_link.startswith('tel:') %}target="_blank" rel="noopener noreferrer"{% endif %} class="ad-main-btn" style="background: {{ ad.theme_color }};">
                   {{ ad.cta_text }} <i class="fas fa-arrow-right"></i>
                 </a>
                 <span class="ad-call-info">
-                  <i class="fas fa-phone-alt"></i> Toll-Free: <strong>{{ ad.helpline }}</strong>
+                  <i class="fas fa-phone-alt"></i> {% if ad.is_farmer_deal %}Contact / Helpline:{% else %}Toll-Free:{% endif %} <strong>{{ ad.helpline }}</strong>
                 </span>
               </div>
             </div>
 
             <div class="ad-banner-right">
+              {% if ad.image_url %}
+              <div class="ad-crop-img-box">
+                <img src="{{ ad.image_url }}" alt="{{ ad.title }}" class="ad-crop-thumb" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="ad-icon-circle fallback-icon" style="color: {{ ad.theme_color }}; display: none;">
+                  <i class="{{ ad.icon }}"></i>
+                </div>
+              </div>
+              {% else %}
               <div class="ad-icon-circle" style="color: {{ ad.theme_color }};">
                 <i class="{{ ad.icon }}"></i>
               </div>
-              <span class="ad-partner-lbl">Verified Partner</span>
+              {% endif %}
+              <span class="ad-partner-lbl">{% if ad.is_farmer_deal %}Community Farmer Listing{% else %}Verified Partner{% endif %}</span>
               <span class="ad-partner-name">{{ ad.partner }}</span>
+              {% if ad.is_farmer_deal and ad.deal_id %}
+              <button type="button" class="deal-upvote-chip" data-id="{{ ad.deal_id }}" title="Upvote this farmer deal">
+                <i class="fas fa-thumbs-up"></i> <span class="deal-upvote-count">{{ ad.upvotes or 0 }}</span>
+              </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -323,6 +347,85 @@
           <span class="hl-desc">₹6,000/year DBT installment verification</span>
         </div>
       </a>
+  <!-- Modal for Farmers to Post Deals & Verified Agricultural Offers -->
+  <div id="submitDealModal" class="agri-modal-backdrop" style="display: none;">
+    <div class="agri-modal-content">
+      <div class="agri-modal-header">
+        <div class="agri-modal-title-group">
+          <div class="agri-modal-icon"><i class="fas fa-tag"></i></div>
+          <div>
+            <h3>Post Agricultural Deal & Verified Offer</h3>
+            <p>Connect directly with farmers to offer seeds, machinery rentals, drone services, fertilizers, or harvest lots</p>
+          </div>
+        </div>
+        <button type="button" class="agri-modal-close" id="closeSubmitDealModalBtn">&times;</button>
+      </div>
+
+      <form id="farmerDealForm">
+        <div class="agri-modal-body">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="dealSellerName"><i class="fas fa-user"></i> Your Name / Farm / Business <span class="req">*</span></label>
+              <input type="text" id="dealSellerName" name="seller_name" placeholder="e.g. Ramesh Patel / Kisan Kendra" required />
+            </div>
+            <div class="form-group">
+              <label for="dealCategory"><i class="fas fa-tag"></i> Deal Category <span class="req">*</span></label>
+              <select id="dealCategory" name="category" required>
+                <option value="Machinery & Equipment Rental">Machinery & Tractor Rental (ट्रैक्टर / कंबाइन)</option>
+                <option value="Seeds & Plant Material" selected>Seeds & Seedlings (प्रमाणित बीज / पौधे)</option>
+                <option value="Drone & Tech Services">Drone Spraying & Tech Services (ड्रोन छिड़काव)</option>
+                <option value="Fertilizers & Organic Inputs">Organic Fertilizers & Manure (जैविक खाद / कंपोस्ट)</option>
+                <option value="Irrigation & Solar">Solar Pumps & Drip Irrigation (सोलर पंप / ड्रिप)</option>
+                <option value="Crop Output & Harvest Sale">Crop Harvest & Bulk Produce (उपज / फसल बिक्री)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dealTitle"><i class="fas fa-bullhorn"></i> Offer Title / Equipment / Crop Name <span class="req">*</span></label>
+            <input type="text" id="dealTitle" name="title" placeholder="e.g. High-Yield DBW-187 Wheat Seeds (40kg bag) or Laser Land Leveler Rental" required />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="dealPriceTerms"><i class="fas fa-rupee-sign"></i> Price / Rental Terms <span class="req">*</span></label>
+              <input type="text" id="dealPriceTerms" name="price_terms" placeholder="e.g. ₹850 / hour or ₹2,450 / 40kg bag" required />
+            </div>
+            <div class="form-group">
+              <label for="dealContact"><i class="fas fa-phone-alt"></i> Contact Number / WhatsApp <span class="req">*</span></label>
+              <input type="tel" id="dealContact" name="contact_number" placeholder="e.g. +91 98765 43210" required />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="dealLocation"><i class="fas fa-map-marker-alt"></i> Village / District / Mandi <span class="req">*</span></label>
+              <input type="text" id="dealLocation" name="location" placeholder="e.g. Karnal, Haryana" required />
+            </div>
+            <div class="form-group">
+              <label for="dealState"><i class="fas fa-flag"></i> State <span class="req">*</span></label>
+              <input type="text" id="dealState" name="state" placeholder="e.g. Haryana, Punjab, UP" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dealDescription"><i class="fas fa-align-left"></i> Deal Details & Highlights <span class="req">*</span></label>
+            <textarea id="dealDescription" name="description" rows="3" placeholder="Describe the service/crop: specifications, delivery options, discount details, or availability dates..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="dealImageUrl"><i class="fas fa-image"></i> Crop / Product Photo URL <span class="opt">(Optional - auto-detected if crop named)</span></label>
+            <input type="url" id="dealImageUrl" name="image_url" placeholder="https://example.com/photo.jpg (leave blank for automatic crop photo)" />
+          </div>
+        </div>
+
+        <div class="agri-modal-footer">
+          <button type="button" class="btn-modal-cancel" id="cancelDealModalBtn">Cancel</button>
+          <button type="submit" class="btn-modal-submit" id="submitDealBtn">
+            <i class="fas fa-paper-plane"></i> <span>Publish Deal to Marketplace</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -529,6 +632,31 @@
   color: #1b5e20;
   margin: 0;
 }
+.carousel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.post-deal-btn {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 18px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.25);
+  transition: all 0.25s;
+}
+.post-deal-btn:hover {
+  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.35);
+}
 .carousel-controls {
   display: flex;
   gap: 10px;
@@ -680,6 +808,31 @@
   border-radius: 16px;
   backdrop-filter: blur(5px);
 }
+.ad-crop-img-box {
+  width: 82px;
+  height: 82px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  margin-bottom: 10px;
+  border: 2.5px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+.ad-crop-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.ad-crop-img-box:hover .ad-crop-thumb {
+  transform: scale(1.08);
+}
+.fallback-icon {
+  margin-bottom: 0 !important;
+}
 .ad-icon-circle {
   width: 70px;
   height: 70px;
@@ -703,6 +856,226 @@
   font-weight: 700;
   color: #222;
   margin-top: 2px;
+}
+.deal-upvote-chip {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1.5px solid #a5d6a7;
+  color: #2e7d32;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.deal-upvote-chip:hover {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  transform: translateY(-1px);
+}
+.deal-upvote-chip.upvoted {
+  background: #2e7d32;
+  color: #fff;
+  border-color: #2e7d32;
+}
+
+/* Deal Toast Alert */
+.deal-toast-alert {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3);
+  animation: slideDownFade 0.3s ease-out;
+}
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Agri Modal Styling */
+.agri-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 25, 12, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.agri-modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  overflow: hidden;
+  animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.agri-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+  color: white;
+}
+.agri-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.agri-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.agri-modal-title-group h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.agri-modal-title-group p {
+  margin: 3px 0 0 0;
+  font-size: 12px;
+  color: #d8f3dc;
+  line-height: 1.3;
+}
+.agri-modal-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.agri-modal-close:hover {
+  opacity: 1;
+}
+.agri-modal-body {
+  padding: 22px 24px;
+  overflow-y: auto;
+  max-height: calc(90vh - 150px);
+}
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 6px;
+}
+.form-group label i {
+  color: #2e7d32;
+  margin-right: 4px;
+}
+.form-group label .req {
+  color: #e53935;
+}
+.form-group label .opt {
+  color: #718096;
+  font-size: 11px;
+  font-weight: normal;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e0;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #2d3748;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+.agri-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f7fafc;
+  border-top: 1px solid #edf2f7;
+}
+.btn-modal-cancel {
+  background: #edf2f7;
+  color: #4a5568;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-modal-cancel:hover {
+  background: #e2e8f0;
+}
+.btn-modal-submit {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+  transition: all 0.25s;
+}
+.btn-modal-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.4);
 }
 .carousel-dots {
   display: flex;
@@ -967,7 +1340,7 @@
 
 {% block extra_js %}
 <script>
-// SLIDING ADVERTISEMENT CAROUSEL SCRIPT
+// SLIDING ADVERTISEMENT CAROUSEL SCRIPT & DEALS ENGINE
 $(document).ready(function() {
   var currentSlide = 0;
   var totalSlides = $('.ad-slide-item').length;
@@ -1019,9 +1392,9 @@ $(document).ready(function() {
     startAutoPlay();
   });
 
-  // Dots click
-  $('.dot-indicator').on('click', function() {
-    var idx = parseInt($(this).data('index'), 10);
+  // Dots click (delegate to handle dynamically added dots)
+  $(document).on('click', '.dot-indicator', function() {
+    var idx = parseInt($(this).attr('data-index'), 10);
     goToSlide(idx);
     startAutoPlay();
   });
@@ -1036,6 +1409,176 @@ $(document).ready(function() {
   if (totalSlides > 1) {
     startAutoPlay();
   }
+
+  // Open / Close Deal Modal
+  function openDealModal() {
+    $('#submitDealModal').fadeIn(200);
+    $('body').css('overflow', 'hidden');
+    $('#dealSellerName').focus();
+  }
+
+  function closeDealModal() {
+    $('#submitDealModal').fadeOut(200);
+    $('body').css('overflow', '');
+  }
+
+  $('#openDealModalBtn').on('click', openDealModal);
+  $('#closeSubmitDealModalBtn, #cancelDealModalBtn').on('click', closeDealModal);
+
+  // Close on backdrop click
+  $('#submitDealModal').on('click', function(e) {
+    if ($(e.target).is('#submitDealModal')) {
+      closeDealModal();
+    }
+  });
+
+  // Close on Escape key
+  $(document).on('keydown', function(e) {
+    if (e.key === 'Escape' && $('#submitDealModal').is(':visible')) {
+      closeDealModal();
+    }
+  });
+
+  // Submit Deal Form
+  $('#farmerDealForm').on('submit', function(e) {
+    e.preventDefault();
+    var $submitBtn = $('#submitDealBtn');
+    var originalBtnHtml = $submitBtn.html();
+    $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> <span>Publishing Deal...</span>');
+
+    var payload = {
+      seller_name: $('#dealSellerName').val().trim(),
+      category: $('#dealCategory').val(),
+      title: $('#dealTitle').val().trim(),
+      price_terms: $('#dealPriceTerms').val().trim(),
+      contact_number: $('#dealContact').val().trim(),
+      location: $('#dealLocation').val().trim(),
+      state: $('#dealState').val().trim(),
+      description: $('#dealDescription').val().trim(),
+      image_url: $('#dealImageUrl').val().trim() || null
+    };
+
+    $.ajax({
+      url: '/api/deals/submit',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(payload),
+      success: function(resp) {
+        $submitBtn.prop('disabled', false).html(originalBtnHtml);
+        if (resp.success) {
+          closeDealModal();
+          $('#farmerDealForm')[0].reset();
+
+          // Show Toast Notification
+          $('#dealToastMsg').text(resp.message || 'Agricultural deal published successfully to Marketplace!');
+          $('#dealToastAlert').slideDown(300);
+          setTimeout(function() {
+            $('#dealToastAlert').slideUp(300);
+          }, 6000);
+
+          // Resolve image
+          var cropImg = payload.image_url;
+          if (!cropImg && window.getCropImageUrl) {
+            cropImg = window.getCropImageUrl(payload.title);
+          }
+
+          // Dynamically prepend new slide item into the carousel
+          var dealId = resp.deal_id;
+          var newSlideHtml = `
+            <div class="ad-slide-item" data-index="0">
+              <div class="ad-banner-card" style="background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 50%, #c5e1a5 100%); border-color: #2e7d32;">
+                <div class="ad-banner-left">
+                  <div class="ad-top-badges">
+                    <span class="ad-sponsor-badge" style="background: #2e7d32;">
+                      Farmer Deal • ${payload.category}
+                    </span>
+                    <span class="ad-valid-badge">
+                      <i class="far fa-calendar-check"></i> ₹ ${payload.price_terms}
+                    </span>
+                  </div>
+                  <h3 class="ad-slide-title">${payload.title}</h3>
+                  <p class="ad-slide-subtitle">Offered by ${payload.seller_name} (${payload.location}, ${payload.state})</p>
+                  <p class="ad-slide-desc">${payload.description}</p>
+                  <div class="ad-benefits-row">
+                    <span class="ad-benefit-tag"><i class="fas fa-check-circle" style="color: #2e7d32;"></i> Rate: ${payload.price_terms}</span>
+                    <span class="ad-benefit-tag"><i class="fas fa-check-circle" style="color: #2e7d32;"></i> Location: ${payload.location}, ${payload.state}</span>
+                    <span class="ad-benefit-tag"><i class="fas fa-check-circle" style="color: #2e7d32;"></i> Direct Farmer-to-Farmer Deal</span>
+                  </div>
+                  <div class="ad-cta-row">
+                    <a href="tel:${payload.contact_number}" class="ad-main-btn" style="background: #2e7d32;">
+                      Call / Contact Seller <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <span class="ad-call-info">
+                      <i class="fas fa-phone-alt"></i> Contact: <strong>${payload.contact_number}</strong>
+                    </span>
+                  </div>
+                </div>
+                <div class="ad-banner-right">
+                  ${cropImg ? `
+                    <div class="ad-crop-img-box">
+                      <img src="${cropImg}" alt="${payload.title}" class="ad-crop-thumb" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                      <div class="ad-icon-circle fallback-icon" style="color: #2e7d32; display: none;">
+                        <i class="fas fa-handshake"></i>
+                      </div>
+                    </div>
+                  ` : `
+                    <div class="ad-icon-circle" style="color: #2e7d32;">
+                      <i class="fas fa-handshake"></i>
+                    </div>
+                  `}
+                  <span class="ad-partner-lbl">Community Farmer Listing</span>
+                  <span class="ad-partner-name">${payload.seller_name}</span>
+                  <button type="button" class="deal-upvote-chip" data-id="${dealId}" title="Upvote this farmer deal">
+                    <i class="fas fa-thumbs-up"></i> <span class="deal-upvote-count">0</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+
+          $('#adCarouselTrack').prepend(newSlideHtml);
+          // Re-index all slides
+          $('.ad-slide-item').each(function(i) {
+            $(this).attr('data-index', i);
+          });
+          totalSlides = $('.ad-slide-item').length;
+          // Add new dot indicator
+          $('#carouselDots').prepend(`<span class="dot-indicator" data-index="0"></span>`);
+          $('#carouselDots .dot-indicator').each(function(i) {
+            $(this).attr('data-index', i);
+          });
+          goToSlide(0);
+        } else {
+          alert('Error: ' + (resp.error || 'Failed to submit deal.'));
+        }
+      },
+      error: function(xhr) {
+        $submitBtn.prop('disabled', false).html(originalBtnHtml);
+        var err = xhr.responseJSON ? xhr.responseJSON.error : 'Network error occurred.';
+        alert('Error: ' + err);
+      }
+    });
+  });
+
+  // Upvote Deal
+  $(document).on('click', '.deal-upvote-chip', function(e) {
+    e.preventDefault();
+    var $btn = $(this);
+    if ($btn.hasClass('upvoted')) return;
+    var dealId = $btn.data('id');
+    if (!dealId) return;
+
+    $.ajax({
+      url: '/api/deals/upvote/' + dealId,
+      method: 'POST',
+      success: function(resp) {
+        if (resp.success) {
+          $btn.addClass('upvoted');
+          $btn.find('.deal-upvote-count').text(resp.upvotes);
+        }
+      }
+    });
+  });
 });
 </script>
 {% endblock %}
