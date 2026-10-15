@@ -94,6 +94,81 @@ def init_db():
         )
     ''')
     
+    # Farmer Community News / Field Reports table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS farmer_community_news (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            summary TEXT NOT NULL,
+            category TEXT DEFAULT 'Crop Care & Alerts',
+            author_name TEXT NOT NULL,
+            village_district TEXT,
+            state TEXT,
+            contact TEXT,
+            tag TEXT DEFAULT 'Farmer Report',
+            source TEXT DEFAULT 'Community Advisory',
+            source_url TEXT DEFAULT '',
+            upvotes INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'approved',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Seed authentic starter farmer field reports if table is empty
+    cursor.execute("SELECT COUNT(*) as count FROM farmer_community_news")
+    if cursor.fetchone()['count'] == 0:
+        seed_farmer_news = [
+            (
+                "Ludhiana Mandi Update: Early Paddy 1509 Arrivals Fetch Premium ₹3,450/Qtl",
+                "Good moisture quality paddy is receiving immediate bids from private millers. Farmers advised to bring grain with moisture below 17% for instant spot payment at Khanna & Ludhiana APMC.",
+                "Market & Mandi",
+                "Sardar Jaswinder Singh",
+                "Khanna, Ludhiana",
+                "Punjab",
+                "Farmer Advisory",
+                "",
+                14
+            ),
+            (
+                "Warning: Mild Whitefly Infestation Observed on Late Cotton in Sirsa District",
+                "Spotted whitefly nymphs on underside of leaves in 3 blocks. Agricultural extension officer recommends neem-based spray (1500 ppm @ 5ml/liter) before applying chemical insecticides.",
+                "Crop Care & Alerts",
+                "Chaudhary Virender Sihag",
+                "Sirsa",
+                "Haryana",
+                "Kisan Mitra Reporter",
+                "",
+                9
+            ),
+            (
+                "IFFCO Nano DAP Stock Delivered at Village Co-operative Society (PACS)",
+                "Fresh consignment of 500 bottles of Nano DAP arrived today. Available to all registered farmers with Aadhaar card at government MRP ₹225 per bottle.",
+                "Technology & Inputs",
+                "Rameshwar Meena",
+                "Ramganj Mandi, Kota",
+                "Rajasthan",
+                "PACS Committee Member",
+                "",
+                21
+            ),
+            (
+                "Pre-Rabi Soil Moisture Ideal: Recommending Early Mustard Sowing in Ujjain",
+                "Due to late September showers, deep black soil moisture is exceptionally high. Sowing Pioneer 45S46 or Giriraj variety this week will avoid aphid attacks in January.",
+                "Weather & Monsoon",
+                "Patel Shivraj Patidar",
+                "Tarana, Ujjain",
+                "Madhya Pradesh",
+                "Progressive Farmer",
+                "",
+                18
+            )
+        ]
+        cursor.executemany('''
+            INSERT INTO farmer_community_news 
+            (title, summary, category, author_name, village_district, state, source, source_url, upvotes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', seed_farmer_news)
+
     # Create default admin user if not exists
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
     if not cursor.fetchone():
@@ -332,6 +407,57 @@ def get_analytics_summary():
         'feature_usage': feature_usage,
         'recent_activities': recent_activities
     }
+
+# Farmer Community News & Field Advisories Functions
+def create_farmer_news(title, summary, category, author_name, village_district=None, state=None, contact=None, source_url=None):
+    """Save a community farmer news or field advisory"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO farmer_community_news (title, summary, category, author_name, village_district, state, contact, source_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (title.strip(), summary.strip(), category.strip(), author_name.strip(), 
+          (village_district or '').strip(), (state or '').strip(), 
+          (contact or '').strip(), (source_url or '').strip()))
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
+    return new_id
+
+def get_all_farmer_news(limit=50, category=None):
+    """Retrieve community farmer news items"""
+    conn = get_db()
+    cursor = conn.cursor()
+    if category and category.lower() != 'all':
+        cursor.execute('''
+            SELECT * FROM farmer_community_news 
+            WHERE status = 'approved' AND (category = ? OR category LIKE ?)
+            ORDER BY created_at DESC LIMIT ?
+        ''', (category, f"%{category}%", limit))
+    else:
+        cursor.execute('''
+            SELECT * FROM farmer_community_news 
+            WHERE status = 'approved'
+            ORDER BY created_at DESC LIMIT ?
+        ''', (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+def upvote_farmer_news(news_id):
+    """Increment upvote count for helpful farmer news"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE farmer_community_news 
+        SET upvotes = upvotes + 1 
+        WHERE id = ?
+    ''', (news_id,))
+    conn.commit()
+    cursor.execute('SELECT upvotes FROM farmer_community_news WHERE id = ?', (news_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row['upvotes'] if row else 0
 
 if __name__ == '__main__':
     init_db()

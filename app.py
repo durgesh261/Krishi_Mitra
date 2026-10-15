@@ -19,11 +19,15 @@ from database import (
     create_contact_submission, get_all_contacts, update_contact_status,
     log_activity, log_analytics, get_analytics_summary,
     log_prediction, get_user_predictions,
-    update_user_language, get_user_language
+    update_user_language, get_user_language,
+    upvote_farmer_news
 )
 from location_service import get_location_from_coordinates, normalize_state_name, get_open_meteo_weather
 from mandi_service import get_mandi_prices, get_all_states, get_all_commodities, get_mandi_summary_stats
-from news_service import get_daily_agri_news, get_daily_farming_ads, get_news_categories, get_news_last_updated_time
+from news_service import (
+    get_daily_agri_news, get_daily_farming_ads, get_news_categories, 
+    get_news_last_updated_time, add_farmer_report
+)
 from auth import login_required, admin_required
 from crop_recommendation import (
     predict_crops, get_district_averages, get_crop_guide, 
@@ -454,6 +458,70 @@ def api_news():
         'success': True,
         'count': len(items),
         'last_updated': last_updated,
+        'news': items
+    })
+
+@app.route('/api/news/submit', methods=['POST'])
+def api_submit_farmer_news():
+    """Endpoint for farmers and community members to submit agricultural reports and advisories"""
+    data = request.get_json() if request.is_json else request.form
+    if not data:
+        data = request.args
+    
+    title = (data.get('title') or '').strip()
+    summary = (data.get('summary') or '').strip()
+    category = (data.get('category') or 'Crop Care & Alerts').strip()
+    author_name = (data.get('author_name') or '').strip()
+    village_district = (data.get('village_district') or '').strip()
+    state = (data.get('state') or '').strip()
+    contact = (data.get('contact') or '').strip()
+    source_url = (data.get('source_url') or '').strip()
+
+    if not title:
+        return jsonify({'success': False, 'error': 'Headline/Title is required'}), 400
+    if not summary:
+        return jsonify({'success': False, 'error': 'News details or description is required'}), 400
+    if not author_name:
+        return jsonify({'success': False, 'error': 'Farmer/Contributor name is required'}), 400
+
+    new_id = add_farmer_report(
+        title=title,
+        summary=summary,
+        category=category,
+        author_name=author_name,
+        village_district=village_district,
+        state=state,
+        contact=contact,
+        source_url=source_url
+    )
+
+    return jsonify({
+        'success': True,
+        'message': 'Farmer community advisory published successfully to the live community board!',
+        'news_id': new_id
+    })
+
+@app.route('/api/news/upvote/<int:news_id>', methods=['POST'])
+def api_upvote_farmer_news(news_id):
+    """Upvote helpful farmer reports"""
+    new_count = upvote_farmer_news(news_id)
+    return jsonify({
+        'success': True,
+        'news_id': news_id,
+        'upvotes': new_count
+    })
+
+@app.route('/api/news/refresh', methods=['GET', 'POST'])
+def api_refresh_news():
+    """Force an immediate live re-scrape and return fresh items"""
+    items = get_daily_agri_news(limit=100, force_refresh=True)
+    categories = get_news_categories()
+    last_updated = get_news_last_updated_time()
+    return jsonify({
+        'success': True,
+        'count': len(items),
+        'last_updated': last_updated,
+        'categories': categories,
         'news': items
     })
 

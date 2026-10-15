@@ -387,6 +387,61 @@ class TestKrishiMitraApp(unittest.TestCase):
             self.assertTrue(len(d['diagnosis']['crop_specific_advisory']) > 0)
             print(f"  [PASS] {crop_test.capitalize()} Multimodal ({d['crop_category']}/{d['crop_sub_category']}): Baseline={base_q} q/ha, Est={est_q} q/ha")
 
+    def test_16_news_and_farmer_community_reports(self):
+        # 1. News HTML portal
+        res = self.client.get('/news')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Daily Krishi Samachar', res.data)
+        self.assertIn(b'Post Farmer News', res.data)
+        self.assertIn(b'submitNewsModal', res.data)
+        print("  [PASS] News HTML portal: Loaded successfully with Farmer News modal and actions")
+
+        # 2. News API JSON endpoint
+        res_api = self.client.get('/api/news')
+        self.assertEqual(res_api.status_code, 200)
+        api_data = res_api.get_json()
+        self.assertTrue(api_data['success'])
+        self.assertTrue(api_data['count'] > 0)
+        self.assertTrue(len(api_data['news']) > 0)
+        print(f"  [PASS] News API: Retrieved {api_data['count']} active agricultural headlines")
+
+        # 3. Submit a new farmer community news advisory
+        farmer_payload = {
+            'title': 'Test Mandi Alert: Fresh Sharbati Wheat arrival touched 3200 per quintal in Sehore',
+            'summary': 'High protein quality grain is receiving strong bidding from flour millers. Clean dry grain brings spot cash payments.',
+            'category': 'Market & Mandi',
+            'author_name': 'Kisan Bhai Rajesh',
+            'village_district': 'Sehore Mandi',
+            'state': 'Madhya Pradesh',
+            'contact': '9876543210'
+        }
+        res_submit = self.client.post('/api/news/submit',
+                                      data=json.dumps(farmer_payload),
+                                      content_type='application/json')
+        self.assertEqual(res_submit.status_code, 200)
+        sub_data = res_submit.get_json()
+        self.assertTrue(sub_data['success'])
+        self.assertIn('news_id', sub_data)
+        news_id = sub_data['news_id']
+        print(f"  [PASS] Farmer News Submission: Successfully posted new advisory (ID #{news_id})")
+
+        # 4. Upvote the farmer report
+        res_upvote = self.client.post(f'/api/news/upvote/{news_id}')
+        self.assertEqual(res_upvote.status_code, 200)
+        upvote_data = res_upvote.get_json()
+        self.assertTrue(upvote_data['success'])
+        self.assertEqual(upvote_data['upvotes'], 1)
+        print(f"  [PASS] Farmer News Upvote: Incremented upvotes to {upvote_data['upvotes']}")
+
+        # 5. Live Feed Refresh API
+        res_refresh = self.client.get('/api/news/refresh')
+        self.assertEqual(res_refresh.status_code, 200)
+        ref_data = res_refresh.get_json()
+        self.assertTrue(ref_data['success'])
+        self.assertTrue(ref_data['count'] > 0)
+        self.assertIn('last_updated', ref_data)
+        print(f"  [PASS] News Live Refresh API: Live feed synchronized with {ref_data['count']} stories (Last sync: {ref_data['last_updated']})")
+
 if __name__ == '__main__':
     unittest.main()
 

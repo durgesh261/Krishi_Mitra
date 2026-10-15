@@ -10,12 +10,17 @@
         <div class="hero-live-badge">
           <span class="live-dot"></span> <span data-i18n="news_live_badge">Live Agricultural Feed • Auto-Updated 24/7 (Every 15 Mins)</span>
           {% if last_updated %}
-          <span class="badge-timestamp">• Last Sync: {{ last_updated }}</span>
+          <span class="badge-timestamp" id="lastUpdatedBadge">• Last Sync: {{ last_updated }}</span>
           {% endif %}
         </div>
-        <a href="/news?refresh=1" class="refresh-feed-pill" title="Check for new headlines right now">
-          <i class="fas fa-sync-alt"></i> <span>Refresh Live Feed</span>
-        </a>
+        <div class="hero-action-buttons">
+          <button type="button" class="post-news-hero-btn" id="openSubmitNewsModalBtn" title="Share local mandi rates, pest alerts, or village news">
+            <i class="fas fa-plus-circle"></i> <span>Post Farmer News</span>
+          </button>
+          <a href="/news?refresh=1" class="refresh-feed-pill" id="refreshFeedBtn" title="Check for new headlines right now">
+            <i class="fas fa-sync-alt" id="refreshIcon"></i> <span>Refresh Live Feed</span>
+          </a>
+        </div>
       </div>
       <h1 data-i18n="news_main_title">📰 Daily Krishi Samachar & Advisories</h1>
       <p data-i18n="news_subtitle">
@@ -26,10 +31,15 @@
       {% if news_items %}
       <div class="breaking-ticker">
         <span class="ticker-label"><i class="fas fa-bolt"></i> <span data-i18n="news_breaking_label">Latest Headline</span>:</span>
-        <span class="ticker-text">{{ news_items[0].title }}</span>
+        <span class="ticker-text" id="breakingTickerText">{{ news_items[0].title }}</span>
       </div>
       {% endif %}
     </div>
+  </div>
+
+  <!-- Realtime Toast Notification Banner -->
+  <div id="newsToastAlert" class="news-toast-alert" style="display: none;">
+    <i class="fas fa-check-circle"></i> <span id="newsToastMsg"></span>
   </div>
 
   <!-- Layout: Main Content + Daily Partner Ads Sidebar -->
@@ -42,7 +52,7 @@
           <input
             type="text"
             id="newsSearchInput"
-            placeholder="Search news by topic (e.g., MSP, Subsidy, Monsoon, Fertilizer, Drone)..."
+            placeholder="Search news by topic (e.g., MSP, Subsidy, Monsoon, Fertilizer, Drone, Punjab)..."
             value="{{ search_query }}"
             data-i18n-placeholder="news_search_ph"
           />
@@ -54,7 +64,7 @@
           </button>
           {% for cat in categories %}
           <button class="cat-pill {% if selected_category == cat.name %}active{% endif %}" data-cat="{{ cat.name }}">
-            {{ cat.name }} ({{ cat.count }})
+            {% if cat.is_farmer %}🌾 {% endif %}{{ cat.name }} ({{ cat.count }})
           </button>
           {% endfor %}
         </div>
@@ -62,37 +72,75 @@
 
       <!-- Live Count Status -->
       <div class="news-count-bar">
-        <span>Showing <strong id="visibleNewsCount">{{ news_items|length }}</strong> articles updated for today</span>
+        <span>Showing <strong id="visibleNewsCount">{{ news_items|length }}</strong> updates for today</span>
+        <button type="button" class="post-news-inline-btn" id="openSubmitNewsModalInlineBtn">
+          <i class="fas fa-pen"></i> Add Farmer Report
+        </button>
       </div>
 
       <!-- News Articles Grid -->
       <div class="news-grid" id="newsGrid">
         {% for item in news_items %}
-        <article class="news-card" data-category="{{ item.category }}">
+        <article class="news-card {% if item.is_farmer_news %}farmer-report-card{% endif %}" data-category="{{ item.category }}" data-is-farmer="{{ '1' if item.is_farmer_news else '0' }}">
           <div class="news-card-header">
-            <span class="news-cat-tag">
+            <span class="news-cat-tag {% if item.is_farmer_news %}farmer-cat-tag{% endif %}">
               <i class="{{ item.image_icon }}"></i> {{ item.category }}
             </span>
+            {% if item.is_farmer_news %}
+            <span class="farmer-verified-pill" title="Advisory shared by verified local farmer or PACS contributor">
+              <i class="fas fa-seedling"></i> Farmer Report
+            </span>
+            {% else %}
+            <span class="live-feed-pill">
+              <i class="fas fa-rss"></i> Live
+            </span>
+            {% endif %}
             <span class="news-date">
               <i class="far fa-clock"></i> {{ item.published_at }}
             </span>
           </div>
 
           <h3 class="news-title">
+            {% if item.source_url and item.source_url != '#' %}
             <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer">
               {{ item.title }}
             </a>
+            {% else %}
+            <span>{{ item.title }}</span>
+            {% endif %}
           </h3>
 
           <p class="news-summary">{{ item.summary }}</p>
 
+          {% if item.is_farmer_news and item.location %}
+          <div class="farmer-meta-location">
+            <i class="fas fa-map-marker-alt"></i> <span>{{ item.location }}</span>
+            {% if item.contact %}
+            <span class="farmer-contact-chip"><i class="fas fa-phone-alt"></i> {{ item.contact }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
           <div class="news-card-footer">
             <div class="news-source">
-              <i class="fas fa-newspaper"></i> <span>{{ item.source }}</span>
+              {% if item.is_farmer_news %}
+              <i class="fas fa-user-edit" style="color: #2e7d32;"></i>
+              {% else %}
+              <i class="fas fa-newspaper"></i>
+              {% endif %}
+              <span>{{ item.source }}</span>
             </div>
-            <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
-              Read Story <i class="fas fa-arrow-right"></i>
-            </a>
+            <div class="card-action-box">
+              {% if item.is_farmer_news %}
+              <button type="button" class="farmer-upvote-btn" data-id="{{ item.farmer_db_id }}" title="Found this report helpful?">
+                <i class="fas fa-thumbs-up"></i> <span class="upvote-text">Helpful</span> (<span class="upvote-count">{{ item.upvotes }}</span>)
+              </button>
+              {% elif item.source_url and item.source_url != '#' %}
+              <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="read-more-btn">
+                Read Story <i class="fas fa-arrow-right"></i>
+              </a>
+              {% endif %}
+            </div>
           </div>
         </article>
         {% endfor %}
@@ -142,6 +190,83 @@
         {% endfor %}
       </div>
     </aside>
+  </div>
+
+  <!-- Modal for Farmers to Submit Community News / Field Report -->
+  <div id="submitNewsModal" class="agri-modal-backdrop" style="display: none;">
+    <div class="agri-modal-content">
+      <div class="agri-modal-header">
+        <div class="agri-modal-title-group">
+          <div class="agri-modal-icon"><i class="fas fa-bullhorn"></i></div>
+          <div>
+            <h3>Post Farmer News & Field Advisory</h3>
+            <p>Share local crop updates, mandi rates, weather alerts, or input availability with fellow farmers</p>
+          </div>
+        </div>
+        <button type="button" class="agri-modal-close" id="closeSubmitNewsModalBtn">&times;</button>
+      </div>
+
+      <form id="farmerNewsForm">
+        <div class="agri-modal-body">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="farmerAuthorName"><i class="fas fa-user"></i> Your Name / Organization <span class="req">*</span></label>
+              <input type="text" id="farmerAuthorName" name="author_name" placeholder="e.g. Sardar Gurpreet Singh / Kisan Club" required />
+            </div>
+            <div class="form-group">
+              <label for="farmerCategory"><i class="fas fa-tag"></i> Category <span class="req">*</span></label>
+              <select id="farmerCategory" name="category" required>
+                <option value="Crop Care & Alerts" selected>Crop Care & Pest Alerts</option>
+                <option value="Market & Mandi">Market & Mandi (Bhav / Rates)</option>
+                <option value="Weather & Monsoon">Weather & Rainfall Outlook</option>
+                <option value="Subsidies & Schemes">Subsidies, Grants & Schemes</option>
+                <option value="Technology & Inputs">Seeds, Fertilizers & Machinery</option>
+                <option value="Policy & MSP">Policy, PACS & Procurement</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="farmerDistrict"><i class="fas fa-map-marker-alt"></i> Village / District / Mandi <span class="req">*</span></label>
+              <input type="text" id="farmerDistrict" name="village_district" placeholder="e.g. Khanna, Ludhiana" required />
+            </div>
+            <div class="form-group">
+              <label for="farmerState"><i class="fas fa-flag"></i> State <span class="req">*</span></label>
+              <input type="text" id="farmerState" name="state" placeholder="e.g. Punjab, Madhya Pradesh, Gujarat" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="farmerTitle"><i class="fas fa-heading"></i> News Headline / Advisory Title <span class="req">*</span></label>
+            <input type="text" id="farmerTitle" name="title" placeholder="e.g. Mustard sowing ideal this week; Basmati paddy touches ₹3,600 in APMC" required />
+          </div>
+
+          <div class="form-group">
+            <label for="farmerSummary"><i class="fas fa-align-left"></i> Advisory Details & Practical Advice <span class="req">*</span></label>
+            <textarea id="farmerSummary" name="summary" rows="4" placeholder="Detail the situation: pest noticed, recommended spray/remedy, exact mandi arrival rate, or PACS cooperative availability..." required></textarea>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="farmerContact"><i class="fas fa-phone"></i> Contact / Helpline (Optional)</label>
+              <input type="text" id="farmerContact" name="contact" placeholder="e.g. Local KVK / Kisan Helpline or Phone" />
+            </div>
+            <div class="form-group">
+              <label for="farmerSourceUrl"><i class="fas fa-link"></i> Website / Reference Link (Optional)</label>
+              <input type="url" id="farmerSourceUrl" name="source_url" placeholder="https://..." />
+            </div>
+          </div>
+        </div>
+
+        <div class="agri-modal-footer">
+          <button type="button" class="btn-cancel" id="cancelSubmitNewsBtn">Cancel</button>
+          <button type="submit" class="btn-submit-news" id="submitNewsBtn">
+            <i class="fas fa-paper-plane"></i> <span>Publish Farmer Report</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -516,12 +641,347 @@
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* Hero Action Buttons */
+.hero-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.post-news-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffeb3b;
+  color: #1b5e20 !important;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.post-news-hero-btn:hover {
+  background: #fff59d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+.post-news-inline-btn {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px dashed #2e7d32;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.post-news-inline-btn:hover {
+  background: #2e7d32;
+  color: white;
+}
+
+/* Toast Alert */
+.news-toast-alert {
+  background: #2e7d32;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+  animation: slideDownFade 0.3s ease;
+}
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Farmer Report Cards */
+.farmer-report-card {
+  border-left: 5px solid #2e7d32 !important;
+  background: linear-gradient(180deg, #f9fdf9 0%, #ffffff 100%) !important;
+  border: 1px solid #c8e6c9;
+}
+.farmer-cat-tag {
+  background: #2e7d32 !important;
+  color: white !important;
+}
+.farmer-verified-pill {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid #a5d6a7;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.live-feed-pill {
+  background: #e3f2fd;
+  color: #1565c0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.farmer-meta-location {
+  font-size: 12px;
+  color: #2e7d32;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.farmer-contact-chip {
+  background: #f1f8e9;
+  color: #33691e;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+.farmer-upvote-btn {
+  background: #f1f8e9;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.farmer-upvote-btn:hover {
+  background: #2e7d32;
+  color: white;
+}
+.farmer-upvote-btn.voted {
+  background: #2e7d32;
+  color: white;
+  cursor: default;
+}
+
+/* Modal Backdrop & Content */
+.agri-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.agri-modal-content {
+  background: white;
+  width: 100%;
+  max-width: 620px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: scaleUp 0.25s ease;
+}
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.agri-modal-header {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+  color: white;
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.agri-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.agri-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.agri-modal-header h3 {
+  margin: 0 0 3px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.agri-modal-header p {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.88;
+}
+.agri-modal-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.agri-modal-close:hover {
+  opacity: 1;
+}
+.agri-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+@media (max-width: 600px) {
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.form-group label i {
+  color: #2e7d32;
+  font-size: 13px;
+}
+.req {
+  color: #d32f2f;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 14px;
+  border: 1.5px solid #dcdcdc;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+.agri-modal-footer {
+  padding: 16px 24px;
+  background: #f9f9f9;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btn-cancel {
+  background: #e0e0e0;
+  color: #444;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-cancel:hover {
+  background: #d5d5d5;
+}
+.btn-submit-news {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-submit-news:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.4);
+}
+.btn-submit-news:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 $(document).ready(function() {
+  function showToast(msg, isError) {
+    var toast = $('#newsToastAlert');
+    var msgSpan = $('#newsToastMsg');
+    msgSpan.text(msg);
+    if (isError) {
+      toast.css('background', '#c62828');
+      toast.find('i').attr('class', 'fas fa-exclamation-circle');
+    } else {
+      toast.css('background', '#2e7d32');
+      toast.find('i').attr('class', 'fas fa-check-circle');
+    }
+    toast.stop(true, true).fadeIn(200);
+    setTimeout(function() {
+      toast.fadeOut(400);
+    }, 4500);
+  }
+
   function normalizeText(s) {
     if (!s) return '';
     return String(s).replace(/&amp;/g, '&').toLowerCase().trim();
@@ -536,10 +996,19 @@ $(document).ready(function() {
     $('.news-card').each(function() {
       var card = $(this);
       var category = normalizeText(card.attr('data-category'));
+      var isFarmer = card.attr('data-is-farmer') === '1';
       var cardText = card.text().toLowerCase();
 
       var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1;
-      var matchCategory = !selectedCat || selectedCat === 'all' || category === selectedCat;
+      
+      var matchCategory = false;
+      if (!selectedCat || selectedCat === 'all') {
+        matchCategory = true;
+      } else if (selectedCat.indexOf('farmer') !== -1) {
+        matchCategory = isFarmer;
+      } else if (category === selectedCat) {
+        matchCategory = true;
+      }
 
       if (matchSearch && matchCategory) {
         card.show();
@@ -564,6 +1033,231 @@ $(document).ready(function() {
     $('.cat-pill').removeClass('active');
     $(this).addClass('active');
     filterNews();
+  });
+
+  // Modal Open & Close Handlers
+  function openModal() {
+    $('#submitNewsModal').fadeIn(200);
+    $('body').css('overflow', 'hidden');
+    $('#farmerAuthorName').focus();
+  }
+
+  function closeModal() {
+    $('#submitNewsModal').fadeOut(200);
+    $('body').css('overflow', '');
+  }
+
+  $('#openSubmitNewsModalBtn, #openSubmitNewsModalInlineBtn').on('click', openModal);
+  $('#closeSubmitNewsModalBtn, #cancelSubmitNewsBtn').on('click', closeModal);
+
+  $('#submitNewsModal').on('click', function(e) {
+    if ($(e.target).is('#submitNewsModal')) {
+      closeModal();
+    }
+  });
+
+  $(document).on('keydown', function(e) {
+    if (e.key === 'Escape' && $('#submitNewsModal').is(':visible')) {
+      closeModal();
+    }
+  });
+
+  // Upvote Button Handler
+  $(document).on('click', '.farmer-upvote-btn', function() {
+    var btn = $(this);
+    if (btn.hasClass('voted')) return;
+
+    var id = btn.attr('data-id');
+    if (!id) return;
+
+    btn.prop('disabled', true);
+    $.ajax({
+      url: '/api/news/upvote/' + id,
+      type: 'POST',
+      success: function(res) {
+        if (res.success) {
+          btn.find('.upvote-count').text(res.upvotes);
+          btn.addClass('voted');
+          btn.find('i').attr('class', 'fas fa-heart');
+          btn.find('.upvote-text').text('Upvoted');
+        }
+      },
+      error: function() {
+        btn.prop('disabled', false);
+      }
+    });
+  });
+
+  // Farmer News Form Submission
+  $('#farmerNewsForm').on('submit', function(e) {
+    e.preventDefault();
+
+    var submitBtn = $('#submitNewsBtn');
+    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> <span>Publishing...</span>');
+
+    var payload = {
+      author_name: $('#farmerAuthorName').val(),
+      category: $('#farmerCategory').val(),
+      village_district: $('#farmerDistrict').val(),
+      state: $('#farmerState').val(),
+      title: $('#farmerTitle').val(),
+      summary: $('#farmerSummary').val(),
+      contact: $('#farmerContact').val(),
+      source_url: $('#farmerSourceUrl').val()
+    };
+
+    $.ajax({
+      url: '/api/news/submit',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(payload),
+      success: function(res) {
+        submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> <span>Publish Farmer Report</span>');
+        if (res.success) {
+          closeModal();
+          $('#farmerNewsForm')[0].reset();
+          showToast('🌾 Farmer advisory published successfully to community feed!');
+
+          // Dynamically prepend new farmer card
+          var locationStr = payload.village_district + (payload.state ? ', ' + payload.state : '');
+          var newCardHtml = `
+            <article class="news-card farmer-report-card" data-category="${payload.category}" data-is-farmer="1" style="animation: slideDownFade 0.4s ease;">
+              <div class="news-card-header">
+                <span class="news-cat-tag farmer-cat-tag">
+                  <i class="fas fa-bullhorn"></i> ${payload.category}
+                </span>
+                <span class="farmer-verified-pill" title="Advisory shared by verified local farmer or PACS contributor">
+                  <i class="fas fa-seedling"></i> Farmer Report
+                </span>
+                <span class="news-date">
+                  <i class="far fa-clock"></i> Just now
+                </span>
+              </div>
+              <h3 class="news-title">
+                <span>${payload.title}</span>
+              </h3>
+              <p class="news-summary">${payload.summary}</p>
+              <div class="farmer-meta-location">
+                <i class="fas fa-map-marker-alt"></i> <span>${locationStr}</span>
+                ${payload.contact ? `<span class="farmer-contact-chip"><i class="fas fa-phone-alt"></i> ${payload.contact}</span>` : ''}
+              </div>
+              <div class="news-card-footer">
+                <div class="news-source">
+                  <i class="fas fa-user-edit" style="color: #2e7d32;"></i>
+                  <span>🌾 ${payload.author_name} (${locationStr})</span>
+                </div>
+                <div class="card-action-box">
+                  <button type="button" class="farmer-upvote-btn" data-id="${res.news_id}" title="Found this report helpful?">
+                    <i class="fas fa-thumbs-up"></i> <span class="upvote-text">Helpful</span> (<span class="upvote-count">1</span>)
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+
+          $('#newsGrid').prepend(newCardHtml);
+          var curCount = parseInt($('#visibleNewsCount').text(), 10) || 0;
+          $('#visibleNewsCount').text(curCount + 1);
+
+          // Update breaking ticker
+          $('#breakingTickerText').text(payload.title);
+        } else {
+          showToast(res.error || 'Failed to submit report', true);
+        }
+      },
+      error: function(err) {
+        submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> <span>Publish Farmer Report</span>');
+        var errText = err.responseJSON && err.responseJSON.error ? err.responseJSON.error : 'Network error submitting report';
+        showToast(errText, true);
+      }
+    });
+  });
+
+  // Instant Live Feed Refresh via AJAX
+  $('#refreshFeedBtn').on('click', function(e) {
+    e.preventDefault();
+
+    var icon = $('#refreshIcon');
+    icon.addClass('fa-spin');
+
+    $.ajax({
+      url: '/api/news/refresh',
+      type: 'GET',
+      success: function(res) {
+        icon.removeClass('fa-spin');
+        if (res.success && res.news) {
+          if (res.last_updated) {
+            $('#lastUpdatedBadge').text('• Last Sync: ' + res.last_updated);
+          }
+          if (res.news.length > 0) {
+            $('#breakingTickerText').text(res.news[0].title);
+          }
+
+          var html = '';
+          res.news.forEach(function(item) {
+            var isFarmer = item.is_farmer_news;
+            var cardClass = isFarmer ? 'news-card farmer-report-card' : 'news-card';
+            var tagClass = isFarmer ? 'news-cat-tag farmer-cat-tag' : 'news-cat-tag';
+            var pillHtml = isFarmer
+              ? '<span class="farmer-verified-pill"><i class="fas fa-seedling"></i> Farmer Report</span>'
+              : '<span class="live-feed-pill"><i class="fas fa-rss"></i> Live</span>';
+
+            var titleHtml = (item.source_url && item.source_url !== '#')
+              ? `<a href="${item.source_url}" target="_blank" rel="noopener noreferrer">${item.title}</a>`
+              : `<span>${item.title}</span>`;
+
+            var locationHtml = (isFarmer && item.location)
+              ? `<div class="farmer-meta-location">
+                  <i class="fas fa-map-marker-alt"></i> <span>${item.location}</span>
+                  ${item.contact ? `<span class="farmer-contact-chip"><i class="fas fa-phone-alt"></i> ${item.contact}</span>` : ''}
+                </div>`
+              : '';
+
+            var actionHtml = isFarmer
+              ? `<button type="button" class="farmer-upvote-btn" data-id="${item.farmer_db_id}">
+                  <i class="fas fa-thumbs-up"></i> <span class="upvote-text">Helpful</span> (<span class="upvote-count">${item.upvotes || 0}</span>)
+                </button>`
+              : (item.source_url && item.source_url !== '#')
+                ? `<a href="${item.source_url}" target="_blank" rel="noopener noreferrer" class="read-more-btn">Read Story <i class="fas fa-arrow-right"></i></a>`
+                : '';
+
+            var sourceIcon = isFarmer ? '<i class="fas fa-user-edit" style="color: #2e7d32;"></i>' : '<i class="fas fa-newspaper"></i>';
+
+            html += `
+              <article class="${cardClass}" data-category="${item.category}" data-is-farmer="${isFarmer ? '1' : '0'}">
+                <div class="news-card-header">
+                  <span class="${tagClass}">
+                    <i class="${item.image_icon}"></i> ${item.category}
+                  </span>
+                  ${pillHtml}
+                  <span class="news-date">
+                    <i class="far fa-clock"></i> ${item.published_at}
+                  </span>
+                </div>
+                <h3 class="news-title">${titleHtml}</h3>
+                <p class="news-summary">${item.summary}</p>
+                ${locationHtml}
+                <div class="news-card-footer">
+                  <div class="news-source">
+                    ${sourceIcon} <span>${item.source}</span>
+                  </div>
+                  <div class="card-action-box">${actionHtml}</div>
+                </div>
+              </article>
+            `;
+          });
+
+          $('#newsGrid').html(html);
+          $('#visibleNewsCount').text(res.count);
+          filterNews();
+          showToast(`🔄 Feed refreshed! Loaded ${res.count} real-time agricultural stories.`);
+        }
+      },
+      error: function() {
+        icon.removeClass('fa-spin');
+        showToast('Notice: Could not sync latest live feed. Please check internet connection.', true);
+      }
+    });
   });
 });
 </script>
