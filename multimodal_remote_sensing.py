@@ -365,22 +365,31 @@ def predict_multimodal_disease_and_yield(
     b_mean = float(np.mean(img_np[:, :, 2]))
 
     green_dominance = max(0.0, (g_mean - (r_mean + b_mean) / 2.0) / 128.0)
-    yellow_ratio = float(np.sum((img_np[:, :, 0] > 140) & (img_np[:, :, 1] > 140) & (img_np[:, :, 2] < 100)) / img_np.size)
-    brown_ratio = float(np.sum((img_np[:, :, 0] > 110) & (img_np[:, :, 1] < 90) & (img_np[:, :, 2] < 70)) / img_np.size)
+    # Scaled foliar lesion & pustule indices (in field agronomy, 4-10% coverage is severe outbreak)
+    yellow_pustules = float(np.sum((img_np[:, :, 0] > 110) & (img_np[:, :, 1] > 85) & (img_np[:, :, 0] > img_np[:, :, 2] * 1.25)) / img_np.size)
+    brown_lesions = float(np.sum((img_np[:, :, 0] > 80) & (img_np[:, :, 1] < 105) & (img_np[:, :, 2] < 95)) / img_np.size)
+
+    rust_intensity = min(1.0, yellow_pustules * 14.0)
+    blight_intensity = min(1.0, brown_lesions * 18.0)
+
+    # Crop epidemiological priors
+    prior_rust = 0.28 if crop_key in ['wheat', 'barley'] else 0.0
+    prior_blight = 0.28 if crop_key in ['groundnut', 'cotton', 'tomato', 'potato', 'soybean'] else 0.0
+    prior_blast = 0.28 if crop_key in ['rice', 'ragi'] else 0.0
 
     # 5. Gated Multimodal Fusion Probabilities
     # Class 0: Healthy
-    p_healthy = max(0.05, 0.55 * green_dominance + 0.35 * (ndvi / 0.8) - 0.40 * climate_disease_score)
-    # Class 1: Foliar Blight
-    p_blight = max(0.05, 0.45 * brown_ratio + 0.35 * humidity_risk + 0.20 * temp_risk)
+    p_healthy = max(0.05, 0.60 * green_dominance + 0.35 * (ndvi / 0.8) - 0.40 * climate_disease_score)
+    # Class 1: Foliar Blight / Leaf Spot
+    p_blight = max(0.05, 0.45 * blight_intensity + 0.30 * humidity_risk + 0.15 * temp_risk + prior_blight)
     # Class 2: Stripe Rust
-    p_rust = max(0.05, 0.50 * yellow_ratio + 0.30 * temp_risk + 0.20 * humidity_risk)
+    p_rust = max(0.05, 0.50 * rust_intensity + 0.25 * temp_risk + 0.20 * humidity_risk + prior_rust)
     # Class 3: Blast / Brown Spot
-    p_blast = max(0.05, 0.40 * brown_ratio + 0.40 * rain_risk + 0.20 * humidity_risk)
+    p_blast = max(0.05, 0.40 * blight_intensity + 0.35 * rain_risk + 0.20 * humidity_risk + prior_blast)
     # Class 4: Powdery Mildew
-    p_mildew = max(0.05, 0.25 * humidity_risk + 0.25 * (1.0 - rain_risk) + 0.20 * (1.0 - green_dominance))
+    p_mildew = max(0.05, 0.25 * humidity_risk + 0.25 * (1.0 - rain_risk) + 0.15 * (1.0 - green_dominance))
     # Class 5: Nutrient Chlorosis / Moisture Stress
-    p_chlorosis = max(0.05, 0.40 * (0.60 - ndvi) + 0.35 * yellow_ratio + 0.25 * soil_risk)
+    p_chlorosis = max(0.05, 0.40 * (0.60 - ndvi) + 0.30 * rust_intensity + 0.25 * soil_risk)
 
     raw_scores = [p_healthy, p_blight, p_rust, p_blast, p_mildew, p_chlorosis]
     # Softmax normalization
