@@ -23,7 +23,11 @@ from database import (
     upvote_farmer_news, upvote_farmer_deal
 )
 from location_service import get_location_from_coordinates, normalize_state_name, get_open_meteo_weather
-from mandi_service import get_mandi_prices, get_all_states, get_all_commodities, get_mandi_summary_stats
+from mandi_service import (
+    get_mandi_prices, get_all_states, get_all_commodities, 
+    get_all_regions, get_mandi_summary_stats, get_mandi_release_schedule,
+    refresh_mandi_prices, get_regional_mandi_offers, add_mandi_offer
+)
 from news_service import (
     get_daily_agri_news, get_daily_farming_ads, get_news_categories, 
     get_news_last_updated_time, add_farmer_report, add_farmer_deal
@@ -330,11 +334,30 @@ def crop_recommendation():
 
 @app.route('/mandi-prices')
 def mandi_prices():
-    prices = get_mandi_prices()
-    states = get_all_states()
-    commodities = get_all_commodities()
-    stats = get_mandi_summary_stats()
-    return render_template('mandi_prices.html', prices=prices, states=states, commodities=commodities, stats=stats)
+    region = request.args.get('region', 'all')
+    state = request.args.get('state')
+    commodity = request.args.get('commodity')
+    query = request.args.get('query')
+
+    prices = get_mandi_prices(state_filter=state, commodity_filter=commodity, search_query=query, region_filter=region)
+    states = get_all_states(region_filter=region)
+    commodities = get_all_commodities(region_filter=region)
+    regions = get_all_regions()
+    stats = get_mandi_summary_stats(region_filter=region)
+    release_info = get_mandi_release_schedule(region_filter=region)
+    regional_offers = get_regional_mandi_offers(region_filter=region, commodity_filter=commodity)
+
+    return render_template(
+        'mandi_prices.html',
+        prices=prices,
+        states=states,
+        commodities=commodities,
+        regions=regions,
+        stats=stats,
+        release_info=release_info,
+        regional_offers=regional_offers,
+        selected_region=region
+    )
 
 @app.route('/api/mandi-prices', methods=['GET', 'POST'])
 def api_mandi_prices():
@@ -343,17 +366,43 @@ def api_mandi_prices():
         state = data.get('state')
         commodity = data.get('commodity')
         query = data.get('query')
+        region = data.get('region')
+        refresh = data.get('refresh')
     else:
         state = request.args.get('state')
         commodity = request.args.get('commodity')
         query = request.args.get('query')
-    
-    results = get_mandi_prices(state_filter=state, commodity_filter=commodity, search_query=query)
+        region = request.args.get('region')
+        refresh = request.args.get('refresh') in ['1', 'true', 'True']
+
+    if refresh:
+        results = refresh_mandi_prices(region_filter=region)
+    else:
+        results = get_mandi_prices(state_filter=state, commodity_filter=commodity, search_query=query, region_filter=region)
+
+    release_info = get_mandi_release_schedule(region_filter=region)
+    offers = get_regional_mandi_offers(region_filter=region, commodity_filter=commodity)
+
     return jsonify({
         'success': True,
         'count': len(results),
-        'prices': results
+        'prices': results,
+        'release_info': release_info,
+        'offers': offers
     })
+
+@app.route('/api/mandi-offers', methods=['GET', 'POST'])
+def api_mandi_offers():
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        new_id = add_mandi_offer(data)
+        return jsonify({'success': True, 'message': 'Mandi trade offer posted successfully', 'offer_id': new_id})
+    else:
+        region = request.args.get('region')
+        commodity = request.args.get('commodity')
+        offers = get_regional_mandi_offers(region_filter=region, commodity_filter=commodity)
+        return jsonify({'success': True, 'count': len(offers), 'offers': offers})
+
 
 @app.route('/crop-guide')
 def crop_guide():
@@ -527,7 +576,9 @@ def api_refresh_news():
 
 @app.route('/api/farming-ads', methods=['GET'])
 def api_farming_ads():
-    ads = get_daily_farming_ads()
+    region = request.args.get('region')
+    category = request.args.get('category')
+    ads = get_daily_farming_ads(category=category, region=region)
     return jsonify({
         'success': True,
         'count': len(ads),

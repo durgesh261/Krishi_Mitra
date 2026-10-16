@@ -559,10 +559,16 @@ def add_farmer_deal(title, category, description, price_terms="", seller_name="F
         image_url=image_url
     )
 
-def get_daily_farming_ads():
-    """Return daily farming advertisements and verified marketplace offers combining community deals and partner ads"""
+def get_daily_farming_ads(category=None, region=None):
+    """Return daily farming advertisements and verified marketplace offers combining community deals and partner ads with region tagging"""
     today_str = datetime.now().strftime("%d %B %Y")
     ads = []
+
+    try:
+        from mandi_service import get_region_for_state
+    except Exception:
+        def get_region_for_state(st):
+            return 'North'
 
     # 1. Fetch community & local farmer deals from database
     try:
@@ -618,6 +624,8 @@ def get_daily_farming_ads():
                 from crop_images import get_crop_image_url
                 crop_img = get_crop_image_url(deal.get('title', ''))
 
+            deal_region = get_region_for_state(deal.get('state'))
+
             ads.append({
                 'id': f"deal-{deal['id']}",
                 'deal_id': deal['id'],
@@ -639,6 +647,7 @@ def get_daily_farming_ads():
                 'upvotes': deal.get('upvotes', 0),
                 'location': deal.get('location'),
                 'state': deal.get('state'),
+                'region': deal_region,
                 'seller_name': deal.get('seller_name'),
                 'contact_number': deal.get('contact_number'),
                 'image_url': crop_img
@@ -652,7 +661,16 @@ def get_daily_farming_ads():
         ad['date_stamp'] = today_str
         ad['is_farmer_deal'] = False
         ad['upvotes'] = 15
+        ad['region'] = get_region_for_state(ad.get('state') or 'Punjab')
         ads.append(ad)
+
+    # Optional region filtering
+    if region and region.lower() not in ['all', '']:
+        ads = [a for a in ads if a.get('region', '').lower() == region.lower() or region.lower() in a.get('region', '').lower()]
+
+    # Optional category filtering
+    if category and category.lower() not in ['all', '']:
+        ads = [a for a in ads if category.lower() in a.get('category', '').lower() or category.lower() in a.get('badge', '').lower()]
 
     return ads
 

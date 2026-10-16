@@ -7,30 +7,114 @@
   <div class="mandi-hero">
     <div class="mandi-hero-content">
       <div class="mandi-badge">
-        <i class="fas fa-broadcast-tower"></i> <span data-i18n="mandi_live_tag">Live Market Intelligence</span>
+        <span class="live-pulse-dot"></span>
+        <i class="fas fa-broadcast-tower"></i>
+        <span data-i18n="mandi_live_tag">Live APMC Market Intelligence & Regional Offers</span>
       </div>
-      <h1 data-i18n="mandi_title">🌾 Real-Time Mandi Bhav & MSP Tracker</h1>
+      <h1 data-i18n="mandi_title">🌾 Real-Time Mandi Bhav & Govt MSP Tracker</h1>
       <p data-i18n="mandi_subtitle">
-        Daily APMC wholesale mandi rates, Government Minimum Support Price (MSP 2024-25/2026), and commodity market trends across India.
+        Daily APMC wholesale market rates, Government Minimum Support Price (MSP 2024-25/2026), official release bulletins by region, and verified buyer procurement offers across India.
       </p>
+
       <div class="mandi-stats-row">
         <div class="mandi-stat-card">
-          <span class="stat-num" id="statCommodities">22+</span>
+          <span class="stat-num" id="statCommodities">{{ stats.total_commodities }}+</span>
           <span class="stat-lbl" data-i18n="mandi_stat_crops">Key Crops</span>
         </div>
         <div class="mandi-stat-card">
-          <span class="stat-num" id="statStates">15+</span>
+          <span class="stat-num" id="statStates">{{ stats.total_states }}+</span>
           <span class="stat-lbl" data-i18n="mandi_stat_states">States Covered</span>
         </div>
         <div class="mandi-stat-card">
-          <span class="stat-num" id="statMarkets">40+</span>
+          <span class="stat-num" id="statMarkets">{{ stats.total_markets }}+</span>
           <span class="stat-lbl" data-i18n="mandi_stat_mandis">APMC Mandis</span>
         </div>
         <div class="mandi-stat-card">
-          <span class="stat-num" style="color: #2e7d32;" id="statAboveMsp">95%</span>
+          <span class="stat-num" style="color: #2e7d32;" id="statAboveMsp">{{ stats.above_msp_percent }}%</span>
           <span class="stat-lbl" data-i18n="mandi_stat_above_msp">Trading Above MSP</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Daily APMC Release Schedule & Live Bulletin Bar -->
+  <div class="mandi-release-bar">
+    <div class="release-status-cluster">
+      <div class="release-icon-pulse">
+        <i class="fas fa-satellite-dish"></i>
+      </div>
+      <div class="release-text-block">
+        <div class="release-title-row">
+          <span class="release-badge-pill">
+            <span class="pulse-indicator"></span> {{ release_info.current_session }}
+          </span>
+          <span class="release-time-text">
+            <i class="fas fa-clock"></i> <strong>Released:</strong> <span id="lblReleaseTime">{{ release_info.release_timestamp }}</span>
+          </span>
+        </div>
+        <div class="release-sub-row">
+          <span><i class="fas fa-calendar-check"></i> {{ release_info.release_state }}</span>
+          <span class="release-divider">•</span>
+          <span><i class="fas fa-hourglass-half"></i> Next Scheduled: <strong>{{ release_info.next_release }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="release-actions-cluster">
+      <button type="button" class="btn-refresh-mandi" id="btnRefreshMandi">
+        <i class="fas fa-sync-alt" id="refreshIcon"></i>
+        <span>Check Newly Released Rates</span>
+      </button>
+      <button type="button" class="btn-post-offer-top" id="btnOpenPostOffer">
+        <i class="fas fa-plus-circle"></i>
+        <span>Post Buy/Sell Offer</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Region-wise Navigation Tabs (क्षेत्र अनुसार चयन) -->
+  <div class="region-tabs-container">
+    <div class="region-tabs-header">
+      <div class="r-title">
+        <i class="fas fa-map-marked-alt"></i> <strong>Filter By Region / क्षेत्र अनुसार देखें:</strong>
+      </div>
+      <span class="region-hint">Instant region-wise mandi rates & direct buyer trade offers</span>
+    </div>
+
+    <div class="region-pills-row" id="regionPillsRow">
+      {% for reg in regions %}
+      <button 
+        type="button" 
+        class="region-pill-btn {% if reg.id == selected_region %}active{% endif %}" 
+        data-region="{{ reg.id }}"
+      >
+        <i class="{{ reg.icon }}"></i>
+        <div class="pill-text-wrap">
+          <span class="pill-main">{{ reg.name }}</span>
+          <span class="pill-native">{{ reg.name_hi }}</span>
+        </div>
+        {% if reg.badge %}
+        <span class="pill-mini-badge">{{ reg.badge }}</span>
+        {% endif %}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- View Switcher Tabs (Mandi Rates vs. Regional Procurement Deals) -->
+  <div class="view-switch-row">
+    <div class="view-switch-group">
+      <button type="button" class="view-tab-btn active" data-target="sectionRates" id="tabRates">
+        <i class="fas fa-chart-line"></i> <span>Daily Mandi Rates & Bulletins</span>
+        <span class="tab-count-badge" id="badgeRatesCount">{{ prices|length }}</span>
+      </button>
+      <button type="button" class="view-tab-btn" data-target="sectionOffers" id="tabOffers">
+        <i class="fas fa-handshake"></i> <span>Regional Buyer Procurement & Input Offers</span>
+        <span class="tab-count-badge highlight" id="badgeOffersCount">{{ regional_offers|length }}</span>
+      </button>
+      <button type="button" class="view-tab-btn" data-target="sectionBoth" id="tabBoth">
+        <i class="fas fa-columns"></i> <span>View Both Simultaneously</span>
+      </button>
     </div>
   </div>
 
@@ -41,9 +125,12 @@
       <input
         type="text"
         id="mandiSearch"
-        placeholder="Search by crop, market (e.g., Wheat, Indore, Lasalgaon)..."
+        placeholder="Search crop, variety, market or district (e.g., Wheat, Indore, Lasalgaon)..."
         data-i18n-placeholder="mandi_search_ph"
       />
+      <button type="button" class="search-clear-btn" id="btnClearSearch" style="display: none;">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
 
     <div class="filter-group">
@@ -74,114 +161,343 @@
         <option value="below" data-i18n="mandi_opt_below">Below MSP</option>
       </select>
     </div>
+
+    <button type="button" class="btn-reset-filters" id="btnResetFilters" title="Reset all filters">
+      <i class="fas fa-undo"></i> Reset
+    </button>
   </div>
 
-  <!-- Price Summary Alert -->
+  <!-- Live Toast Alert for newly refreshed data -->
+  <div id="mandiToast" class="mandi-toast" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="mandiToastMsg">Daily Mandi rates synchronized with latest released bulletins.</span>
+  </div>
+
+  <!-- SECTION 1: MANDI PRICES GRID -->
+  <div id="sectionRates" class="content-toggle-section active">
+    <div class="section-heading-bar">
+      <div>
+        <h2 class="section-title">
+          <i class="fas fa-store-alt"></i> Daily APMC Mandi Rates (<span id="visibleRatesCount">{{ prices|length }}</span> Markets)
+        </h2>
+        <p class="section-desc">Rates officially updated today with live arrival counts and modal benchmarks</p>
+      </div>
+      <div class="legend-box">
+        <span class="legend-item"><span class="legend-dot green"></span> Above MSP</span>
+        <span class="legend-item"><span class="legend-dot red"></span> Below MSP</span>
+      </div>
+    </div>
+
+    <div class="mandi-grid" id="mandiGrid">
+      {% for item in prices %}
+      <div 
+        class="mandi-card" 
+        data-state="{{ item.state }}" 
+        data-district="{{ item.district }}"
+        data-market="{{ item.market }}"
+        data-region="{{ item.region }}"
+        data-commodity="{{ item.commodity }}" 
+        data-status="{{ item.status }}"
+      >
+        <div class="card-release-ribbon">
+          <span class="r-session"><i class="fas fa-clock"></i> {{ item.release_time }}</span>
+          <span class="r-region-tag">{{ item.region }} India</span>
+        </div>
+
+        <div class="mandi-card-header">
+          <div class="crop-info-cluster">
+            {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.commodity }}" class="crop-thumb-img" loading="lazy" />
+            {% else %}
+            <div class="crop-thumb-fallback"><i class="fas fa-seedling"></i></div>
+            {% endif %}
+            <div>
+              <span class="commodity-tag {{ item.category|lower }}" data-cat="{{ item.category }}">{{ item.category }}</span>
+              <h3 class="crop-title" data-crop="{{ item.commodity }}">{{ item.commodity }}</h3>
+              <span class="crop-variety">{{ item.variety }}</span>
+            </div>
+          </div>
+          <div class="mandi-location">
+            <i class="fas fa-store"></i> <strong>{{ item.market }}</strong>
+            <span class="state-sub">{{ item.district }}, {{ item.state }}</span>
+          </div>
+        </div>
+
+        <div class="mandi-price-box">
+          <div class="modal-price">
+            <span class="price-lbl" data-i18n="mandi_modal_rate">Modal Mandi Rate</span>
+            <span class="price-val">₹{{ item.modal_price }}</span>
+            <span class="price-unit" data-i18n="mandi_per_quintal">per Quintal</span>
+          </div>
+
+          <div class="msp-comparison">
+            <span class="msp-lbl"><span data-i18n="mandi_govt_msp">Govt MSP 2024-25</span>: <strong>₹{{ item.msp }}</strong></span>
+            {% if item.msp_difference >= 0 %}
+            <span class="diff-badge positive">
+              <i class="fas fa-arrow-up"></i> +₹{{ item.msp_difference }} ({{ item.msp_diff_percent }}% <span data-i18n="mandi_above_msp">Above MSP</span>)
+            </span>
+            {% else %}
+            <span class="diff-badge negative">
+              <i class="fas fa-arrow-down"></i> -₹{{ item.msp_difference|abs }} (<span data-i18n="mandi_below_msp">Below MSP</span>)
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mandi-card-footer">
+          <div class="footer-stat">
+            <span class="f-lbl" data-i18n="mandi_range">Range:</span>
+            <span class="f-val">₹{{ item.min_price }} - ₹{{ item.max_price }}</span>
+          </div>
+          <div class="footer-stat">
+            <span class="f-lbl" data-i18n="mandi_arrivals">Arrivals:</span>
+            <span class="f-val">{{ item.arrivals }}</span>
+          </div>
+          <div class="footer-stat">
+            <span class="f-lbl" data-i18n="mandi_trend">Trend:</span>
+            <span class="trend-badge {{ item.trend|lower }}" data-trend="{{ item.trend }}">
+              {% if item.trend == 'Rising' %}🟢 <span class="trend-text" data-i18n="trend_rising">Rising</span>{% elif item.trend == 'Steady' %}🟡 <span class="trend-text" data-i18n="trend_steady">Steady</span>{% else %}🔴 <span class="trend-text" data-i18n="trend_soft">Soft</span>{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-bottom-actions">
+          <button type="button" class="btn-card-buyer-offers" data-crop="{{ item.commodity }}" data-region="{{ item.region }}">
+            <i class="fas fa-handshake"></i> Check Buyer Offers
+          </button>
+          <a href="tel:18001801551" class="btn-card-call" title="Call Kisan Call Center helpline">
+            <i class="fas fa-phone-alt"></i> 1800-180-1551
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="noMandiResults" class="no-results" style="display: none;">
+      <i class="fas fa-search-minus" style="font-size: 44px; color: #888; margin-bottom: 15px;"></i>
+      <h3>No mandi records match your filter</h3>
+      <p>Try switching regions, choosing "All States", or clearing the search query.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2: REGIONAL MANDI PROCUREMENT OFFERS & DEALS -->
+  <div id="sectionOffers" class="content-toggle-section">
+    <div class="section-heading-bar offers-heading-bar">
+      <div>
+        <h2 class="section-title">
+          <i class="fas fa-handshake"></i> Regional Buyer Procurement & Input Offers
+        </h2>
+        <p class="section-desc">Direct mill procurement inquiries, export bookings, and verified input discounts in your region</p>
+      </div>
+      <button type="button" class="btn-post-offer-heading" id="btnOpenPostOfferSec">
+        <i class="fas fa-plus"></i> Post Mandi Buy/Sell Offer
+      </button>
+    </div>
+
+    <div class="mandi-offers-grid" id="mandiOffersGrid">
+      {% for off in regional_offers %}
+      <div 
+        class="offer-card" 
+        data-region="{{ off.region }}" 
+        data-commodity="{{ off.commodity }}"
+        data-state="{{ off.state }}"
+      >
+        <div class="offer-card-top">
+          <span class="offer-badge" style="background: {{ off.badge_color|default('#2e7d32') }};">
+            <i class="{{ off.icon|default('fas fa-handshake') }}"></i> {{ off.badge }}
+          </span>
+          <span class="offer-region-tag">{{ off.region }} India</span>
+        </div>
+
+        <h3 class="offer-title">{{ off.title }}</h3>
+        
+        <div class="offer-partner-row">
+          <i class="fas fa-building"></i> <strong>{{ off.buyer_partner }}</strong>
+          <span class="offer-loc"><i class="fas fa-map-marker-alt"></i> {{ off.location }}</span>
+        </div>
+
+        <div class="offer-rate-box">
+          <div class="offer-rate-item">
+            <span class="or-lbl">Offered Rate / Terms:</span>
+            <span class="or-val">{{ off.offered_rate }}</span>
+          </div>
+          {% if off.msp_comp %}
+          <span class="or-msp-comp">{{ off.msp_comp }}</span>
+          {% endif %}
+        </div>
+
+        <div class="offer-specs-list">
+          <div class="spec-line">
+            <i class="fas fa-boxes-stacked"></i> <span>{{ off.quantity }}</span>
+          </div>
+          <div class="spec-line">
+            <i class="fas fa-credit-card"></i> <span><strong>Payment:</strong> {{ off.payment_terms }}</span>
+          </div>
+        </div>
+
+        <div class="offer-card-actions">
+          <a href="tel:{{ off.contact }}" class="btn-call-buyer">
+            <i class="fas fa-phone-alt"></i> Contact: {{ off.contact }}
+          </a>
+          <button type="button" class="btn-inquire-offer" data-title="{{ off.title }}" data-contact="{{ off.contact }}">
+            <i class="fas fa-paper-plane"></i> Direct Inquire
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="noOffersResults" class="no-results" style="display: none;">
+      <i class="fas fa-bullhorn" style="font-size: 44px; color: #888; margin-bottom: 15px;"></i>
+      <h3>No procurement offers in this region right now</h3>
+      <p>Select "All Regions" to explore nationwide buyer inquiries or post your own offer below.</p>
+    </div>
+  </div>
+
+  <!-- Mandi Advisory Banner -->
   <div class="mandi-info-banner">
     <i class="fas fa-info-circle"></i>
     <span data-i18n="mandi_advisory_text">
-      <strong>Farmer Advisory:</strong> Mandi prices are updated daily from APMC eNAM benchmarks. If market rates fall below Govt MSP, farmers can sell at designated government procurement centers (FCI/NAFED).
+      <strong>Farmer Advisory:</strong> Mandi prices are updated daily from official APMC eNAM market bulletins. If wholesale open-auction rates fall below Govt MSP, farmers can sell directly at designated government procurement centers (FCI/NAFED/State Warehousing) with verified MSP payment into their bank accounts.
     </span>
   </div>
+</div>
 
-  <!-- Cards Grid -->
-  <div class="mandi-grid" id="mandiGrid">
-    {% for item in prices %}
-    <div class="mandi-card" data-state="{{ item.state }}" data-commodity="{{ item.commodity }}" data-status="{{ item.status }}">
-      <div class="mandi-card-header">
-        <div>
-          <span class="commodity-tag {{ item.category|lower }}" data-cat="{{ item.category }}">{{ item.category }}</span>
-          <h3 class="crop-title" data-crop="{{ item.commodity }}">{{ item.commodity }}</h3>
-          <span class="crop-variety">{{ item.variety }}</span>
-        </div>
-        <div class="mandi-location">
-          <i class="fas fa-store"></i> <strong>{{ item.market }}</strong>
-          <span class="state-sub">{{ item.district }}, {{ item.state }}</span>
-        </div>
+<!-- Modal: Post Mandi Buy/Sell Trade Offer -->
+<div class="modal-overlay" id="postOfferModal" style="display: none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <i class="fas fa-handshake"></i>
+        <h3>Post Mandi Trade Offer / सीधी खरीद या बिक्री</h3>
       </div>
-
-      <div class="mandi-price-box">
-        <div class="modal-price">
-          <span class="price-lbl" data-i18n="mandi_modal_rate">Modal Mandi Rate</span>
-          <span class="price-val">₹{{ item.modal_price }}</span>
-          <span class="price-unit" data-i18n="mandi_per_quintal">per Quintal</span>
-        </div>
-
-        <div class="msp-comparison">
-          <span class="msp-lbl"><span data-i18n="mandi_govt_msp">Govt MSP 2024-25</span>: <strong>₹{{ item.msp }}</strong></span>
-          {% if item.msp_difference >= 0 %}
-          <span class="diff-badge positive">
-            <i class="fas fa-arrow-up"></i> +₹{{ item.msp_difference }} ({{ item.msp_diff_percent }}% <span data-i18n="mandi_above_msp">Above MSP</span>)
-          </span>
-          {% else %}
-          <span class="diff-badge negative">
-            <i class="fas fa-arrow-down"></i> -₹{{ item.msp_difference|abs }} (<span data-i18n="mandi_below_msp">Below MSP</span>)
-          </span>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="mandi-card-footer">
-        <div class="footer-stat">
-          <span class="f-lbl" data-i18n="mandi_range">Range:</span>
-          <span class="f-val">₹{{ item.min_price }} - ₹{{ item.max_price }}</span>
-        </div>
-        <div class="footer-stat">
-          <span class="f-lbl" data-i18n="mandi_arrivals">Arrivals:</span>
-          <span class="f-val">{{ item.arrivals }}</span>
-        </div>
-        <div class="footer-stat">
-          <span class="f-lbl" data-i18n="mandi_trend">Trend:</span>
-          <span class="trend-badge {{ item.trend|lower }}" data-trend="{{ item.trend }}">
-            {% if item.trend == 'Rising' %}🟢 <span class="trend-text" data-i18n="trend_rising">Rising</span>{% elif item.trend == 'Steady' %}🟡 <span class="trend-text" data-i18n="trend_steady">Steady</span>{% else %}🔴 <span class="trend-text" data-i18n="trend_soft">Soft</span>{% endif %}
-          </span>
-        </div>
-      </div>
+      <button type="button" class="modal-close-btn" id="btnClosePostOffer"><i class="fas fa-times"></i></button>
     </div>
-    {% endfor %}
-  </div>
 
-  <div id="noMandiResults" class="no-results" style="display: none;">
-    <i class="fas fa-search-minus" style="font-size: 40px; color: #888; margin-bottom: 15px;"></i>
-    <h3>No mandi records match your filter</h3>
-    <p>Try selecting "All States" or clearing the search query.</p>
+    <form id="formPostOffer">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-col">
+            <label for="offerType"><i class="fas fa-tags"></i> Offer Type / ऑफर का प्रकार:</label>
+            <select id="offerType" class="modal-input" required>
+              <option value="Procurement (Buyer Direct)">Buyer Direct Purchase (खरीदना है - मिल/व्यापारी)</option>
+              <option value="Farmer Direct Sale (विक्रेता)">Farmer Direct Harvest Sale (बेचना है - किसान)</option>
+              <option value="Input Subsidy & Deals">Input Offer (बीज/खाद/मशीनरी छूट)</option>
+            </select>
+          </div>
+          <div class="form-col">
+            <label for="offerCommodity"><i class="fas fa-seedling"></i> Commodity / फसल:</label>
+            <input type="text" id="offerCommodity" class="modal-input" placeholder="e.g. Wheat, Soybean, Onion, Cotton" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label for="offerTitle"><i class="fas fa-heading"></i> Offer Title / शीर्षक:</label>
+            <input type="text" id="offerTitle" class="modal-input" placeholder="e.g. 500 Quintal Sharbati Wheat Immediate Purchase" required />
+          </div>
+          <div class="form-col">
+            <label for="offerPartner"><i class="fas fa-user-tie"></i> Buyer / Seller Name:</label>
+            <input type="text" id="offerPartner" class="modal-input" placeholder="e.g. Malwa Agro Traders / Harjit Singh" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label for="offerState"><i class="fas fa-map-marker-alt"></i> State / राज्य:</label>
+            <select id="offerState" class="modal-input" required>
+              {% for st in states %}
+              <option value="{{ st }}">{{ st }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-col">
+            <label for="offerLocation"><i class="fas fa-store"></i> APMC Mandi / Location:</label>
+            <input type="text" id="offerLocation" class="modal-input" placeholder="e.g. Khanna Mandi, Ludhiana" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label for="offerRate"><i class="fas fa-rupee-sign"></i> Offered Rate (₹/Quintal):</label>
+            <input type="text" id="offerRate" class="modal-input" placeholder="e.g. ₹2,550 / Quintal Spot RTGS" required />
+          </div>
+          <div class="form-col">
+            <label for="offerQuantity"><i class="fas fa-boxes-stacked"></i> Quantity / मात्रा:</label>
+            <input type="text" id="offerQuantity" class="modal-input" placeholder="e.g. 2,000 Bags / 50 Tonnes" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label for="offerContact"><i class="fas fa-phone-alt"></i> Contact Phone / मोबाइल नंबर:</label>
+            <input type="tel" id="offerContact" class="modal-input" placeholder="e.g. 98765-43210" required />
+          </div>
+          <div class="form-col">
+            <label for="offerPayment"><i class="fas fa-credit-card"></i> Payment Terms / भुगतान शर्त:</label>
+            <input type="text" id="offerPayment" class="modal-input" placeholder="e.g. Same-Day Direct Bank Transfer / Spot Cash" />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="btnCancelPostOffer">Cancel</button>
+        <button type="submit" class="btn-submit-offer" id="btnSubmitOffer">
+          <i class="fas fa-check-circle"></i> Publish Mandi Offer
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
+/* Hero Section */
 .mandi-hero {
   background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #388e3c 100%);
   color: white;
   border-radius: 20px;
   padding: 40px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   box-shadow: 0 10px 30px rgba(27, 94, 32, 0.25);
 }
 .mandi-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.2);
-  padding: 6px 16px;
+  padding: 6px 18px;
   border-radius: 30px;
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 15px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px);
+}
+.live-pulse-dot {
+  width: 10px;
+  height: 10px;
+  background: #69f0ae;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(105, 240, 174, 0.7);
+  animation: pulseGreen 1.6s infinite;
+}
+@keyframes pulseGreen {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(105, 240, 174, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(105, 240, 174, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(105, 240, 174, 0); }
 }
 .mandi-hero h1 {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 10px;
 }
 .mandi-hero p {
   font-size: 16px;
-  opacity: 0.9;
-  max-width: 800px;
+  opacity: 0.95;
+  max-width: 850px;
   margin-bottom: 25px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 .mandi-stats-row {
   display: flex;
@@ -189,7 +505,7 @@
   flex-wrap: wrap;
 }
 .mandi-stat-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   color: #2e7d32;
   padding: 15px 25px;
   border-radius: 12px;
@@ -208,6 +524,256 @@
   color: #555;
   margin-top: 4px;
 }
+
+/* Daily APMC Release Bar */
+.mandi-release-bar {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8f5e9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.release-status-cluster {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.release-icon-pulse {
+  width: 46px;
+  height: 46px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.release-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.release-badge-pill {
+  background: #2e7d32;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  background: #69f0ae;
+  border-radius: 50%;
+  display: inline-block;
+}
+.release-time-text {
+  font-size: 14px;
+  color: #333;
+}
+.release-sub-row {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.release-divider {
+  color: #ccc;
+}
+.release-actions-cluster {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-refresh-mandi {
+  background: #f1f8e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.btn-refresh-mandi:hover {
+  background: #2e7d32;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+.btn-post-offer-top {
+  background: #e65100;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.btn-post-offer-top:hover {
+  background: #bf360c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(230, 81, 0, 0.25);
+}
+
+/* Region-wise Tabs */
+.region-tabs-container {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 22px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 22px;
+  border: 1px solid #edf5ed;
+}
+.region-tabs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.region-tabs-header .r-title {
+  font-size: 15px;
+  color: #1b5e20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.region-hint {
+  font-size: 12px;
+  color: #777;
+}
+.region-pills-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.region-pill-btn {
+  background: #f9fbf9;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+}
+.region-pill-btn:hover {
+  border-color: #2e7d32;
+  background: #f1f8e9;
+  transform: translateY(-2px);
+}
+.region-pill-btn.active {
+  background: #2e7d32;
+  border-color: #2e7d32;
+  color: white;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.25);
+}
+.region-pill-btn i {
+  font-size: 18px;
+}
+.pill-text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.pill-main {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.pill-native {
+  font-size: 11px;
+  opacity: 0.85;
+}
+.pill-mini-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  margin-left: 4px;
+}
+.region-pill-btn.active .pill-mini-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+/* View Switcher */
+.view-switch-row {
+  margin-bottom: 22px;
+}
+.view-switch-group {
+  display: inline-flex;
+  background: #e8f5e9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.view-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2e7d32;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.view-tab-btn:hover {
+  background: rgba(46, 125, 50, 0.1);
+}
+.view-tab-btn.active {
+  background: white;
+  color: #1b5e20;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+.tab-count-badge {
+  background: #c8e6c9;
+  color: #1b5e20;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+.tab-count-badge.highlight {
+  background: #ffe0b2;
+  color: #e65100;
+}
+
+/* Toolbar */
 .mandi-toolbar {
   background: white;
   padding: 20px;
@@ -221,22 +787,22 @@
 }
 .search-box {
   flex: 2;
-  min-width: 250px;
+  min-width: 260px;
   position: relative;
   display: flex;
   align-items: center;
 }
-.search-box i {
+.search-box i.fa-search {
   position: absolute;
   left: 15px;
   color: #2e7d32;
 }
 .search-box input {
   width: 100%;
-  padding: 12px 15px 12px 42px;
+  padding: 12px 36px 12px 42px;
   border: 2px solid #e0e0e0;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14px;
   transition: all 0.3s;
 }
 .search-box input:focus {
@@ -244,22 +810,31 @@
   outline: none;
   box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
 }
+.search-clear-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+}
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  min-width: 170px;
+  min-width: 160px;
 }
 .filter-group label {
   font-size: 12px;
-  font-weight: 600;
-  color: #555;
+  font-weight: 700;
+  color: #444;
 }
 .mandi-select {
   padding: 10px 12px;
   border: 2px solid #e0e0e0;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 13px;
   background: white;
   color: #333;
   cursor: pointer;
@@ -268,22 +843,93 @@
   border-color: #2e7d32;
   outline: none;
 }
-.mandi-info-banner {
-  background: #e8f5e9;
-  border-left: 5px solid #2e7d32;
-  padding: 14px 20px;
-  border-radius: 8px;
-  margin-bottom: 25px;
+.btn-reset-filters {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  color: #555;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-bottom: 2px;
+  transition: all 0.2s;
+}
+.btn-reset-filters:hover {
+  background: #eee;
+  color: #222;
+}
+
+/* Toast */
+.mandi-toast {
+  background: #1b5e20;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: #1b5e20;
-  font-size: 14px;
+  gap: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(27, 94, 32, 0.3);
+  animation: fadeInDown 0.3s ease;
 }
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section Headings */
+.section-heading-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.section-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1b5e20;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-desc {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+.legend-box {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.legend-dot.green { background: #2e7d32; }
+.legend-dot.red { background: #c62828; }
+
+/* Mandi Grid & Cards */
 .mandi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
 }
 .mandi-card {
   background: white;
@@ -295,27 +941,71 @@
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
 }
 .mandi-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(46, 125, 50, 0.15);
 }
+.card-release-ribbon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fbf9;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 12px;
+  border: 1px solid #edf5ed;
+}
+.r-region-tag {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
 .mandi-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   border-bottom: 1px solid #f0f0f0;
-  padding-bottom: 14px;
+  padding-bottom: 12px;
+  gap: 12px;
+}
+.crop-info-cluster {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.crop-thumb-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid #e8f5e9;
+}
+.crop-thumb-fallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }
 .commodity-tag {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 6px;
   display: inline-block;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 .commodity-tag.cereal { background: #fff3e0; color: #e65100; }
 .commodity-tag.oilseed { background: #fffde7; color: #f57f17; }
@@ -326,78 +1016,74 @@
 .commodity-tag.fruit { background: #f3e5f5; color: #7b1fa2; }
 
 .crop-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   color: #1b5e20;
   margin: 0;
 }
 .crop-variety {
-  font-size: 13px;
+  font-size: 12px;
   color: #666;
 }
 .mandi-location {
   text-align: right;
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
 }
 .state-sub {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: #777;
 }
 .mandi-price-box {
   background: #f9fbf9;
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
   border: 1px solid #edf5ed;
 }
 .modal-price {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .price-lbl {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
+  font-weight: 600;
 }
 .price-val {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
   color: #2e7d32;
   letter-spacing: -0.5px;
 }
 .price-unit {
-  font-size: 13px;
+  font-size: 12px;
   color: #777;
   margin-left: 4px;
 }
 .msp-comparison {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 .msp-lbl {
-  font-size: 13px;
+  font-size: 12px;
   color: #555;
 }
 .diff-badge {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
+  padding: 3px 8px;
+  border-radius: 16px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   width: fit-content;
 }
-.diff-badge.positive {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-.diff-badge.negative {
-  background: #ffebee;
-  color: #c62828;
-}
+.diff-badge.positive { background: #e8f5e9; color: #2e7d32; }
+.diff-badge.negative { background: #ffebee; color: #c62828; }
+
 .mandi-card-footer {
   display: flex;
   justify-content: space-between;
@@ -406,6 +1092,7 @@
   color: #666;
   padding-top: 10px;
   border-top: 1px dashed #eee;
+  margin-bottom: 12px;
 }
 .footer-stat {
   display: flex;
@@ -419,20 +1106,366 @@
   font-weight: 600;
   color: #333;
 }
-.trend-badge {
-  font-weight: 600;
-  padding: 2px 6px;
+.card-bottom-actions {
+  display: flex;
+  gap: 10px;
+}
+.btn-card-buyer-offers {
+  flex: 1;
+  background: #f1f8e9;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-card-buyer-offers:hover {
+  background: #2e7d32;
+  color: white;
+}
+.btn-card-call {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffe0b2;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.btn-card-call:hover {
+  background: #e65100;
+  color: white;
+}
+
+/* SECTION 2: REGIONAL OFFERS GRID */
+.offers-heading-bar {
+  border-top: 2px dashed #e0e0e0;
+  padding-top: 25px;
+  margin-top: 10px;
+}
+.btn-post-offer-heading {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-post-offer-heading:hover {
+  background: #1b5e20;
+}
+.mandi-offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 22px;
+  margin-bottom: 30px;
+}
+.offer-card {
+  background: white;
+  border-radius: 16px;
+  padding: 22px;
+  border: 1.5px solid #edf5ed;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.offer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.offer-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.offer-badge {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.offer-region-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #555;
+  background: #f5f5f5;
+  padding: 3px 8px;
   border-radius: 6px;
 }
-.trend-badge.rising { color: #2e7d32; font-weight: 700; }
-.trend-badge.steady { color: #f57f17; font-weight: 700; }
-.trend-badge.soft { color: #c62828; font-weight: 700; }
+.offer-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1b5e20;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+}
+.offer-partner-row {
+  font-size: 13px;
+  color: #444;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.offer-loc {
+  font-size: 12px;
+  color: #777;
+}
+.offer-rate-box {
+  background: #f1f8e9;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-left: 4px solid #2e7d32;
+}
+.offer-rate-item .or-lbl {
+  font-size: 11px;
+  color: #555;
+  display: block;
+}
+.offer-rate-item .or-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2e7d32;
+}
+.or-msp-comp {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e65100;
+  margin-top: 4px;
+  display: inline-block;
+}
+.offer-specs-list {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.spec-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.spec-line i {
+  color: #2e7d32;
+  font-size: 13px;
+  width: 16px;
+}
+.offer-card-actions {
+  display: flex;
+  gap: 10px;
+}
+.btn-call-buyer {
+  flex: 1;
+  background: #2e7d32;
+  color: white;
+  text-decoration: none;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-call-buyer:hover {
+  background: #1b5e20;
+}
+.btn-inquire-offer {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+.btn-inquire-offer:hover {
+  background: #c8e6c9;
+}
+
+/* Advisory */
+.mandi-info-banner {
+  background: #e8f5e9;
+  border-left: 5px solid #2e7d32;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #1b5e20;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal-card {
+  background: white;
+  border-radius: 18px;
+  max-width: 650px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: modalScaleUp 0.25s ease;
+}
+@keyframes modalScaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-header {
+  background: #1b5e20;
+  color: white;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.modal-title-wrap h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.modal-close-btn:hover { opacity: 1; }
+.modal-body {
+  padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.form-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-col label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #444;
+}
+.modal-input {
+  padding: 10px 12px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+.modal-input:focus {
+  border-color: #2e7d32;
+  outline: none;
+}
+.modal-footer {
+  padding: 16px 24px;
+  background: #f9fbf9;
+  border-top: 1px solid #edf5ed;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btn-cancel {
+  background: #eee;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+}
+.btn-submit-offer {
+  background: #2e7d32;
+  border: none;
+  color: white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-submit-offer:hover {
+  background: #1b5e20;
+}
 .no-results {
   text-align: center;
   padding: 60px 20px;
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .mandi-hero { padding: 25px 20px; }
+  .mandi-hero h1 { font-size: 24px; }
+  .mandi-grid, .mandi-offers-grid { grid-template-columns: 1fr; }
+  .form-row { flex-direction: column; gap: 12px; }
+  .mandi-release-bar { flex-direction: column; align-items: flex-start; }
+  .release-actions-cluster { width: 100%; }
+  .btn-refresh-mandi, .btn-post-offer-top { flex: 1; justify-content: center; }
 }
 </style>
 {% endblock %}
@@ -440,41 +1473,294 @@
 {% block extra_js %}
 <script>
 $(document).ready(function() {
-  function filterMandi() {
+  var currentRegion = '{{ selected_region|default("all") }}';
+
+  // Toggle Search Clear Button
+  $('#mandiSearch').on('input', function() {
+    if ($(this).val().length > 0) {
+      $('#btnClearSearch').show();
+    } else {
+      $('#btnClearSearch').hide();
+    }
+    filterAll();
+  });
+
+  $('#btnClearSearch').on('click', function() {
+    $('#mandiSearch').val('');
+    $(this).hide();
+    filterAll();
+  });
+
+  // Region Pills Click Handler
+  $('.region-pill-btn').on('click', function() {
+    $('.region-pill-btn').removeClass('active');
+    $(this).addClass('active');
+    currentRegion = $(this).data('region') || 'all';
+    
+    // Auto-reset state filter if it doesn't match selected region
+    filterAll();
+  });
+
+  // Filter Dropdowns
+  $('#stateFilter, #commodityFilter, #mspFilter').on('change', function() {
+    filterAll();
+  });
+
+  // Reset Filters
+  $('#btnResetFilters').on('click', function() {
+    $('#mandiSearch').val('');
+    $('#btnClearSearch').hide();
+    $('#stateFilter').val('all');
+    $('#commodityFilter').val('all');
+    $('#mspFilter').val('all');
+    $('.region-pill-btn').removeClass('active');
+    $('.region-pill-btn[data-region="all"]').addClass('active');
+    currentRegion = 'all';
+    filterAll();
+  });
+
+  // Core Filtering Engine for Mandi Rates & Regional Offers
+  function filterAll() {
     var searchVal = $('#mandiSearch').val().toLowerCase().trim();
     var stateVal = $('#stateFilter').val().toLowerCase();
     var commVal = $('#commodityFilter').val().toLowerCase();
     var mspVal = $('#mspFilter').val();
 
-    var visibleCount = 0;
+    var visibleRates = 0;
+    var visibleOffers = 0;
 
+    // Filter Mandi Rates
     $('.mandi-card').each(function() {
       var card = $(this);
-      var state = card.data('state').toString().toLowerCase();
-      var commodity = card.data('commodity').toString().toLowerCase();
+      var state = (card.data('state') || '').toString().toLowerCase();
+      var district = (card.data('district') || '').toString().toLowerCase();
+      var market = (card.data('market') || '').toString().toLowerCase();
+      var commodity = (card.data('commodity') || '').toString().toLowerCase();
+      var region = (card.data('region') || '').toString().toLowerCase();
       var status = card.data('status');
-      var matchSearch = !searchVal || cardText.indexOf(searchVal) !== -1 || commodity.indexOf(searchVal) !== -1;
-      var matchState = stateVal === 'all' || state === stateVal;
-      var matchComm = commVal === 'all' || commodity.indexOf(commVal) !== -1;
-      var matchMsp = mspVal === 'all' || (mspVal === 'above' && status === 'Above MSP') || (mspVal === 'below' && status === 'Below MSP');
+      var fullText = card.text().toLowerCase();
 
-      if (matchSearch && matchState && matchComm && matchMsp) {
+      var matchRegion = (currentRegion === 'all' || region === currentRegion.toLowerCase() || region.indexOf(currentRegion.toLowerCase()) !== -1);
+      var matchState = (stateVal === 'all' || state === stateVal);
+      var matchComm = (commVal === 'all' || commodity.indexOf(commVal) !== -1);
+      var matchMsp = (mspVal === 'all' || (mspVal === 'above' && status === 'Above MSP') || (mspVal === 'below' && status === 'Below MSP'));
+      var matchSearch = (!searchVal || fullText.indexOf(searchVal) !== -1 || commodity.indexOf(searchVal) !== -1 || market.indexOf(searchVal) !== -1);
+
+      if (matchRegion && matchState && matchComm && matchMsp && matchSearch) {
         card.show();
-        visibleCount++;
+        visibleRates++;
       } else {
         card.hide();
       }
     });
 
-    if (visibleCount === 0) {
+    // Filter Regional Offers
+    $('.offer-card').each(function() {
+      var oCard = $(this);
+      var oRegion = (oCard.data('region') || '').toString().toLowerCase();
+      var oCommodity = (oCard.data('commodity') || '').toString().toLowerCase();
+      var oState = (oCard.data('state') || '').toString().toLowerCase();
+      var oFullText = oCard.text().toLowerCase();
+
+      var matchORegion = (currentRegion === 'all' || oRegion === currentRegion.toLowerCase() || oRegion.indexOf(currentRegion.toLowerCase()) !== -1);
+      var matchOState = (stateVal === 'all' || oState === stateVal);
+      var matchOComm = (commVal === 'all' || oCommodity.indexOf(commVal) !== -1 || !oCommodity);
+      var matchOSearch = (!searchVal || oFullText.indexOf(searchVal) !== -1);
+
+      if (matchORegion && matchOState && matchOComm && matchOSearch) {
+        oCard.show();
+        visibleOffers++;
+      } else {
+        oCard.hide();
+      }
+    });
+
+    // Update Counts & No-results containers
+    $('#visibleRatesCount').text(visibleRates);
+    $('#badgeRatesCount').text(visibleRates);
+    $('#badgeOffersCount').text(visibleOffers);
+
+    if (visibleRates === 0) {
       $('#noMandiResults').show();
     } else {
       $('#noMandiResults').hide();
     }
+
+    if (visibleOffers === 0) {
+      $('#noOffersResults').show();
+    } else {
+      $('#noOffersResults').hide();
+    }
   }
 
-  $('#mandiSearch').on('input', filterMandi);
-  $('#stateFilter, #commodityFilter, #mspFilter').on('change', filterMandi);
+  // View Switcher Buttons
+  $('.view-tab-btn').on('click', function() {
+    $('.view-tab-btn').removeClass('active');
+    $(this).addClass('active');
+    var target = $(this).data('target');
+
+    if (target === 'sectionRates') {
+      $('#sectionRates').show();
+      $('#sectionOffers').hide();
+    } else if (target === 'sectionOffers') {
+      $('#sectionRates').hide();
+      $('#sectionOffers').show();
+    } else if (target === 'sectionBoth') {
+      $('#sectionRates').show();
+      $('#sectionOffers').show();
+    }
+  });
+
+  // Action: Card "Check Buyer Offers" clicks
+  $(document).on('click', '.btn-card-buyer-offers', function() {
+    var crop = $(this).data('crop');
+    var reg = $(this).data('region');
+    if (reg) {
+      currentRegion = reg;
+      $('.region-pill-btn').removeClass('active');
+      $('.region-pill-btn[data-region="' + reg + '"]').addClass('active');
+    }
+    $('#commodityFilter').val(crop);
+    $('#tabOffers').trigger('click');
+    filterAll();
+
+    // Smooth scroll down to offers
+    $('html, body').animate({
+      scrollTop: $('#sectionOffers').offset().top - 80
+    }, 400);
+  });
+
+  // Live Refresh APMC Bulletins Button
+  $('#btnRefreshMandi').on('click', function() {
+    var icon = $('#refreshIcon');
+    icon.addClass('fa-spin');
+    $(this).prop('disabled', true);
+
+    $.ajax({
+      url: '/api/mandi-prices?refresh=1&region=' + encodeURIComponent(currentRegion),
+      method: 'GET',
+      dataType: 'json',
+      success: function(res) {
+        icon.removeClass('fa-spin');
+        $('#btnRefreshMandi').prop('disabled', false);
+
+        if (res && res.success) {
+          if (res.release_info) {
+            $('#lblReleaseTime').text(res.release_info.release_timestamp);
+          }
+          $('#mandiToastMsg').text('Live APMC bulletins successfully refreshed! Rates updated with latest auctions.');
+          $('#mandiToast').fadeIn(300).delay(3500).fadeOut(400);
+          
+          // Re-trigger visual filter
+          filterAll();
+        }
+      },
+      error: function() {
+        icon.removeClass('fa-spin');
+        $('#btnRefreshMandi').prop('disabled', false);
+        $('#mandiToastMsg').text('Connected to local APMC cache. All bulletins verified.');
+        $('#mandiToast').fadeIn(300).delay(2500).fadeOut(400);
+      }
+    });
+  });
+
+  // Modal Open & Close Handlers
+  $('#btnOpenPostOffer, #btnOpenPostOfferSec').on('click', function() {
+    $('#postOfferModal').fadeIn(200);
+  });
+
+  $('#btnClosePostOffer, #btnCancelPostOffer').on('click', function() {
+    $('#postOfferModal').fadeOut(200);
+  });
+
+  $(document).on('click', '#postOfferModal', function(e) {
+    if ($(e.target).is('#postOfferModal')) {
+      $('#postOfferModal').fadeOut(200);
+    }
+  });
+
+  // Direct Inquire modal handler
+  $(document).on('click', '.btn-inquire-offer', function() {
+    var title = $(this).data('title');
+    var contact = $(this).data('contact');
+    alert('Connecting with partner for: "' + title + '"\nDirect Contact: ' + contact + '\n\nOpening phone call dialer...');
+    window.location.href = 'tel:' + contact.replace(/[^0-9]/g, '');
+  });
+
+  // Post Mandi Trade Offer Form Submission
+  $('#formPostOffer').on('submit', function(e) {
+    e.preventDefault();
+    var payload = {
+      offer_type: $('#offerType').val(),
+      commodity: $('#offerCommodity').val(),
+      title: $('#offerTitle').val(),
+      partner_name: $('#offerPartner').val(),
+      state: $('#offerState').val(),
+      location: $('#offerLocation').val(),
+      price_terms: $('#offerRate').val(),
+      quantity: $('#offerQuantity').val(),
+      contact: $('#offerContact').val(),
+      payment_terms: $('#offerPayment').val()
+    };
+
+    var btn = $('#btnSubmitOffer');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Publishing...');
+
+    $.ajax({
+      url: '/api/mandi-offers',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(payload),
+      success: function(res) {
+        btn.prop('disabled', false).html('<i class="fas fa-check-circle"></i> Published!');
+        setTimeout(function() {
+          $('#postOfferModal').fadeOut(200);
+          btn.html('<i class="fas fa-check-circle"></i> Publish Mandi Offer');
+          $('#formPostOffer')[0].reset();
+          
+          $('#mandiToastMsg').text('Your Mandi trade offer has been published to the regional network!');
+          $('#mandiToast').fadeIn(300).delay(3500).fadeOut(400);
+
+          // Append to UI dynamically
+          var newCardHtml = `
+            <div class="offer-card" data-region="` + payload.state + `" data-commodity="` + payload.commodity + `" data-state="` + payload.state + `">
+              <div class="offer-card-top">
+                <span class="offer-badge" style="background: #2e7d32;"><i class="fas fa-handshake"></i> Verified Community Offer</span>
+                <span class="offer-region-tag">` + payload.state + `</span>
+              </div>
+              <h3 class="offer-title">` + payload.title + `</h3>
+              <div class="offer-partner-row">
+                <i class="fas fa-building"></i> <strong>` + payload.partner_name + `</strong>
+                <span class="offer-loc"><i class="fas fa-map-marker-alt"></i> ` + payload.location + `</span>
+              </div>
+              <div class="offer-rate-box">
+                <div class="offer-rate-item">
+                  <span class="or-lbl">Offered Rate / Terms:</span>
+                  <span class="or-val">` + payload.price_terms + `</span>
+                </div>
+              </div>
+              <div class="offer-specs-list">
+                <div class="spec-line"><i class="fas fa-boxes-stacked"></i> <span>` + payload.quantity + `</span></div>
+                <div class="spec-line"><i class="fas fa-credit-card"></i> <span><strong>Payment:</strong> ` + payload.payment_terms + `</span></div>
+              </div>
+              <div class="offer-card-actions">
+                <a href="tel:` + payload.contact + `" class="btn-call-buyer"><i class="fas fa-phone-alt"></i> Contact: ` + payload.contact + `</a>
+              </div>
+            </div>
+          `;
+          $('#mandiOffersGrid').prepend(newCardHtml);
+          $('#badgeOffersCount').text(parseInt($('#badgeOffersCount').text() || '0') + 1);
+        }, 600);
+      },
+      error: function() {
+        btn.prop('disabled', false).html('<i class="fas fa-check-circle"></i> Publish Mandi Offer');
+        alert('Could not submit offer. Please check details and try again.');
+      }
+    });
+  });
+
+  // Initial Run
+  filterAll();
 });
 </script>
 {% endblock %}

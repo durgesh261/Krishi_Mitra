@@ -228,13 +228,58 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertIn(b'Mandi Bhav', res.data)
         print("  [PASS] GET /mandi-prices rendered successfully")
 
-        # 2. GET /api/mandi-prices
+        # 2. GET /api/mandi-prices with state filter
         res_api = self.client.get('/api/mandi-prices?state=Punjab')
         self.assertEqual(res_api.status_code, 200)
         data = res_api.get_json()
         self.assertTrue(data.get('success'))
         self.assertGreater(data.get('count'), 0)
         print(f"  [PASS] GET /api/mandi-prices filtered by state: {data.get('count')} records found")
+
+        # 3. GET /api/mandi-prices with region filter (North India)
+        res_north = self.client.get('/api/mandi-prices?region=North')
+        self.assertEqual(res_north.status_code, 200)
+        data_north = res_north.get_json()
+        self.assertTrue(data_north.get('success'))
+        self.assertGreater(data_north.get('count'), 0)
+        self.assertIn('release_info', data_north)
+        self.assertIn('offers', data_north)
+        print(f"  [PASS] Region-wise Mandi Bhav (North): {data_north.get('count')} mandis, Session = {data_north['release_info']['current_session']}")
+
+        # 4. Live APMC Bulletin Refresh
+        res_refresh = self.client.get('/api/mandi-prices?refresh=1&region=West')
+        self.assertEqual(res_refresh.status_code, 200)
+        data_refresh = res_refresh.get_json()
+        self.assertTrue(data_refresh.get('success'))
+        print(f"  [PASS] Live Bulletin Refresh (West): Released at {data_refresh['release_info']['release_timestamp']}")
+
+        # 5. Regional Buyer Procurement & Input Offers API
+        res_offers = self.client.get('/api/mandi-offers?region=North')
+        self.assertEqual(res_offers.status_code, 200)
+        data_offers = res_offers.get_json()
+        self.assertTrue(data_offers.get('success'))
+        self.assertGreater(data_offers.get('count'), 0)
+        first_offer = data_offers['offers'][0]
+        print(f"  [PASS] Regional Buyer Offers (North): {data_offers['count']} offers (Top: '{first_offer['title']}' by {first_offer['buyer_partner']})")
+
+        # 6. Post New Mandi Trade Offer
+        offer_payload = {
+            'offer_type': 'Procurement (Buyer Direct)',
+            'commodity': 'Wheat',
+            'title': 'Test Mill Buying 500 Quintal Sharbati Wheat',
+            'partner_name': 'Test Ludhiana Flour Mill',
+            'state': 'Punjab',
+            'location': 'Khanna Mandi',
+            'price_terms': '₹2,580/Quintal Spot RTGS',
+            'quantity': '500 Bags',
+            'contact': '98765-99881',
+            'payment_terms': 'Same-Day RTGS'
+        }
+        res_post = self.client.post('/api/mandi-offers', data=json.dumps(offer_payload), content_type='application/json')
+        self.assertEqual(res_post.status_code, 200)
+        data_post = res_post.get_json()
+        self.assertTrue(data_post.get('success'))
+        print(f"  [PASS] Post Mandi Trade Offer: Successfully published offer ID {data_post.get('offer_id')}")
 
     def test_12_indian_crops_prediction(self):
         self.login_admin()
