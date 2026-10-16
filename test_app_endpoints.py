@@ -121,6 +121,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         print(f"  [PASS] Profit Calculator: Total Cost = {data['profit_analysis']['total_cost']}, Net Profit = {data['profit_analysis']['net_profit']}")
 
     def test_05_weather_advisory(self):
+        self.login_admin()
         payload = {'city': 'Ludhiana', 'crop_type': 'wheat'}
         res = self.client.post('/api/weather', data=json.dumps(payload), content_type='application/json')
         self.assertEqual(res.status_code, 200)
@@ -130,6 +131,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         print(f"  [PASS] Weather Advisory for {data['weather']['city']}: {data['weather']['temp']} C")
 
     def test_06_rag_chat_and_sustainability(self):
+        self.login_admin()
         # Chat
         res = self.client.post('/api/chat', data={'messageText': 'What is PM-KISAN scheme and benefits?', 'language': 'en'})
         self.assertEqual(res.status_code, 200)
@@ -160,6 +162,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         print("  [PASS] Sustainability advice successfully received")
 
     def test_07_disease_detection(self):
+        self.login_admin()
         img = Image.new('RGB', (100, 100), color=(34, 139, 34))
         buf = io.BytesIO()
         img.save(buf, format='JPEG')
@@ -295,6 +298,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         print(f"  [PASS] Indian Wheat prediction: Top recommended crop = {top_crop} (Confidence = {data['confidence']})")
 
     def test_13_krishi_seva_hub(self):
+        self.login_admin()
         # 1. GET /krishi-seva
         res = self.client.get('/krishi-seva')
         self.assertEqual(res.status_code, 200)
@@ -366,6 +370,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         print(f"  [PASS] GET /api/farming-ads returned {len(data_ads['ads'])} ads (First: {first_ad['title']})")
 
     def test_15_multimodal_remote_sensing(self):
+        self.login_admin()
         # 1. GET /remote-sensing
         res = self.client.get('/remote-sensing')
         self.assertEqual(res.status_code, 200)
@@ -536,7 +541,8 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertEqual(up_data['upvotes'], 1)
         print(f"  [PASS] Deal Upvote API: Incremented deal upvotes to {up_data['upvotes']}")
 
-        # 5. Crop guide endpoint returns authentic crop image URL
+        # 5. Crop guide endpoint returns authentic crop image URL (authenticated)
+        self.login_admin()
         res_guide = self.client.get('/api/get-crop-guide/wheat')
         self.assertEqual(res_guide.status_code, 200)
         guide_data = res_guide.get_json()
@@ -545,7 +551,6 @@ class TestKrishiMitraApp(unittest.TestCase):
         print(f"  [PASS] Crop Guide Imagery: Wheat photo URL resolved -> {guide_data['image_url'][:55]}...")
 
         # 6. Crop recommendation prediction includes image_url for each crop
-        self.login_admin()
         crop_payload = {
             'N': 80, 'P': 40, 'K': 40,
             'temperature': 25.0, 'humidity': 75.0,
@@ -561,8 +566,76 @@ class TestKrishiMitraApp(unittest.TestCase):
             self.assertTrue(c['image_url'].startswith('http'))
         print(f"  [PASS] Crop Recommendation Imagery: Top {len(pred_data['top_crops'])} crops all include authentic photo URLs")
 
+    def test_18_access_control_rules(self):
+        """Verify strict access control: ONLY Mandi Bhav, News, and Deals are accessible without login; all other features require authentication."""
+        # Ensure fresh logged-out session
+        self.client.get('/logout')
+
+        # 1. Verify Public Endpoints (Mandi Bhav, News, Deals & Core) return 200 without login
+        public_pages = ['/', '/mandi-prices', '/news', '/about', '/contact', '/login', '/signup']
+        for path in public_pages:
+            res = self.client.get(path)
+            self.assertEqual(res.status_code, 200, f"Expected public access (200) for {path}")
+        print("  [PASS] Public Pages: Home, Mandi Prices, News, Deals, About, Contact allow guest access (200 OK)")
+
+        public_apis = ['/api/mandi-prices', '/api/mandi-offers', '/api/farming-ads']
+        for path in public_apis:
+            res = self.client.get(path)
+            self.assertEqual(res.status_code, 200, f"Expected public API access (200) for {path}")
+        print("  [PASS] Public APIs: Mandi prices, offers, and deals/ads allow guest access (200 OK)")
+
+        # 2. Verify Protected Pages return 302 Redirect to /login when logged out
+        protected_pages = [
+            '/crop-recommendation',
+            '/disease',
+            '/chat',
+            '/weather',
+            '/crop-guide',
+            '/krishi-seva',
+            '/remote-sensing',
+            '/calculator',
+            '/sustainability',
+            '/profile'
+        ]
+        for path in protected_pages:
+            res = self.client.get(path)
+            self.assertEqual(res.status_code, 302, f"Expected redirect (302) for protected page {path}")
+            self.assertIn('/login', res.headers.get('Location', ''), f"Redirect location should be /login for {path}")
+        print(f"  [PASS] Protected Pages: All {len(protected_pages)} feature pages redirect unauthenticated users to /login (302 Redirect)")
+
+        # 3. Verify Protected APIs return 401 with login_required flag when logged out
+        protected_apis = [
+            ('/api/chat', 'POST', {'message': 'Hello'}),
+            ('/api/predict-crop', 'POST', {'N': 50, 'P': 50, 'K': 50, 'temperature': 25, 'humidity': 60, 'ph': 6.5, 'rainfall': 100}),
+            ('/api/weather', 'POST', {'city': 'Delhi'}),
+            ('/api/get-crop-guide/wheat', 'GET', None),
+            ('/api/soil-labs', 'GET', None),
+            ('/api/schemes', 'GET', None),
+            ('/api/calculate', 'POST', {'crop': 'wheat', 'area': 2, 'unit': 'acre'}),
+            ('/api/sustainability', 'POST', {'crop': 'wheat', 'practice': 'drip'})
+        ]
+        for item in protected_apis:
+            url, method, payload = item
+            if method == 'POST':
+                res = self.client.post(url, data=json.dumps(payload), content_type='application/json')
+            else:
+                res = self.client.get(url)
+            self.assertEqual(res.status_code, 401, f"Expected 401 Unauthorized for API {url}")
+            data = res.get_json()
+            self.assertTrue(data.get('login_required'), f"Expected login_required=True in response for {url}")
+        print(f"  [PASS] Protected APIs: All {len(protected_apis)} feature APIs return 401 Unauthorized with login_required flag")
+
+        # 4. Verify Access is granted once logged in
+        self.login_admin()
+        res_auth_page = self.client.get('/crop-guide')
+        self.assertEqual(res_auth_page.status_code, 200)
+        res_auth_api = self.client.get('/api/soil-labs')
+        self.assertEqual(res_auth_api.status_code, 200)
+        print("  [PASS] Authenticated Access: Logged-in farmer can freely access all protected feature pages and APIs")
+
 if __name__ == '__main__':
     unittest.main()
+
 
 
 

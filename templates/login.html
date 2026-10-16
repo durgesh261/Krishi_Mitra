@@ -19,12 +19,21 @@ block content %}
         <a href="{{ url_for('signup') }}" class="auth-tab"><i class="fas fa-user-plus"></i> <span data-i18n="tab_signup">Create Account</span></a>
       </div>
 
+      <!-- Public Access Informational Notice -->
+      <div class="auth-notice-box" style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #1b5e20; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-seedling" style="color: #2e7d32; font-size: 16px;"></i>
+        <span><strong>Open Access:</strong> Mandi Bhav, News, and Deals are free without login. Sign in to access AI Crop Doctor, Crop Advisory, Guides & Weather.</span>
+      </div>
+
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %} {% for category, message in messages %}
       <div class="alert alert-{{ category }}">{{ message }}</div>
       {% endfor %} {% endif %} {% endwith %}
 
-      <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+      <form method="POST" action="{{ url_for('login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" class="auth-form">
+        {% if request.args.get('next') %}
+        <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+        {% endif %}
         <div class="form-group">
           <label for="username"><i class="fas fa-user"></i> Username</label>
           <input type="text" id="username" name="username" required />

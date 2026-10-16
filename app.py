@@ -132,6 +132,11 @@ def login():
             
             flash('Login successful!', 'success')
             
+            # Redirect to originally requested page if provided
+            next_url = request.args.get('next') or request.form.get('next')
+            if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+                return redirect(next_url)
+
             # Post-login language selection if user hasn't set default yet
             if not has_chosen_lang and not user['is_admin']:
                 return redirect(url_for('select_language'))
@@ -302,22 +307,27 @@ def admin_update_contact(contact_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/chat')
+@login_required
 def chat():
     return render_template('chat.html')
 
 @app.route('/weather')
+@login_required
 def weather():
     return render_template('weather.html')
 
 @app.route('/disease')
+@login_required
 def disease():
     return render_template('disease.html')
 
 @app.route('/remote-sensing')
+@login_required
 def remote_sensing():
     return render_template('remote_sensing.html')
 
 @app.route('/calculator')
+@login_required
 def calculator():
     return render_template('calculator.html')
 
@@ -405,6 +415,7 @@ def api_mandi_offers():
 
 
 @app.route('/crop-guide')
+@login_required
 def crop_guide():
     import pandas as pd
     guides_df = pd.read_csv('train/dataset/crop_guides.csv')
@@ -419,6 +430,7 @@ def crop_guide():
                            all_crops=all_crops)
 
 @app.route('/krishi-seva')
+@login_required
 def krishi_seva():
     schemes = get_government_schemes()
     labs = get_soil_labs()
@@ -427,6 +439,7 @@ def krishi_seva():
     return render_template('krishi_seva.html', schemes=schemes, labs=labs, states=states, categories=categories)
 
 @app.route('/api/soil-labs', methods=['GET', 'POST'])
+@login_required
 def api_soil_labs():
     if request.method == 'POST':
         data = request.get_json() or {}
@@ -452,6 +465,7 @@ def api_soil_labs():
     return jsonify({'success': True, 'count': len(labs), 'labs': labs})
 
 @app.route('/api/schemes', methods=['GET'])
+@login_required
 def api_schemes():
     category = request.args.get('category')
     search = request.args.get('search')
@@ -644,6 +658,7 @@ def api_upvote_farmer_deal(deal_id):
 
 # API Endpoints
 @app.route('/api/chat', methods=['POST'])
+@login_required
 def api_chat():
     query = request.form.get('messageText', '').strip()
     language = request.form.get('language', 'en')
@@ -713,6 +728,7 @@ def api_chat():
     return jsonify({"answer": response})
 
 @app.route('/api/weather', methods=['POST'])
+@login_required
 def api_weather():
     data = request.get_json() or {}
     city = data.get('city', '').strip()
@@ -765,6 +781,7 @@ def api_weather():
     })
 
 @app.route('/api/disease', methods=['POST'])
+@login_required
 def api_disease():
     image_file = request.files.get('image')
     
@@ -795,6 +812,7 @@ def api_disease():
         return jsonify({"error": f"Error analyzing image: {str(e)}"})
 
 @app.route('/api/multimodal-predict', methods=['POST'])
+@login_required
 def api_multimodal_predict():
     """
     Multimodal Remote Sensing & Micro-Climate Telemetry Prediction API
@@ -860,6 +878,7 @@ def api_multimodal_predict():
         return jsonify({"success": False, "error": str(e)}), 400
 
 @app.route('/api/sample-remote-sensing/<scenario_id>', methods=['GET'])
+@login_required
 def api_sample_remote_sensing(scenario_id):
     """Returns preset scenario parameters and synthetic multispectral canopy imagery"""
     try:
@@ -875,6 +894,7 @@ def api_sample_remote_sensing(scenario_id):
         return jsonify({"success": False, "error": str(e)}), 400
 
 @app.route('/api/calculate', methods=['POST'])
+@login_required
 def api_calculate():
     data = request.get_json()
     
@@ -995,6 +1015,7 @@ def api_calculate_profit():
         return jsonify({"error": f"Error calculating: {str(e)}"}), 400
 
 @app.route('/api/sustainability', methods=['POST'])
+@login_required
 def api_sustainability():
     data = request.get_json()
     query = data.get('query', '').strip()
@@ -1050,6 +1071,7 @@ def api_get_district_averages():
     return jsonify(averages)
 
 @app.route('/api/get-crop-guide/<crop>', methods=['GET'])
+@login_required
 def api_get_crop_guide(crop):
     guide = get_crop_guide(crop)
     if guide:
