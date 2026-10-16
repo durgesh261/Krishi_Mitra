@@ -22,28 +22,29 @@ body {
   width: 100%;
 }
 
-/* Modern Minimalist Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Hide Visible Scrollbar across the entire site while preserving smooth scrolling */
+html,
+body,
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE & Edge */
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Edge, Opera */
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(46, 125, 50, 0.35);
-  border-radius: 8px;
+  display: none !important;
+  background: transparent !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(46, 125, 50, 0.65);
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(46, 125, 50, 0.35) transparent;
+::-webkit-scrollbar-track {
+  display: none !important;
+  background: transparent !important;
 }
 
 /* Navbar */
