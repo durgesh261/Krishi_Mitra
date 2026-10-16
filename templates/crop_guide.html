@@ -140,92 +140,244 @@
         </div>
       </div>
 
-      <!-- Detail Grid of 6 Agronomy Cards -->
-      <div class="guide-grid">
-        
-        <!-- 1. Season & Sowing -->
-        <div class="guide-box">
-          <div class="box-icon-header icon-season">
-            <i class="fas fa-calendar-alt"></i>
-            <h3 data-i18n="card_season">Season & Sowing Period</h3>
-          </div>
-          <div class="box-body">
-            <p id="seasonText" class="box-text">Rabi (Sow: Nov; Harvest: Mar-Apr)</p>
-          </div>
-        </div>
+      <!-- Comprehensive Crop Cultivation & Planning Sections -->
+      <div class="guide-sections-wrap">
 
-        <!-- 2. Soil Type & pH -->
-        <div class="guide-box">
-          <div class="box-icon-header icon-soil">
-            <i class="fas fa-mountain"></i>
-            <h3 data-i18n="card_soil">Soil Type & Ideal pH</h3>
+        <!-- SECTION 1: Crop Biology & Recommended Varieties -->
+        <div class="guide-section-block">
+          <div class="guide-section-header">
+            <span class="sec-badge">1</span>
+            <div>
+              <h3 data-i18n="sec_overview_title">1. Crop Biology & Recommended Varieties</h3>
+              <p data-i18n="sec_overview_sub">Season, maturity duration, yield expectations, and high-yielding cultivars</p>
+            </div>
           </div>
-          <div class="box-body">
-            <p id="soilTypeText" class="box-text">Well-drained fertile loamy & clay-loam soils (pH 6.0-7.5)</p>
-          </div>
-        </div>
 
-        <!-- 3. Watering & Precision Irrigation -->
-        <div class="guide-box">
-          <div class="box-icon-header icon-water">
-            <i class="fas fa-tint"></i>
-            <h3 data-i18n="card_watering">Watering & Irrigation Schedule</h3>
+          <!-- Highlight Card: Recommended Varieties -->
+          <div class="guide-box guide-box-highlight" style="margin-bottom: 1.25rem;">
+            <div class="box-icon-header icon-varieties">
+              <i class="fas fa-award"></i>
+              <h3 data-i18n="card_varieties">High-Yielding Recommended Varieties</h3>
+            </div>
+            <div class="box-body">
+              <p id="recommendedVarieties" class="box-text">DBW-187 (Karan Vandana), DBW-222, PBW-826 (heat-tolerant), HD-2967, HD-3086, Sharbati C-306.</p>
+            </div>
           </div>
-          <div class="box-body">
-            <p id="watering" class="box-text">Critical moisture stages and irrigation intervals.</p>
-          </div>
-        </div>
 
-        <!-- 4. Fertilizer Plan -->
-        <div class="guide-box">
-          <div class="box-icon-header icon-fert">
-            <i class="fas fa-flask"></i>
-            <h3 data-i18n="card_fertilizer">Fertilizer & Nutrient Schedule (NPK)</h3>
-          </div>
-          <div class="box-body">
-            <p id="fertilizer" class="box-text">Basal doses, top dressing stages, and micronutrient advisory.</p>
-          </div>
-        </div>
+          <div class="guide-grid">
+            <!-- Season & Sowing -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-season">
+                <i class="fas fa-calendar-alt"></i>
+                <h3 data-i18n="card_season">Season & Sowing Period</h3>
+              </div>
+              <div class="box-body">
+                <p id="seasonText" class="box-text">Rabi (Sow: Nov; Harvest: Mar-Apr)</p>
+              </div>
+            </div>
 
-        <!-- 5. Growth Duration & Cycle -->
-        <div class="guide-box">
-          <div class="box-icon-header icon-clock">
-            <i class="fas fa-clock"></i>
-            <h3 data-i18n="card_duration">Crop Duration & Maturity</h3>
-          </div>
-          <div class="box-body">
-            <p id="duration" class="box-text">110-135 days</p>
-          </div>
-        </div>
+            <!-- Crop Duration -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-clock">
+                <i class="fas fa-clock"></i>
+                <h3 data-i18n="card_duration">Crop Duration & Maturity</h3>
+              </div>
+              <div class="box-body">
+                <p id="duration" class="box-text">110-135 days</p>
+              </div>
+            </div>
 
-        <!-- 6. Ideal Climate Conditions -->
-        <div class="guide-box">
-          <div class="box-icon-header icon-climate">
-            <i class="fas fa-temperature-high"></i>
-            <h3 data-i18n="card_climate">Ideal Climate Conditions</h3>
-          </div>
-          <div class="box-body">
-            <div id="conditions" class="box-text">
-              <strong>Temperature:</strong> 12°C - 25°C<br>
-              <strong>Humidity:</strong> 50% - 70%
+            <!-- Soil Type & pH -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-soil">
+                <i class="fas fa-mountain"></i>
+                <h3 data-i18n="card_soil">Soil Type & Ideal pH</h3>
+              </div>
+              <div class="box-body">
+                <p id="soilTypeText" class="box-text">Well-drained fertile loamy & clay-loam soils (pH 6.0-7.5)</p>
+              </div>
+            </div>
+
+            <!-- Climate Conditions -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-climate">
+                <i class="fas fa-temperature-high"></i>
+                <h3 data-i18n="card_climate">Ideal Climate Conditions</h3>
+              </div>
+              <div class="box-body">
+                <div id="conditions" class="box-text">
+                  <strong>Temperature:</strong> 12°C - 25°C<br>
+                  <strong>Humidity:</strong> 50% - 70%
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-      </div>
+        <!-- SECTION 2: Land Preparation & Sowing Plan -->
+        <div class="guide-section-block">
+          <div class="guide-section-header">
+            <span class="sec-badge">2</span>
+            <div>
+              <h3 data-i18n="sec_sowing_title">2. Land Preparation & Sowing Plan</h3>
+              <p data-i18n="sec_sowing_sub">Tillage, compost incorporation, seed rate, row spacing, and seed treatment</p>
+            </div>
+          </div>
 
-      <!-- 7. Full-Width Pest & Disease Advisory Card -->
-      <div class="pest-advisory-card">
-        <div class="pest-header">
-          <div class="pest-icon"><i class="fas fa-shield-virus"></i></div>
-          <div class="pest-title-wrap">
-            <h3 data-i18n="card_pest_advisory">Pest & Disease Advisory (आईपीएम कीट एवं रोग प्रबंधन)</h3>
-            <p data-i18n="card_pest_sub">Symptoms to monitor in field and recommended biological / chemical intervention</p>
+          <div class="guide-grid-2col">
+            <!-- Land Preparation -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-land">
+                <i class="fas fa-tractor"></i>
+                <h3 data-i18n="card_land_prep">Land Preparation & Tillage</h3>
+              </div>
+              <div class="box-body">
+                <p id="landPrep" class="box-text">1 deep summer ploughing followed by 2-3 harrowings and planking. Incorporate 6-8 tonnes FYM/compost per acre.</p>
+              </div>
+            </div>
+
+            <!-- Seed Rate & Spacing -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-seed">
+                <i class="fas fa-seedling"></i>
+                <h3 data-i18n="card_seed_rate">Seed Rate, Spacing & Treatment</h3>
+              </div>
+              <div class="box-body">
+                <p id="seedRateSpacing" class="box-text">Seed Rate: 40-45 kg/acre. Spacing: 20-22.5 cm row-to-row, 4-5 cm depth. Seed treatment: Carbendazim @ 2g/kg seed.</p>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="pest-content" id="pestAdvisory">
-          Watch for Yellow/Stripe Rust (Puccinia striiformis) and Karnal Bunt. Spray Propiconazole 25% EC @ 1ml/L at first sign of rust pustules.
+
+        <!-- SECTION 3: Precision Water & Fertilizer Schedule -->
+        <div class="guide-section-block">
+          <div class="guide-section-header">
+            <span class="sec-badge">3</span>
+            <div>
+              <h3 data-i18n="sec_nutrition_title">3. Precision Water & Fertilizer Schedule</h3>
+              <p data-i18n="sec_nutrition_sub">Stage-wise watering schedule and farmer-friendly fertilizer bag doses per acre</p>
+            </div>
+          </div>
+
+          <!-- Fertilizer Bags per Acre (Practical Farmer Units) -->
+          <div class="guide-box guide-box-highlight" style="margin-bottom: 1.25rem;">
+            <div class="box-icon-header icon-fert-bags">
+              <i class="fas fa-shopping-bag"></i>
+              <h3 data-i18n="card_fertilizer_bags">Fertilizer Schedule (Bags per Acre)</h3>
+            </div>
+            <div class="box-body">
+              <p id="fertilizerBags" class="box-text">Basal: 1 bag DAP + 1/2 bag MOP + 10kg Zinc Sulphate. Top Dressing: 1 bag Urea at 1st irrigation, 1 bag Urea at 2nd irrigation.</p>
+            </div>
+          </div>
+
+          <div class="guide-grid-2col">
+            <!-- Watering Schedule -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-water">
+                <i class="fas fa-tint"></i>
+                <h3 data-i18n="card_watering">Watering & Precision Irrigation</h3>
+              </div>
+              <div class="box-body">
+                <p id="watering" class="box-text">Critical moisture stages: CRI (21d), Tillering (40-45d), Late Jointing (60-65d), Flowering (80-85d).</p>
+              </div>
+            </div>
+
+            <!-- Fertilizer Plan NPK -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-fert">
+                <i class="fas fa-flask"></i>
+                <h3 data-i18n="card_fertilizer">NPK & Micronutrient Schedule</h3>
+              </div>
+              <div class="box-body">
+                <p id="fertilizer" class="box-text">Basal: 60kg N, 60kg P2O5, 40kg K2O per ha. Top dress: 30kg N at 1st irrigation, 30kg N at 2nd irrigation.</p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- SECTION 4: Weed, Pest & Disease Protection -->
+        <div class="guide-section-block">
+          <div class="guide-section-header">
+            <span class="sec-badge">4</span>
+            <div>
+              <h3 data-i18n="sec_protection_title">4. Weed, Pest & Disease Protection</h3>
+              <p data-i18n="sec_protection_sub">Weed-free periods, insect monitoring, and exact chemical/biological dosages</p>
+            </div>
+          </div>
+
+          <div class="guide-grid-2col">
+            <!-- Weed Management -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-weed">
+                <i class="fas fa-cut"></i>
+                <h3 data-i18n="card_weed_mgmt">Weed Management & Control</h3>
+              </div>
+              <div class="box-body">
+                <p id="weedManagement" class="box-text">Pre-emergence: Pendimethalin 30% EC @ 1-1.25 L/acre within 48h. Post-emergence: Clodinafop 15% WP @ 160g/acre for Phalaris minor.</p>
+              </div>
+            </div>
+
+            <!-- Pest & Disease Advisory -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-pest">
+                <i class="fas fa-shield-virus"></i>
+                <h3 data-i18n="card_pest_advisory">Pest & Disease Advisory (IPM)</h3>
+              </div>
+              <div class="box-body">
+                <p id="pestAdvisory" class="box-text">Watch for Yellow/Stripe Rust (Puccinia striiformis) and Karnal Bunt. Spray Propiconazole 25% EC @ 1ml/L at first sign.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: Harvesting, Storage & Farm Economics -->
+        <div class="guide-section-block">
+          <div class="guide-section-header">
+            <span class="sec-badge">5</span>
+            <div>
+              <h3 data-i18n="sec_economics_title">5. Harvesting & Farm Profitability</h3>
+              <p data-i18n="sec_economics_sub">Maturity signs, post-harvest drying, cost of cultivation, and expected net profit</p>
+            </div>
+          </div>
+
+          <div class="guide-grid-2col">
+            <!-- Harvesting & Storage -->
+            <div class="guide-box">
+              <div class="box-icon-header icon-harvest">
+                <i class="fas fa-warehouse"></i>
+                <h3 data-i18n="card_harvest_storage">Harvesting & Safe Storage</h3>
+              </div>
+              <div class="box-body">
+                <p id="harvestingStorage" class="box-text">Harvest when earheads turn golden yellow (moisture &lt; 14%). Sun-dry to 10-12% moisture before storing in clean bins.</p>
+              </div>
+            </div>
+
+            <!-- Farm Economics & Profit -->
+            <div class="guide-box guide-box-gold">
+              <div class="box-icon-header icon-economics">
+                <i class="fas fa-rupee-sign"></i>
+                <h3 data-i18n="card_economics_profit">Farm Economics & Profitability per Acre</h3>
+              </div>
+              <div class="box-body">
+                <p id="economicProfit" class="box-text">Cost: ₹14,000 - ₹17,500/acre. Yield: 18 - 22 q/acre. Gross Revenue: ₹41,000 - ₹50,000. Net Profit: ₹25,000 - ₹33,000/acre.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Navigation Actions -->
+          <div class="crop-guide-action-bar">
+            <a href="/calculator" class="crop-guide-action-btn btn-calc">
+              <i class="fas fa-calculator"></i> <span data-i18n="btn_calc_link">Calculate Profit for My Farm Acreage</span> <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="/mandi-prices" class="crop-guide-action-btn btn-mandi">
+              <i class="fas fa-chart-line"></i> <span data-i18n="btn_mandi_link">Check Today's Mandi Bhav & MSP</span> <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="/chat" class="crop-guide-action-btn btn-chat">
+              <i class="fas fa-comments"></i> <span data-i18n="btn_ask_mitra">Ask Mitra AI About This Crop</span> <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -806,6 +958,144 @@
   border: 1px dashed #fca5a5;
 }
 
+/* Guide Sections Container & Blocks */
+.guide-sections-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  margin-top: 1.25rem;
+}
+
+.guide-section-block {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.guide-section-block:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+}
+
+.guide-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
+.sec-badge {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(27, 67, 50, 0.25);
+}
+
+.guide-section-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 0.2rem;
+}
+
+.guide-section-header p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.guide-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Highlight & Thematic Card Variants */
+.guide-box-highlight {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #86efac;
+}
+
+.guide-box-gold {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1.5px solid #fcd34d;
+}
+
+/* Icon thematic colors */
+.icon-varieties i { background: #dcfce7; color: #166534; }
+.icon-land i { background: #fef3c7; color: #92400e; }
+.icon-seed i { background: #dbeafe; color: #1e40af; }
+.icon-fert-bags i { background: #dcfce7; color: #15803d; }
+.icon-weed i { background: #fee2e2; color: #b91c1c; }
+.icon-pest i { background: #fee2e2; color: #991b1b; }
+.icon-harvest i { background: #e0e7ff; color: #4338ca; }
+.icon-economics i { background: #fef08a; color: #854d0e; }
+
+/* Quick Navigation Action Bar */
+.crop-guide-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.crop-guide-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.crop-guide-action-btn.btn-calc {
+  background: #2d6a4f;
+  color: #ffffff;
+}
+.crop-guide-action-btn.btn-calc:hover {
+  background: #1b4332;
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.crop-guide-action-btn.btn-mandi {
+  background: #0284c7;
+  color: #ffffff;
+}
+.crop-guide-action-btn.btn-mandi:hover {
+  background: #0369a1;
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.crop-guide-action-btn.btn-chat {
+  background: #7c3aed;
+  color: #ffffff;
+}
+.crop-guide-action-btn.btn-chat:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .guide-header-card {
@@ -837,8 +1127,15 @@
   .hero-yield-badge {
     width: 100%;
   }
-  .guide-grid {
+  .guide-grid, .guide-grid-2col {
     grid-template-columns: 1fr;
+  }
+  .crop-guide-action-bar {
+    flex-direction: column;
+  }
+  .crop-guide-action-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>
@@ -1065,21 +1362,32 @@ $(document).ready(function () {
         // Yield
         $("#expectedYield").text(data.expected_yield || 'Varies by agro-climatic zone');
 
-        // Detailed agronomy sections
+        // Detailed agronomy planning sections
+        $("#recommendedVarieties").text(data.recommended_varieties || 'High-yielding certified varieties recommended by ICAR / State Agri Universities.');
         $("#seasonText").text(data.season || 'Kharif / Rabi');
         $("#soilTypeText").text(data.soil_type || 'Well-drained fertile loam (pH 6.0-7.5)');
         $("#watering").text(data.watering_schedule || 'Irrigate based on critical soil moisture stages.');
+        $("#fertilizerBags").text(data.fertilizer_bags_per_acre || 'Apply recommended basal DAP/MOP and top dress Urea in split doses.');
         $("#fertilizer").text(data.fertilizer_plan || 'Apply balanced NPK with recommended basal and top dressing.');
         $("#duration").text(data.duration_days || 'Seasonal / Perennial');
+        $("#landPrep").text(data.land_preparation || 'Perform 1 deep ploughing followed by harrowing and planking. Incorporate 6-8 tonnes FYM/acre.');
+        $("#seedRateSpacing").text(data.seed_rate_and_spacing || 'Use certified seeds at standard seed rate with proper row spacing and fungicide seed treatment.');
+        $("#weedManagement").text(data.weed_management || 'Apply recommended pre-emergence herbicide within 48 hours of sowing, followed by manual weeding.');
+        $("#pestAdvisory").text(data.pest_disease_advisory || 'Monitor field regularly for leaf spots and sucking pests.');
+        $("#harvestingStorage").text(data.harvesting_and_storage || 'Harvest at physiological maturity when moisture is below 14-16%, dry well before storage.');
+        $("#economicProfit").text(data.economic_profit_acre || 'Cost of cultivation, gross revenue, and net profit vary by yield and market rates.');
         
         $("#conditions").html(
           "<strong>Temperature:</strong> " + (data.ideal_temp_min || 15) + "°C - " + (data.ideal_temp_max || 30) + "°C<br>" +
           "<strong>Humidity:</strong> " + (data.ideal_humidity_min || 50) + "% - " + (data.ideal_humidity_max || 80) + "%"
         );
 
-        $("#pestAdvisory").text(data.pest_disease_advisory || 'Monitor field regularly for leaf spots and sucking pests.');
-
         $("#guideResult").fadeIn(250);
+
+        // Apply translations to all newly rendered section titles and headers
+        if (window.applyLanguage) {
+          window.applyLanguage(lang);
+        }
       },
       error: function (xhr) {
         $("#guideLoading").hide();
@@ -1113,6 +1421,11 @@ $(document).ready(function () {
 
     // Refresh dropdown option labels
     filterCropDropdown();
+
+    // Re-apply language to all data-i18n elements on the page
+    if (window.applyLanguage) {
+      window.applyLanguage(lang);
+    }
   });
 
   // Initial setup: render general crop pills and populate dropdown
