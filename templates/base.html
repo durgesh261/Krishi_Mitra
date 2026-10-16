@@ -159,17 +159,7 @@
           </ul>
         </li>
 
-        <!-- Direct Action: AI Chat Button -->
-        <li>
-          <a
-            href="/chat"
-            class="nav-chat-highlight {% if request.endpoint == 'chat' %}active{% endif %}"
-            data-i18n="nav_chat"
-            ><i class="fas fa-robot"></i> Ask Mitra AI</a
-          >
-        </li>
-
-        <!-- Info Pages -->
+        <!-- 5. Info: About Us -->
         <li>
           <a
             href="/about"
@@ -179,9 +169,22 @@
           >
         </li>
 
-        <!-- 10 Indian Regional Languages Switcher Dropdown -->
+        <!-- Elegant Separator Between Nav Links & Action Cluster -->
+        <li class="nav-cluster-divider" aria-hidden="true"></li>
+
+        <!-- Action 1: Ask Mitra AI -->
+        <li>
+          <a
+            href="/chat"
+            class="nav-chat-highlight {% if request.endpoint == 'chat' %}active{% endif %}"
+            data-i18n="nav_chat"
+            ><i class="fas fa-robot"></i> Ask Mitra AI</a
+          >
+        </li>
+
+        <!-- Action 2: 10 Indian Regional Languages Switcher Dropdown -->
         <li class="dropdown lang-nav-item">
-          <a href="#" class="dropdown-toggle" id="currentLangBtn" title="Choose Language / भाषा चुनें">
+          <a href="#" class="dropdown-toggle nav-lang-pill" id="currentLangBtn" title="Choose Language / भाषा चुनें">
             <i class="fas fa-globe-asia"></i> <span id="currentLangLabel">English</span> <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu lang-dropdown-menu">
@@ -204,10 +207,10 @@
           </ul>
         </li>
 
-        <!-- User Menu -->
+        <!-- Action 3: User Menu / Sign In -->
         {% if session.user_id %}
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-i18n="nav_account">
+          <a href="#" class="dropdown-toggle nav-auth-pill" data-i18n="nav_account">
             <i class="fas fa-user-circle"></i> {{ session.username or 'Account' }}
             <i class="fas fa-caret-down"></i>
           </a>
