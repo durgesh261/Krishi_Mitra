@@ -157,6 +157,11 @@
                 <i class="fas fa-headset"></i> 24x7 Emergency Helplines (टोल-फ्री डेस्क)
               </a>
             </li>
+            <li>
+              <a href="/about">
+                <i class="fas fa-info-circle"></i> <span data-i18n="nav_about">About Krishi Mitra (परिचय)</span>
+              </a>
+            </li>
           </ul>
         </li>
 
@@ -166,15 +171,6 @@
             href="/community"
             class="{% if request.endpoint == 'community' %}active{% endif %}"
             ><i class="fas fa-users"></i> <span data-i18n="nav_community">Community</span></a
-          >
-        </li>
-
-        <!-- 6. Info: About Us -->
-        <li>
-          <a
-            href="/about"
-            class="{% if request.endpoint == 'about' %}active{% endif %}"
-            ><i class="fas fa-info-circle"></i> <span data-i18n="nav_about">About</span></a
           >
         </li>
 
@@ -224,10 +220,13 @@
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="/profile" data-i18n="nav_profile"> <i class="fas fa-user"></i> Profile </a>
+              <a href="/profile" data-i18n="nav_profile"> <i class="fas fa-user"></i> My Profile </a>
             </li>
             <li>
-              <a href="/select-language"> <i class="fas fa-language"></i> <span data-i18n="nav_settings">Language Settings</span> </a>
+              <a href="/select-language"> <i class="fas fa-language"></i> <span data-i18n="nav_settings">Settings</span> </a>
+            </li>
+            <li>
+              <a href="/about" data-i18n="nav_about"> <i class="fas fa-info-circle"></i> <span data-i18n="nav_about">About Us</span> </a>
             </li>
             {% if session.is_admin %}
             <li>
