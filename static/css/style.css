@@ -50,7 +50,7 @@ body,
 /* Navbar */
 .navbar {
   background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
-  padding: 8px 18px;
+  padding: 8px 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -105,53 +105,6 @@ body,
   white-space: nowrap;
 }
 
-.nav-helpline-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.25s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.nav-helpline-pill:hover {
-  background: #fff;
-  color: #1b5e20;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-.nav-helpline-pill i {
-  color: #ffd54f;
-}
-
-/* On standard screens (<= 1380px), collapse helpline to compact icon badge */
-@media (max-width: 1380px) {
-  .nav-helpline-pill {
-    padding: 6px 9px;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    justify-content: center;
-  }
-  .nav-helpline-pill .helpline-text {
-    display: none !important;
-  }
-}
-
-@media (max-width: 1120px) {
-  .nav-helpline-pill {
-    display: none !important;
-  }
-}
 
 /* Navbar Actions & CTA Cluster */
 .nav-action-item {
