@@ -20,7 +20,10 @@ from database import (
     log_activity, log_analytics, get_analytics_summary,
     log_prediction, get_user_predictions,
     update_user_language, get_user_language,
-    upvote_farmer_news, upvote_farmer_deal
+    upvote_farmer_news, upvote_farmer_deal,
+    create_community_post, get_community_posts, get_community_post,
+    add_community_review, upvote_community_post, get_community_regions_summary,
+    REGION_STATE_MAPPING, LANGUAGE_NAMES
 )
 from location_service import get_location_from_coordinates, normalize_state_name, get_open_meteo_weather
 from mandi_service import (
@@ -483,6 +486,148 @@ def api_schemes():
             or q in str(s.get('eligibility', '')).lower()
         ]
     return jsonify({'success': True, 'count': len(schemes), 'schemes': schemes})
+
+# -------------------------------------------------------------
+# Kisan Community Hub (किसान चौपाल): Area-Wise Posts & Reviews
+# -------------------------------------------------------------
+@app.route('/community')
+@login_required
+def community():
+    """Farmer Community Hub: Area-wise & Regional discussions, crops, instruments and pesticide reviews"""
+    region = request.args.get('region', 'All-India')
+    state = request.args.get('state', 'all')
+    district = request.args.get('district', 'all')
+    category = request.args.get('category', 'all')
+    search = request.args.get('q', '')
+    sort = request.args.get('sort', 'latest')
+
+    posts = get_community_posts(region=region, state=state, district=district,
+                                category=category, search=search, sort=sort, limit=60)
+    meta = get_community_regions_summary()
+    
+    # List of unique states in current active region (or all states if All-India)
+    if region and region not in ('all', 'All', 'All-India') and region in REGION_STATE_MAPPING:
+        available_states = REGION_STATE_MAPPING[region]
+    else:
+        available_states = sorted([s for state_list in REGION_STATE_MAPPING.values() for s in state_list])
+
+    return render_template('community.html',
+                           posts=posts,
+                           meta=meta,
+                           available_states=available_states,
+                           active_region=region,
+                           active_state=state,
+                           active_district=district,
+                           active_category=category,
+                           active_search=search,
+                           active_sort=sort)
+
+@app.route('/api/community/posts', methods=['GET', 'POST'])
+@login_required
+def api_community_posts():
+    """Retrieve filtered posts or create a new community post"""
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        title = data.get('title', '').strip()
+        content = data.get('content', '').strip()
+        category = data.get('category', 'General Agri Discussion').strip()
+        item_name = data.get('item_name', '').strip()
+        region = data.get('region', '').strip()
+        state = data.get('state', '').strip()
+        district = data.get('district', '').strip()
+        village = data.get('village', '').strip()
+        language = data.get('language', 'hi').strip()
+        rating = float(data.get('rating', 5.0))
+        image_url = data.get('image_url', '').strip()
+
+        # Determine author
+        user_id = session.get('user_id')
+        user = get_user_by_id(user_id) if user_id else None
+        author_name = (user.get('full_name') or user.get('username')) if user else data.get('author_name', 'Kisan Mitra')
+        author_phone = (user.get('phone') or '') if user else data.get('author_phone', '')
+
+        if not title or not content:
+            return jsonify({'success': False, 'error': 'Title and content are required'}), 400
+
+        post_id = create_community_post(
+            author_name=author_name,
+            author_phone=author_phone,
+            region=region,
+            state=state,
+            district=district,
+            village=village,
+            category=category,
+            item_name=item_name,
+            title=title,
+            content=content,
+            language=language,
+            rating=rating,
+            image_url=image_url,
+            user_id=user_id
+        )
+        return jsonify({'success': True, 'post_id': post_id, 'message': 'Post published successfully!'})
+
+    # GET
+    region = request.args.get('region')
+    state = request.args.get('state')
+    district = request.args.get('district')
+    category = request.args.get('category')
+    search = request.args.get('q')
+    sort = request.args.get('sort', 'latest')
+
+    posts = get_community_posts(region=region, state=state, district=district,
+                                category=category, search=search, sort=sort)
+    return jsonify({'success': True, 'count': len(posts), 'posts': posts})
+
+@app.route('/api/community/post/<int:post_id>', methods=['GET'])
+@login_required
+def api_community_post_detail(post_id):
+    """Retrieve detailed post with its community reviews"""
+    post = get_community_post(post_id, increment_view=True)
+    if not post:
+        return jsonify({'success': False, 'error': 'Post not found'}), 404
+    return jsonify({'success': True, 'post': post})
+
+@app.route('/api/community/post/<int:post_id>/reviews', methods=['POST'])
+@login_required
+def api_add_community_review(post_id):
+    """Submit a review or comment on a community post"""
+    data = request.get_json() or {}
+    comment = data.get('comment', '').strip()
+    if not comment:
+        return jsonify({'success': False, 'error': 'Review comment cannot be empty'}), 400
+
+    user_id = session.get('user_id')
+    user = get_user_by_id(user_id) if user_id else None
+    author_name = (user.get('full_name') or user.get('username')) if user else data.get('author_name', 'Kisan Bhai')
+    location = data.get('location') or (user.get('district') if user else '')
+    state = data.get('state') or (user.get('state') if user else '')
+    rating = float(data.get('rating', 5.0))
+    language = data.get('language', 'hi')
+
+    review_id = add_community_review(
+        post_id=post_id,
+        author_name=author_name,
+        location=location,
+        state=state,
+        comment=comment,
+        rating=rating,
+        language=language
+    )
+    return jsonify({'success': True, 'review_id': review_id, 'message': 'Review posted successfully!'})
+
+@app.route('/api/community/post/<int:post_id>/upvote', methods=['POST'])
+@login_required
+def api_upvote_community_post(post_id):
+    """Upvote / mark helpful on a community post"""
+    upvotes = upvote_community_post(post_id)
+    return jsonify({'success': True, 'upvotes': upvotes})
+
+@app.route('/api/community/meta', methods=['GET'])
+def api_community_meta():
+    """Return region, states and language metadata"""
+    meta = get_community_regions_summary()
+    return jsonify({'success': True, 'meta': meta})
 
 # Daily Agricultural News & Advertisements Portal
 @app.route('/news')

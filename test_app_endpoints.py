@@ -595,6 +595,7 @@ class TestKrishiMitraApp(unittest.TestCase):
             '/remote-sensing',
             '/calculator',
             '/sustainability',
+            '/community',
             '/profile'
         ]
         for path in protected_pages:
@@ -612,7 +613,8 @@ class TestKrishiMitraApp(unittest.TestCase):
             ('/api/soil-labs', 'GET', None),
             ('/api/schemes', 'GET', None),
             ('/api/calculate', 'POST', {'crop': 'wheat', 'area': 2, 'unit': 'acre'}),
-            ('/api/sustainability', 'POST', {'crop': 'wheat', 'practice': 'drip'})
+            ('/api/sustainability', 'POST', {'crop': 'wheat', 'practice': 'drip'}),
+            ('/api/community/posts', 'GET', None)
         ]
         for item in protected_apis:
             url, method, payload = item
@@ -633,8 +635,112 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertEqual(res_auth_api.status_code, 200)
         print("  [PASS] Authenticated Access: Logged-in farmer can freely access all protected feature pages and APIs")
 
+    def test_19_farmer_community_hub(self):
+        """Verify Farmer Community Hub (Kisan Chaupal): Area-wise filtering, crops & instrument reviews, regional language and discussions"""
+        self.login_admin()
+
+        # 1. Community page renders successfully with regional tabs and filters
+        res_page = self.client.get('/community')
+        self.assertEqual(res_page.status_code, 200)
+        html = res_page.get_data(as_text=True)
+        self.assertIn("किसान चौपाल", html)
+        self.assertIn("All India", html)
+        self.assertIn("North", html)
+        self.assertIn("Farming Machinery", html)
+        print("  [PASS] Community Hub UI: Rendered successfully with region navigator and category filters")
+
+        # 2. Area-wise & Region-wise filtering
+        res_north = self.client.get('/api/community/posts?region=North')
+        self.assertEqual(res_north.status_code, 200)
+        north_data = res_north.get_json()
+        self.assertTrue(north_data['success'])
+        self.assertGreaterEqual(north_data['count'], 2)
+        for p in north_data['posts']:
+            self.assertEqual(p['region'], 'North')
+        print(f"  [PASS] Region-wise Filter (North): Found {north_data['count']} posts from Punjab, UP etc.")
+
+        res_west = self.client.get('/api/community/posts?region=West')
+        self.assertEqual(res_west.status_code, 200)
+        west_data = res_west.get_json()
+        for p in west_data['posts']:
+            self.assertEqual(p['region'], 'West')
+        print(f"  [PASS] Region-wise Filter (West): Found {west_data['count']} posts from Maharashtra, Gujarat")
+
+        # 3. Category filtering (Machinery & Instruments vs Pesticides)
+        res_mach = self.client.get('/api/community/posts?category=Farming+Machinery+%26+Instruments')
+        self.assertEqual(res_mach.status_code, 200)
+        mach_data = res_mach.get_json()
+        self.assertGreaterEqual(mach_data['count'], 1)
+        self.assertIn('Rotavator', mach_data['posts'][0]['title'])
+        print(f"  [PASS] Category Filter (Machinery): Found {mach_data['count']} instrument/machinery reviews")
+
+        # 4. Post Details with authentic community reviews
+        res_detail = self.client.get('/api/community/post/1')
+        self.assertEqual(res_detail.status_code, 200)
+        detail_data = res_detail.get_json()
+        self.assertTrue(detail_data['success'])
+        post = detail_data['post']
+        self.assertIn('reviews', post)
+        self.assertGreaterEqual(len(post['reviews']), 1)
+        self.assertEqual(post['language'], 'pa') # Punjabi
+        print(f"  [PASS] Post Detail & Reviews: Post #{post['id']} loaded with {len(post['reviews'])} farmer reviews (Lang: {post['language_name']})")
+
+        # 5. Create new farmer post with regional language support
+        new_post_payload = {
+            'title': 'Desi Hal vs Laser Leveler review in Sonipat',
+            'category': 'Farming Machinery & Instruments',
+            'item_name': 'Laser Land Leveler 7ft Dual Transmitter',
+            'region': 'North',
+            'state': 'Haryana',
+            'district': 'Sonipat',
+            'village': 'Gohana',
+            'language': 'hi',
+            'rating': 4.9,
+            'content': 'लेजर लैंड लेवलर से धान और गेहूं दोनों में पानी की 35% बचत हुई है। 45HP महिंद्रा से आसानी से खिंच जाता है।',
+            'image_url': 'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80'
+        }
+        res_create = self.client.post('/api/community/posts',
+                                      data=json.dumps(new_post_payload),
+                                      content_type='application/json')
+        self.assertEqual(res_create.status_code, 200)
+        create_data = res_create.get_json()
+        self.assertTrue(create_data['success'])
+        new_post_id = create_data['post_id']
+        print(f"  [PASS] Publish Community Post API: Created new post #{new_post_id} for Sonipat, Haryana")
+
+        # 6. Add community review / comment with star rating
+        review_payload = {
+            'comment': 'बिल्कुल सही भाई साहब, हमने भी पिछले सीजन में यही लेवलर लगवाया था, खाद का फैलाव भी एकसमान रहता है।',
+            'rating': 5.0,
+            'language': 'hi'
+        }
+        res_review = self.client.post(f'/api/community/post/{new_post_id}/reviews',
+                                      data=json.dumps(review_payload),
+                                      content_type='application/json')
+        self.assertEqual(res_review.status_code, 200)
+        review_data = res_review.get_json()
+        self.assertTrue(review_data['success'])
+        print(f"  [PASS] Submit Review API: Added farmer review to post #{new_post_id}")
+
+        # 7. Upvote post
+        res_up = self.client.post(f'/api/community/post/{new_post_id}/upvote')
+        self.assertEqual(res_up.status_code, 200)
+        up_data = res_up.get_json()
+        self.assertTrue(up_data['success'])
+        self.assertEqual(up_data['upvotes'], 1)
+        print(f"  [PASS] Upvote Community Post API: Successfully upvoted to {up_data['upvotes']}")
+
+        # 8. Community metadata API
+        res_meta = self.client.get('/api/community/meta')
+        self.assertEqual(res_meta.status_code, 200)
+        meta_data = res_meta.get_json()
+        self.assertIn('North', meta_data['meta']['regions'])
+        self.assertIn('hi', meta_data['meta']['languages'])
+        print("  [PASS] Community Metadata API: Regional mappings and regional language dictionaries verified")
+
 if __name__ == '__main__':
     unittest.main()
+
 
 
 

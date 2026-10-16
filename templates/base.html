@@ -137,6 +137,11 @@
           </a>
           <ul class="dropdown-menu">
             <li>
+              <a href="/community" data-i18n="nav_community">
+                <i class="fas fa-users" style="color: #2e7d32;"></i> Kisan Community Hub (किसान चौपाल व समीक्षा)
+              </a>
+            </li>
+            <li>
               <a href="/#adCarouselContainer">
                 <i class="fas fa-bullhorn"></i> Farmer Deals & Rentals (उपकरण व बीज बाज़ार)
               </a>
@@ -159,7 +164,17 @@
           </ul>
         </li>
 
-        <!-- 5. Info: About Us -->
+        <!-- 5. Kisan Community Hub (किसान चौपाल) -->
+        <li>
+          <a
+            href="/community"
+            class="{% if request.endpoint == 'community' %}active{% endif %}"
+            data-i18n="nav_community"
+            ><i class="fas fa-users"></i> Community</a
+          >
+        </li>
+
+        <!-- 6. Info: About Us -->
         <li>
           <a
             href="/about"
