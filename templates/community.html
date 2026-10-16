@@ -919,7 +919,7 @@
         <a href="{{ url_for('community', region='All-India', category=active_category) }}" 
            class="region-tab-btn {% if active_region in ['All-India', 'all', 'All'] %}active{% endif %}">
           <i class="fas fa-globe-asia"></i> <span data-i18n="tab_all_india">All India (अखिल भारतीय)</span>
-          <span class="region-tab-count">{{ posts|length }}</span>
+          <span class="region-tab-count">{{ meta.total_posts or posts|length }}</span>
         </a>
         <a href="{{ url_for('community', region='North', category=active_category) }}" 
            class="region-tab-btn {% if active_region == 'North' %}active{% endif %}">
@@ -1238,6 +1238,15 @@
               <option value="3.5">⭐⭐⭐½ (3.5 - सामान्य / Average)</option>
               <option value="3.0">⭐⭐⭐ (3.0 - मध्यम / Fair)</option>
             </select>
+          </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="fas fa-phone-alt" style="color: #2e7d32;"></i> किसान संपर्क मोबाइल (Mobile for Call / WhatsApp)</label>
+            <input type="tel" id="postAuthorPhone" name="author_phone" value="{{ current_user.phone or '' }}" placeholder="10 अंकों का मोबाइल (जैसे: 9876543210)">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-home"></i> गांव / कस्बा (Village / Town)</label>
+            <input type="text" id="postVillage" name="village" placeholder="जैसे: समराला, निफाड, तेनाली">
           </div>
         </div>
 
@@ -1604,10 +1613,10 @@
             </div>
             <div style="display: flex; gap: 8px;">
               ${post.clean_phone ? `
-                <a href="tel:${escapeHtml(post.clean_phone)}" class="btn-connect-action call" style="padding: 5px 12px;">
-                  <i class="fas fa-phone-alt"></i> कॉल करें
+                <a href="tel:${escapeHtml(post.clean_phone)}" class="btn-connect-action call" style="padding: 5px 12px;" title="Call Farmer Directly">
+                  <i class="fas fa-phone-alt"></i> कॉल (${escapeHtml(post.display_phone || post.clean_phone)})
                 </a>
-                <a href="https://wa.me/${escapeHtml(post.whatsapp_phone)}?text=Namaste%20Ji" target="_blank" class="btn-connect-action whatsapp" style="padding: 5px 12px;">
+                <a href="https://wa.me/${escapeHtml(post.whatsapp_phone)}?text=Namaste%20${encodeURIComponent(post.author_name)}%20ji,%20I%20saw%20your%20post%20on%20Krishi%20Mitra%20regarding%20${encodeURIComponent(post.item_name || post.title)}" target="_blank" class="btn-connect-action whatsapp" style="padding: 5px 12px;" title="Message on WhatsApp">
                   <i class="fab fa-whatsapp"></i> व्हाट्सएप
                 </a>
               ` : ''}
@@ -1775,6 +1784,8 @@
     formData.append('language', document.getElementById('postLanguage').value);
     formData.append('rating', document.getElementById('postRating').value);
     formData.append('content', document.getElementById('postContent').value.trim());
+    formData.append('author_phone', document.getElementById('postAuthorPhone')?.value.trim() || '');
+    formData.append('village', document.getElementById('postVillage')?.value.trim() || '');
 
     const imageFile = document.getElementById('postImageFile')?.files[0];
     if (imageFile) {

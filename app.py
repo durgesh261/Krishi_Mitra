@@ -575,7 +575,7 @@ def api_community_posts():
         user_id = session.get('user_id')
         user = get_user_by_id(user_id) if user_id else None
         author_name = (user.get('full_name') or user.get('username')) if user else data.get('author_name', 'Kisan Mitra')
-        author_phone = (user.get('phone') or '') if user else data.get('author_phone', '')
+        author_phone = data.get('author_phone', '').strip() or ((user.get('phone') or '') if user else '')
 
         if not title or not content:
             return jsonify({'success': False, 'error': 'Title and content are required'}), 400

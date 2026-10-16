@@ -973,9 +973,11 @@ def get_community_posts(region=None, state=None, district=None, category=None,
         if len(raw_phone) >= 10:
             p['whatsapp_phone'] = '91' + raw_phone[-10:]
             p['clean_phone'] = raw_phone[-10:]
+            p['display_phone'] = f"+91 {raw_phone[-10:-5]} {raw_phone[-5:]}"
         else:
             p['whatsapp_phone'] = ''
             p['clean_phone'] = ''
+            p['display_phone'] = ''
         posts.append(p)
     return posts
 
@@ -1000,9 +1002,11 @@ def get_community_post(post_id, increment_view=True):
     if len(raw_phone) >= 10:
         post['whatsapp_phone'] = '91' + raw_phone[-10:]
         post['clean_phone'] = raw_phone[-10:]
+        post['display_phone'] = f"+91 {raw_phone[-10:-5]} {raw_phone[-5:]}"
     else:
         post['whatsapp_phone'] = ''
         post['clean_phone'] = ''
+        post['display_phone'] = ''
 
     # Fetch reviews
     cursor.execute('''
@@ -1071,6 +1075,7 @@ def get_community_regions_summary():
         'regions': REGION_STATE_MAPPING,
         'region_counts': region_counts,
         'category_counts': cat_counts,
+        'total_posts': sum(region_counts.values()),
         'languages': LANGUAGE_NAMES
     }
 
