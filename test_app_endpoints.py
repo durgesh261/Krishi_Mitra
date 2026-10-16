@@ -514,6 +514,9 @@ class TestKrishiMitraApp(unittest.TestCase):
         c = conn.cursor()
         c.execute('SELECT COUNT(*) as cnt FROM farmer_community_news WHERE id = ?', (stale_id,))
         self.assertEqual(c.fetchone()['cnt'], 0)
+        # Teardown / cleanup the submitted test advisory so DB remains clean
+        c.execute('DELETE FROM farmer_community_news WHERE id = ?', (news_id,))
+        conn.commit()
         conn.close()
         print(f"  [PASS] 7-Day News Retention: Stale item #{stale_id} (10 days old) was automatically deleted from system database")
 
@@ -590,6 +593,14 @@ class TestKrishiMitraApp(unittest.TestCase):
             self.assertIn('image_url', c)
             self.assertTrue(c['image_url'].startswith('http'))
         print(f"  [PASS] Crop Recommendation Imagery: Top {len(pred_data['top_crops'])} crops all include authentic photo URLs")
+
+        # Clean up the test deal inserted earlier to prevent duplicate rows in DB
+        from database import get_db
+        conn = get_db()
+        c = conn.cursor()
+        c.execute('DELETE FROM farmer_deals_offers WHERE id = ?', (deal_id,))
+        conn.commit()
+        conn.close()
 
     def test_18_access_control_rules(self):
         """Verify strict access control: ONLY Mandi Bhav, News, and Deals are accessible without login; all other features require authentication."""
@@ -755,6 +766,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertEqual(res_mp.status_code, 200)
         mp_data = res_mp.get_json()
         self.assertTrue(mp_data['success'])
+        mp_post_id = mp_data.get('post_id')
         self.assertTrue(mp_data['image_url'].startswith('/static/uploads/community/'))
         print(f"  [PASS] Real File Upload API: Saved farmer photo to {mp_data['image_url']}")
 
@@ -787,6 +799,15 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertIn('North', meta_data['meta']['regions'])
         self.assertIn('hi', meta_data['meta']['languages'])
         print("  [PASS] Community Metadata API: Regional mappings and regional language dictionaries verified")
+
+        # Cleanup test posts and reviews to preserve database integrity
+        from database import get_db
+        conn = get_db()
+        c = conn.cursor()
+        c.execute('DELETE FROM community_reviews WHERE post_id IN (?, ?)', (new_post_id, mp_post_id or 0))
+        c.execute('DELETE FROM community_posts WHERE id IN (?, ?)', (new_post_id, mp_post_id or 0))
+        conn.commit()
+        conn.close()
 
 if __name__ == '__main__':
     unittest.main()

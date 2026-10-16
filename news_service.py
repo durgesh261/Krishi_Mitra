@@ -225,6 +225,86 @@ FARMING_ADVERTISEMENTS = [
         'bg_gradient': 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 50%, #ef9a9a 100%)',
         'icon': 'fas fa-tractor',
         'deal_tag': 'SMAM Portal Direct DBT'
+    },
+    {
+        'id': 'ad-6',
+        'badge': 'Micro-Irrigation • PMKSY',
+        'title': '55% Subsidy on Drip & Sprinkler Micro-Irrigation Systems',
+        'subtitle': 'Save 45% Irrigation Water, Boost Crop Yield by 35% with Direct DBT Grant',
+        'description': 'Pradhan Mantri Krishi Sinchayee Yojana (Per Drop More Crop) provides 55% capital subsidy for small & marginal farmers and 45% for other farmers for inline drip and portable sprinkler setups.',
+        'benefits': ['Cuts Electricity & Pumping Bills by 40%', 'Direct Fertigation to Roots Saves 30% Fertilizer', 'Government Approved On-Farm Installation'],
+        'partner': 'Department of Agriculture & Farmers Welfare (DA&FW)',
+        'cta_text': 'Apply on PMKSY Portal',
+        'cta_link': 'https://pmksy.gov.in',
+        'helpline': '1800-180-1551',
+        'theme_color': '#0288d1',
+        'bg_gradient': 'linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%)',
+        'icon': 'fas fa-faucet-drip',
+        'deal_tag': 'Active State Allocation Window'
+    },
+    {
+        'id': 'ad-7',
+        'badge': 'Organic Farming • PKVY',
+        'title': '₹50,000/Hectare Financial Support for Natural & Organic Farming',
+        'subtitle': 'Paramparagat Krishi Vikas Yojana (PKVY) Cluster Support & PGS Certification',
+        'description': 'Direct financial assistance of ₹50,000 per hectare over 3 years. ₹31,000/ha transferred directly via DBT to farmers for certified organic seeds, bio-fertilizers, and botanical extracts.',
+        'benefits': ['Free PGS-India Organic Certification', 'Premium Selling Price in Organic Mandis', '₹8,800/ha for Post-Harvest Processing & Packaging'],
+        'partner': 'National Centre of Organic & Natural Farming (NCONF)',
+        'cta_text': 'Join Organic Cluster (PKVY)',
+        'cta_link': 'https://pgsindia-ncof.gov.in',
+        'helpline': '0120-2764906',
+        'theme_color': '#388e3c',
+        'bg_gradient': 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+        'icon': 'fas fa-leaf',
+        'deal_tag': 'Cluster Enrolment Open'
+    },
+    {
+        'id': 'ad-8',
+        'badge': 'Crop Insurance • PMFBY',
+        'title': 'Comprehensive Crop Insurance at Nominal 1.5% - 2% Premium',
+        'subtitle': 'Pradhan Mantri Fasal Bima Yojana (PMFBY) Protection Against Drought & Flood',
+        'description': 'Lowest crop insurance premium in India: just 2% for Kharif food crops, 1.5% for Rabi oilseeds/cereals, and 5% for horticultural crops. Covers prevented sowing, mid-season adversity, and localized hailstorms.',
+        'benefits': ['Satellite & Drone Fast-Track Claim Assessment', 'Direct Claim Deposit to Bank Account via DBT', '72-Hour Grievance Redressal Mechanism'],
+        'partner': 'Ministry of Agriculture (Govt of India)',
+        'cta_text': 'Insure Crop on PMFBY',
+        'cta_link': 'https://pmfby.gov.in',
+        'helpline': '14447',
+        'theme_color': '#7b1fa2',
+        'bg_gradient': 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 50%, #ce93d8 100%)',
+        'icon': 'fas fa-shield-alt',
+        'deal_tag': 'Rabi 2026-27 Enrollment Live'
+    },
+    {
+        'id': 'ad-9',
+        'badge': 'Soil Diagnostics • Govt Labs',
+        'title': 'Free 12-Nutrient Soil Health Testing & Customized Fertilizer Dose',
+        'subtitle': 'Stop Over-Spending on DAP & Urea with Scientific Soil Health Card Recommendations',
+        'description': 'National Soil Health Card initiative provides free laboratory testing of pH, Electrical Conductivity, Nitrogen, Phosphorus, Potassium, Zinc, and Sulfur. Get dosage guidelines tailored to your soil.',
+        'benefits': ['Saves ₹2,000 - ₹3,500 per Acre in Excess Fertilizer', 'Free Sample Testing at Nearest Block KVK Lab', 'Valid for 3 Years with Mobile Downloadable Card'],
+        'partner': 'Soil Health Management Division (DAC&FW)',
+        'cta_text': 'Track Soil Health Card',
+        'cta_link': 'https://soilhealth.dac.gov.in',
+        'helpline': '1800-180-1551',
+        'theme_color': '#5d4037',
+        'bg_gradient': 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 50%, #bcaaa4 100%)',
+        'icon': 'fas fa-flask-vial',
+        'deal_tag': 'Free Testing at Block Labs'
+    },
+    {
+        'id': 'ad-10',
+        'badge': 'National e-Market • e-NAM',
+        'title': 'Sell Produce Online Across 1,400+ Mandis Pan-India via e-NAM',
+        'subtitle': 'Transparent Digital Auctions, Zero Middleman Cuts & Direct Bank Payment',
+        'description': 'National Agriculture Market (e-NAM) connects 1.7 crore+ farmers directly with licensed bulk commodity buyers across 23 States and 4 UTs. Free quality assaying and transparent electronic weighing.',
+        'benefits': ['Direct Bidding from Out-of-State Buyers for Higher Rates', 'Same-Day RTGS/NEFT Payment to Bank Account', 'Free Warehouse Receipt (e-NWR) Trade Support'],
+        'partner': 'Small Farmers Agribusiness Consortium (SFAC)',
+        'cta_text': 'Register on e-NAM Portal',
+        'cta_link': 'https://enam.gov.in',
+        'helpline': '1800-270-0224',
+        'theme_color': '#f57f17',
+        'bg_gradient': 'linear-gradient(135deg, #fffde7 0%, #fff9c4 50%, #fff59d 100%)',
+        'icon': 'fas fa-building-columns',
+        'deal_tag': '1,400+ Mandis Live'
     }
 ]
 
@@ -713,7 +793,17 @@ def get_daily_farming_ads(category=None, region=None):
     if category and category.lower() not in ['all', '']:
         ads = [a for a in ads if category.lower() in a.get('category', '').lower() or category.lower() in a.get('badge', '').lower()]
 
-    return ads
+    # Strict Deduplication: Ensure each offer or subsidy appears only once (no repeating titles)
+    seen_titles = set()
+    unique_ads = []
+    for a in ads:
+        t_key = a.get('title', '').strip().lower()
+        if not t_key or t_key in seen_titles:
+            continue
+        seen_titles.add(t_key)
+        unique_ads.append(a)
+
+    return unique_ads
 
 def get_news_categories():
     """Return unique categories with item counts including Farmer Community Reports"""
