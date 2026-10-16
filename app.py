@@ -33,7 +33,8 @@ from mandi_service import (
 )
 from news_service import (
     get_daily_agri_news, get_daily_farming_ads, get_news_categories, 
-    get_news_last_updated_time, add_farmer_report, add_farmer_deal
+    get_news_last_updated_time, add_farmer_report, add_farmer_deal,
+    prune_expired_news, NEWS_RETENTION_DAYS
 )
 from auth import login_required, admin_required
 from crop_recommendation import (
@@ -666,6 +667,7 @@ def news_portal():
     category = request.args.get('category')
     search = request.args.get('q')
     force_refresh = request.args.get('refresh') in ['1', 'true', 'True']
+    prune_expired_news(days=NEWS_RETENTION_DAYS)
     news_items = get_daily_agri_news(category=category, search_query=search, limit=60, force_refresh=force_refresh)
     categories = get_news_categories()
     ads = get_daily_farming_ads()
@@ -676,7 +678,8 @@ def news_portal():
                            ads=ads,
                            selected_category=category or 'all',
                            search_query=search or '',
-                           last_updated=last_updated)
+                           last_updated=last_updated,
+                           retention_days=NEWS_RETENTION_DAYS)
 
 @app.route('/api/news', methods=['GET', 'POST'])
 def api_news():
@@ -691,11 +694,13 @@ def api_news():
         search = request.args.get('query') or request.args.get('q')
         force_refresh = request.args.get('refresh') in ['1', 'true', 'True']
     
+    prune_expired_news(days=NEWS_RETENTION_DAYS)
     items = get_daily_agri_news(category=category, search_query=search, limit=60, force_refresh=force_refresh)
     last_updated = get_news_last_updated_time()
     return jsonify({
         'success': True,
         'count': len(items),
+        'retention_days': NEWS_RETENTION_DAYS,
         'last_updated': last_updated,
         'news': items
     })
@@ -752,13 +757,15 @@ def api_upvote_farmer_news(news_id):
 
 @app.route('/api/news/refresh', methods=['GET', 'POST'])
 def api_refresh_news():
-    """Force an immediate live re-scrape and return fresh items"""
+    """Force an immediate live re-scrape and return fresh items with 7-day retention"""
+    prune_expired_news(days=NEWS_RETENTION_DAYS)
     items = get_daily_agri_news(limit=100, force_refresh=True)
     categories = get_news_categories()
     last_updated = get_news_last_updated_time()
     return jsonify({
         'success': True,
         'count': len(items),
+        'retention_days': NEWS_RETENTION_DAYS,
         'last_updated': last_updated,
         'categories': categories,
         'news': items

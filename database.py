@@ -674,8 +674,25 @@ def get_analytics_summary():
     }
 
 # Farmer Community News & Field Advisories Functions
+def prune_expired_farmer_news(days=7):
+    """
+    Automatically delete community farmer news older than retention window (default 7 days).
+    Ensures that outdated agricultural alerts do not remain in the system.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        DELETE FROM farmer_community_news 
+        WHERE created_at < datetime('now', '-' || ? || ' days')
+    ''', (int(days),))
+    deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return deleted
+
 def create_farmer_news(title, summary, category, author_name, village_district=None, state=None, contact=None, source_url=None):
-    """Save a community farmer news or field advisory"""
+    """Save a community farmer news or field advisory and automatically prune expired news"""
+    prune_expired_farmer_news(days=7)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute('''
@@ -689,22 +706,25 @@ def create_farmer_news(title, summary, category, author_name, village_district=N
     conn.close()
     return new_id
 
-def get_all_farmer_news(limit=50, category=None):
-    """Retrieve community farmer news items"""
+def get_all_farmer_news(limit=50, category=None, max_age_days=7):
+    """Retrieve community farmer news items, automatically deleting and filtering items older than max_age_days (7 days retention)"""
+    prune_expired_farmer_news(days=max_age_days)
     conn = get_db()
     cursor = conn.cursor()
     if category and category.lower() != 'all':
         cursor.execute('''
             SELECT * FROM farmer_community_news 
             WHERE status = 'approved' AND (category = ? OR category LIKE ?)
+              AND created_at >= datetime('now', '-' || ? || ' days')
             ORDER BY created_at DESC LIMIT ?
-        ''', (category, f"%{category}%", limit))
+        ''', (category, f"%{category}%", int(max_age_days), limit))
     else:
         cursor.execute('''
             SELECT * FROM farmer_community_news 
             WHERE status = 'approved'
+              AND created_at >= datetime('now', '-' || ? || ' days')
             ORDER BY created_at DESC LIMIT ?
-        ''', (limit,))
+        ''', (int(max_age_days), limit))
     rows = cursor.fetchall()
     conn.close()
     return [dict(row) for row in rows]

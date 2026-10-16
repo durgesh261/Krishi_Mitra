@@ -18,6 +18,31 @@ _NEWS_CACHE = {
     'data': []
 }
 CACHE_TTL_SECONDS = 900  # 15 minutes
+NEWS_RETENTION_DAYS = 7  # 7-day active lifecycle
+NEWS_RETENTION_SECONDS = NEWS_RETENTION_DAYS * 86400  # 604,800 seconds
+
+def prune_expired_news(days=NEWS_RETENTION_DAYS):
+    """
+    Purge any news records older than retention window (default 7 days) from the system database and memory cache.
+    Ensures outdated agricultural news is automatically deleted and never stays in our system.
+    """
+    global _NEWS_CACHE
+    try:
+        from database import prune_expired_farmer_news
+        deleted = prune_expired_farmer_news(days=days)
+    except Exception as e:
+        deleted = 0
+        print(f"Notice: News auto-prune: {e}")
+
+    # Also prune in-memory cache of any items older than retention window
+    if _NEWS_CACHE.get('data'):
+        now = time.time()
+        cutoff = now - (days * 86400)
+        fresh_cache = [item for item in _NEWS_CACHE['data'] if item.get('sort_epoch', now) >= cutoff]
+        if len(fresh_cache) != len(_NEWS_CACHE['data']):
+            _NEWS_CACHE['data'] = fresh_cache
+
+    return deleted
 
 # Curated daily authentic agricultural news as high-reliability fallback (sorted newest to oldest)
 FALLBACK_DAILY_NEWS = [
@@ -339,21 +364,26 @@ def sort_news_descending(news_list):
     return sorted(news_list, key=lambda x: x.get('sort_epoch', 0), reverse=True)
 
 def get_farmer_community_news_items():
-    """Retrieve verified community-submitted farmer news items from SQLite database"""
+    """Retrieve verified community-submitted farmer news items from SQLite database (strictly within 7 days)"""
     try:
         from database import get_all_farmer_news
-        records = get_all_farmer_news(limit=60)
+        records = get_all_farmer_news(limit=60, max_age_days=NEWS_RETENTION_DAYS)
         items = []
+        now_ts = time.time()
         for r in records:
             created_str = r.get('created_at', '')
-            epoch = time.time()
+            epoch = now_ts
             if created_str:
                 try:
                     dt = datetime.strptime(created_str, '%Y-%m-%d %H:%M:%S')
                     epoch = dt.timestamp()
                 except Exception:
                     pass
-            
+
+            # Skip any news older than 7 days
+            if (now_ts - epoch) > NEWS_RETENTION_SECONDS:
+                continue
+
             loc_parts = [p for p in [r.get('village_district'), r.get('state')] if p]
             location_str = ", ".join(loc_parts) if loc_parts else "Rural India"
             
@@ -406,9 +436,13 @@ def fetch_live_agri_news(limit=100, force_refresh=False):
     """
     Fetch live real-time Indian agricultural news from multiple verified RSS feeds (Google News, PIB Agri, IMD).
     Seamlessly merges with farmer-submitted field advisories and orders newest items first.
+    Enforces automatic 7-day retention: news older than 7 days is automatically pruned and deleted.
     """
     global _NEWS_CACHE
     now = time.time()
+
+    # Automatically prune expired news records from DB and memory
+    prune_expired_news(days=NEWS_RETENTION_DAYS)
 
     # Return cached news if fresh and not forcing refresh
     if not force_refresh and _NEWS_CACHE['data'] and (now - _NEWS_CACHE['timestamp'] < CACHE_TTL_SECONDS):
@@ -468,6 +502,10 @@ def fetch_live_agri_news(limit=100, force_refresh=False):
                         except Exception:
                             pub_clean = "Recently"
 
+                    # 7-day cutoff filter: skip if older than 7 days
+                    if (now - sort_epoch) > NEWS_RETENTION_SECONDS:
+                        continue
+
                     cat = categorize_article(title, desc)
 
                     fetched.append({
@@ -488,11 +526,14 @@ def fetch_live_agri_news(limit=100, force_refresh=False):
         except Exception as e:
             print(f"Notice: Live RSS query failed for {feed_url[:45]}... ({e})")
 
-    # Fetch farmer community reports
+    # Fetch farmer community reports (strictly within 7 days)
     farmer_reports = get_farmer_community_news_items()
 
-    # Combine farmer items + live RSS news
-    all_news = farmer_reports + fetched
+    # Combine farmer items + live RSS news and strictly enforce 7-day retention
+    all_news = [
+        item for item in (farmer_reports + fetched)
+        if (now - item.get('sort_epoch', now)) <= NEWS_RETENTION_SECONDS
+    ]
 
     # If fewer than 8 total items retrieved (network outage), backfill with curated fallback items
     if len(all_news) < 8:

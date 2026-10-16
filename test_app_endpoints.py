@@ -489,8 +489,33 @@ class TestKrishiMitraApp(unittest.TestCase):
         ref_data = res_refresh.get_json()
         self.assertTrue(ref_data['success'])
         self.assertTrue(ref_data['count'] > 0)
+        self.assertEqual(ref_data.get('retention_days'), 7)
         self.assertIn('last_updated', ref_data)
         print(f"  [PASS] News Live Refresh API: Live feed synchronized with {ref_data['count']} stories (Last sync: {ref_data['last_updated']})")
+
+        # 6. Verify 7-day automatic deletion / pruning policy
+        from database import get_db, prune_expired_farmer_news
+        conn = get_db()
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO farmer_community_news (title, summary, category, author_name, created_at)
+            VALUES (?, ?, ?, ?, datetime('now', '-10 days'))
+        ''', ('Stale Advisory (10 Days Old)', 'This alert is past 7 days', 'Crop Care & Alerts', 'Old System'))
+        conn.commit()
+        stale_id = c.lastrowid
+        conn.close()
+
+        # Execute prune
+        pruned_count = prune_expired_farmer_news(days=7)
+        self.assertGreaterEqual(pruned_count, 1)
+
+        # Verify it is no longer present in DB
+        conn = get_db()
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) as cnt FROM farmer_community_news WHERE id = ?', (stale_id,))
+        self.assertEqual(c.fetchone()['cnt'], 0)
+        conn.close()
+        print(f"  [PASS] 7-Day News Retention: Stale item #{stale_id} (10 days old) was automatically deleted from system database")
 
     def test_17_featured_deals_and_crop_images(self):
         # 1. Homepage Deals Carousel & Modal
