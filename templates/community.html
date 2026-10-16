@@ -462,7 +462,7 @@
     overflow: hidden;
   }
 
-  /* Audio Speak Button inside card */
+  /* Audio Speak & Direct Contact Row */
   .card-audio-row {
     display: flex;
     align-items: center;
@@ -471,8 +471,9 @@
     padding: 6px 12px;
     border-radius: 8px;
     margin-top: auto;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     font-size: 12px;
+    gap: 8px;
   }
 
   .btn-tts-speak {
@@ -494,10 +495,66 @@
     background: #1b5e20;
   }
 
-  .lang-tag-pill {
+  .btn-translate-quick {
+    background: #ffffff;
+    border: 1px solid #c8e6c9;
     color: #2e7d32;
-    font-weight: 700;
+    border-radius: 16px;
+    padding: 4px 10px;
     font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-translate-quick:hover {
+    background: #e8f5e9;
+  }
+
+  /* Direct Farmer Connect Bar */
+  .farmer-direct-connect-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .btn-connect-action {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .btn-connect-action.call {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+  }
+
+  .btn-connect-action.call:hover {
+    background: #1565c0;
+    color: #ffffff;
+  }
+
+  .btn-connect-action.whatsapp {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+
+  .btn-connect-action.whatsapp:hover {
+    background: #25d366;
+    color: #ffffff;
+    border-color: #25d366;
   }
 
   /* Card Footer Actions */
@@ -708,6 +765,55 @@
     to { box-shadow: 0 0 12px #c62828; }
   }
 
+  /* Real File Upload & Preview */
+  .image-upload-wrapper {
+    border: 2px dashed #b2dfdb;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    background: #fdfdfd;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .image-upload-wrapper:hover {
+    border-color: #2e7d32;
+    background: #f1f8e9;
+  }
+
+  .image-preview-box {
+    display: none;
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 10px auto 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+
+  .image-preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .btn-remove-preview {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* Review Thread inside details modal */
   .review-item {
     background: #f9fbf9;
@@ -715,6 +821,12 @@
     border-radius: 10px;
     padding: 12px 14px;
     margin-bottom: 10px;
+    animation: fadeInReview 0.3s ease;
+  }
+
+  @keyframes fadeInReview {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .review-author-line {
@@ -763,21 +875,27 @@
 
 {% block content %}
 <div class="community-page">
+  <!-- Hidden Logged-in User Profile Inputs for Instant Autofill -->
+  <input type="hidden" id="loggedInUserName" value="{{ current_user.full_name or current_user.username if current_user else '' }}">
+  <input type="hidden" id="loggedInUserState" value="{{ current_user.state if current_user else '' }}">
+  <input type="hidden" id="loggedInUserDistrict" value="{{ current_user.district if current_user else '' }}">
+  <input type="hidden" id="loggedInUserPhone" value="{{ current_user.phone if current_user else '' }}">
+
   <!-- Hero Section -->
   <section class="community-hero">
     <div class="hero-container">
       <div class="hero-text">
         <h1>
           <i class="fas fa-users"></i>
-          <span>किसान चौपाल व समुदाय (Kisan Community Hub)</span>
+          <span data-i18n="community_hero_title">किसान चौपाल व समुदाय (Kisan Community Hub)</span>
         </h1>
-        <p>
+        <p data-i18n="community_hero_desc">
           Connect with fellow farmers across India. Share authentic field experiences, review tractors, implements, bio-fungicides & seeds, and discuss in your regional mother tongue (ਪੰਜਾਬੀ, मराठी, বাংলা, తెలుగు, हिन्दी, ಕನ್ನಡ).
         </p>
       </div>
       <div class="hero-actions">
         <button class="btn-new-post" onclick="openNewPostModal()">
-          <i class="fas fa-pen-fancy"></i> ✍️ नया अनुभव या समीक्षा लिखें (Post / Review)
+          <i class="fas fa-pen-fancy"></i> <span data-i18n="btn_new_post">✍️ नया अनुभव या समीक्षा लिखें (Post / Review)</span>
         </button>
       </div>
     </div>
@@ -792,7 +910,7 @@
           <span>क्षेत्र चुनें (Select Region / Pan-India)</span>
         </div>
         <div style="font-size: 12px; color: #666;">
-          <i class="fas fa-bullhorn" style="color: #ff9800;"></i> All India discussions with localized filter
+          <i class="fas fa-check-circle" style="color: #2e7d32;"></i> Verified Farmer Network
         </div>
       </div>
 
@@ -800,32 +918,32 @@
       <div class="region-tabs">
         <a href="{{ url_for('community', region='All-India', category=active_category) }}" 
            class="region-tab-btn {% if active_region in ['All-India', 'all', 'All'] %}active{% endif %}">
-          <i class="fas fa-globe-asia"></i> All India (अखिल भारतीय)
+          <i class="fas fa-globe-asia"></i> <span data-i18n="tab_all_india">All India (अखिल भारतीय)</span>
           <span class="region-tab-count">{{ posts|length }}</span>
         </a>
         <a href="{{ url_for('community', region='North', category=active_category) }}" 
            class="region-tab-btn {% if active_region == 'North' %}active{% endif %}">
-          <i class="fas fa-compass"></i> North (उत्तर भारत)
+          <i class="fas fa-compass"></i> <span data-i18n="tab_north">North (उत्तर भारत)</span>
           <span class="region-tab-count">{{ meta.region_counts.get('North', 0) }}</span>
         </a>
         <a href="{{ url_for('community', region='South', category=active_category) }}" 
            class="region-tab-btn {% if active_region == 'South' %}active{% endif %}">
-          <i class="fas fa-compass"></i> South (दक्षिण भारत)
+          <i class="fas fa-compass"></i> <span data-i18n="tab_south">South (दक्षिण भारत)</span>
           <span class="region-tab-count">{{ meta.region_counts.get('South', 0) }}</span>
         </a>
         <a href="{{ url_for('community', region='West', category=active_category) }}" 
            class="region-tab-btn {% if active_region == 'West' %}active{% endif %}">
-          <i class="fas fa-compass"></i> West (पश्चिम भारत)
+          <i class="fas fa-compass"></i> <span data-i18n="tab_west">West (पश्चिम भारत)</span>
           <span class="region-tab-count">{{ meta.region_counts.get('West', 0) }}</span>
         </a>
         <a href="{{ url_for('community', region='East', category=active_category) }}" 
            class="region-tab-btn {% if active_region == 'East' %}active{% endif %}">
-          <i class="fas fa-compass"></i> East (पूर्व भारत)
+          <i class="fas fa-compass"></i> <span data-i18n="tab_east">East (पूर्व भारत)</span>
           <span class="region-tab-count">{{ meta.region_counts.get('East', 0) }}</span>
         </a>
         <a href="{{ url_for('community', region='Central', category=active_category) }}" 
            class="region-tab-btn {% if active_region == 'Central' %}active{% endif %}">
-          <i class="fas fa-compass"></i> Central (मध्य भारत)
+          <i class="fas fa-compass"></i> <span data-i18n="tab_central">Central (मध्य भारत)</span>
           <span class="region-tab-count">{{ meta.region_counts.get('Central', 0) }}</span>
         </a>
       </div>
@@ -918,7 +1036,7 @@
 
           <!-- Body -->
           <div class="post-body">
-            <!-- Author -->
+            <!-- Author & Real Timestamp -->
             <div class="post-author-row">
               <div class="author-meta">
                 <div class="author-avatar">{{ post.author_name[:1] }}</div>
@@ -932,13 +1050,13 @@
                   </div>
                 </div>
               </div>
-              <div style="color: #888; font-size: 11px;">
-                {{ post.created_at[:10] }}
+              <div style="color: #666; font-size: 11.5px; display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-clock" style="color: #888;"></i> {{ post.formatted_date or post.created_at[:16] }}
               </div>
             </div>
 
             <!-- Title -->
-            <h2 class="post-title" onclick="openPostDetailModal({{ post.id }})">
+            <h2 class="post-title" onclick="openPostDetailModal({{ post.id }})" id="post-title-text-{{ post.id }}" data-orig="{{ post.title }}">
               {{ post.title }}
             </h2>
 
@@ -955,19 +1073,37 @@
             {% endif %}
 
             <!-- Description Text -->
-            <p class="post-text-snippet" id="post-snippet-{{ post.id }}">
+            <p class="post-text-snippet" id="post-snippet-{{ post.id }}" data-orig="{{ post.content }}">
               {{ post.content }}
             </p>
 
-            <!-- Regional Audio Speak Row -->
+            <!-- Regional Audio Speak & In-place Translate Row -->
             <div class="card-audio-row">
               <span class="lang-tag-pill">
                 <i class="fas fa-language"></i> {{ post.language_name or 'Regional' }}
               </span>
-              <button type="button" class="btn-tts-speak" onclick="speakText('{{ post.content|replace("'", "\\'")|replace('"', '\\"') }}', '{{ post.language }}', this)">
-                <i class="fas fa-volume-up"></i> अपनी भाषा में सुनें
-              </button>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn-translate-quick" onclick="togglePostTranslation({{ post.id }}, this)">
+                  <i class="fas fa-exchange-alt"></i> अनुवाद
+                </button>
+                <button type="button" class="btn-tts-speak" onclick="speakText('{{ post.content|replace("'", "\\'")|replace('"', '\\"') }}', '{{ post.language }}', this)">
+                  <i class="fas fa-volume-up"></i> सुनें
+                </button>
+              </div>
             </div>
+
+            <!-- Direct Farmer Connect Actions (Call / WhatsApp) -->
+            {% if post.clean_phone %}
+            <div class="farmer-direct-connect-bar">
+              <a href="tel:{{ post.clean_phone }}" class="btn-connect-action call" title="Direct Phone Call with Farmer">
+                <i class="fas fa-phone-alt"></i> <span>कॉल करें</span>
+              </a>
+              <a href="https://wa.me/{{ post.whatsapp_phone }}?text=Namaste%20{{ post.author_name|urlencode }}%20ji,%20I%20saw%20your%20post%20on%20Krishi%20Mitra%20regarding%20{{ post.item_name or post.title|urlencode }}" 
+                 target="_blank" class="btn-connect-action whatsapp" title="Direct WhatsApp Chat">
+                <i class="fab fa-whatsapp"></i> <span>व्हाट्सएप</span>
+              </a>
+            </div>
+            {% endif %}
           </div>
 
           <!-- Footer Actions -->
@@ -977,7 +1113,7 @@
                 <i class="fas fa-thumbs-up"></i> 
                 <span>मददगार ({{ post.upvotes or 0 }})</span>
               </button>
-              <span title="समीक्षा व चर्चाएं" style="cursor: pointer;" onclick="openPostDetailModal({{ post.id }})">
+              <span title="समीक्षा व चर्चाएं" style="cursor: pointer;" onclick="openPostDetailModal({{ post.id }})" id="review-count-badge-{{ post.id }}">
                 <i class="fas fa-comment-alt" style="color: #2e7d32;"></i> {{ post.review_count or 0 }} Reviews
               </span>
             </div>
@@ -1032,16 +1168,16 @@
       <button class="btn-close-modal" onclick="closeNewPostModal()">&times;</button>
     </div>
     <div class="modal-scroll-body">
-      <form id="newPostForm" onsubmit="submitNewPost(event)">
+      <form id="newPostForm" onsubmit="submitNewPost(event)" enctype="multipart/form-data">
         <div class="form-group">
           <label><i class="fas fa-heading"></i> शीर्षक (Title) *</label>
-          <input type="text" id="postTitle" required placeholder="उदाहरण: 7 फीट रोटावेटर का रिव्यू / PBW-826 गेहूं का बंपर उत्पादन">
+          <input type="text" id="postTitle" name="title" required placeholder="उदाहरण: 7 फीट रोटावेटर का रिव्यू / PBW-826 गेहूं का बंपर उत्पादन">
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label><i class="fas fa-layer-group"></i> श्रेणी (Category) *</label>
-            <select id="postCategory" required>
+            <select id="postCategory" name="category" required>
               <option value="Farming Machinery & Instruments">🚜 Farming Machinery & Instruments (उपकरण व यंत्र)</option>
               <option value="Pesticides & Agrochemicals">🧪 Pesticides & Agrochemicals (कीटनाशक व रोग)</option>
               <option value="Crops & Harvest">🌾 Crops & Harvest (फसल व कटाई)</option>
@@ -1051,14 +1187,14 @@
           </div>
           <div class="form-group">
             <label><i class="fas fa-tag"></i> उपकरण / कीटनाशक / फसल का नाम (Item/Crop Name)</label>
-            <input type="text" id="postItemName" placeholder="जैसे: Shaktiman Rotavator, Pegasus, HD-3086">
+            <input type="text" id="postItemName" name="item_name" placeholder="जैसे: Shaktiman Rotavator, Pegasus, HD-3086">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label><i class="fas fa-map-marked"></i> क्षेत्र (Region) *</label>
-            <select id="postRegion" required onchange="updateNewPostStates(this.value)">
+            <select id="postRegion" name="region" required onchange="updateNewPostStates(this.value)">
               <option value="North">North (उत्तर भारत - Punjab, UP, Haryana etc.)</option>
               <option value="South">South (दक्षिण भारत - Andhra, Karnataka etc.)</option>
               <option value="West">West (पश्चिम भारत - Maharashtra, Gujarat, Raj.)</option>
@@ -1068,20 +1204,20 @@
           </div>
           <div class="form-group">
             <label><i class="fas fa-map-marker-alt"></i> राज्य (State) *</label>
-            <select id="postState" required>
+            <select id="postState" name="state" required>
               <!-- Filled via JS -->
             </select>
           </div>
           <div class="form-group">
             <label><i class="fas fa-city"></i> ज़िला / तहसील (District/Tahsil)</label>
-            <input type="text" id="postDistrict" placeholder="जैसे: Ludhiana, Nashik, Meerut">
+            <input type="text" id="postDistrict" name="district" placeholder="जैसे: Ludhiana, Nashik, Meerut">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label><i class="fas fa-language"></i> भाषा (Regional Language) *</label>
-            <select id="postLanguage">
+            <select id="postLanguage" name="language">
               <option value="hi">हिन्दी (Hindi)</option>
               <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
               <option value="mr">मराठी (Marathi)</option>
@@ -1095,7 +1231,7 @@
           </div>
           <div class="form-group">
             <label><i class="fas fa-star" style="color: #f57f17;"></i> रेटिंग (Rating out of 5)</label>
-            <select id="postRating">
+            <select id="postRating" name="rating">
               <option value="5.0">⭐⭐⭐⭐⭐ (5.0 - उत्कृष्ट / Excellent)</option>
               <option value="4.5">⭐⭐⭐⭐½ (4.5 - बहुत अच्छा / Very Good)</option>
               <option value="4.0">⭐⭐⭐⭐ (4.0 - अच्छा / Good)</option>
@@ -1112,17 +1248,28 @@
               <i class="fas fa-microphone"></i> 🎙️ बोलकर लिखें (Speak in Regional Language)
             </button>
           </label>
-          <textarea id="postContent" rows="4" required placeholder="अपना अनुभव विस्तार से साझा करें: आपने इस उपकरण या फसल का उपयोग कैसे किया? कितना लाभ मिला? कितना खर्च बचा?"></textarea>
+          <textarea id="postContent" name="content" rows="4" required placeholder="अपना अनुभव विस्तार से साझा करें: आपने इस उपकरण या फसल का उपयोग कैसे किया? कितना लाभ मिला? कितना खर्च बचा?"></textarea>
         </div>
 
+        <!-- Real Photo Upload from Camera / Phone Gallery -->
         <div class="form-group">
-          <label><i class="fas fa-image"></i> फोटो लिंक (Photo URL / Optional)</label>
-          <input type="url" id="postImageUrl" placeholder="https://... (यदि आपके पास फोटो है)">
+          <label><i class="fas fa-camera" style="color: #2e7d32;"></i> खेत या उपकरण की फोटो अपलोड करें (Upload Real Photo)</label>
+          <div class="image-upload-wrapper" onclick="document.getElementById('postImageFile').click()">
+            <i class="fas fa-cloud-upload-alt fa-2x" style="color: #2e7d32; margin-bottom: 6px;"></i>
+            <div style="font-weight: 600; font-size: 13.5px; color: #333;">कैमरा या गैलरी से फोटो चुनें</div>
+            <div style="font-size: 11.5px; color: #888;">JPG, PNG, WEBP (फ़ोन से सीधी तस्वीर)</div>
+            <input type="file" id="postImageFile" name="image" accept="image/*" style="display: none;" onchange="previewPostImage(this)">
+          </div>
+          <!-- Preview Box -->
+          <div class="image-preview-box" id="postImagePreviewBox">
+            <img id="postImagePreviewImg" src="" alt="Photo Preview">
+            <button type="button" class="btn-remove-preview" onclick="removePostImagePreview()">&times;</button>
+          </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
           <button type="button" class="filter-select" onclick="closeNewPostModal()">रद्द करें</button>
-          <button type="submit" class="btn-new-post" style="padding: 10px 24px;">
+          <button type="submit" class="btn-new-post" id="btnSubmitPost" style="padding: 10px 24px;">
             <i class="fas fa-paper-plane"></i> प्रकाशित करें (Publish Experience)
           </button>
         </div>
@@ -1156,6 +1303,32 @@
     'en': 'en-IN'
   };
 
+  // Modern Toast Notification Function
+  function showToast(message, type = 'success') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.style.cssText = 'position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    const bg = type === 'success' ? '#2e7d32' : type === 'error' ? '#c62828' : '#0277bd';
+    const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+    toast.style.cssText = `background: ${bg}; color: #fff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; pointer-events: auto; transform: translateY(20px); opacity: 0; transition: all 0.3s ease;`;
+    toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+    });
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  }
+
   function updateNewPostStates(region) {
     const stateSelect = document.getElementById('postState');
     if (!stateSelect) return;
@@ -1166,6 +1339,24 @@
   function openNewPostModal() {
     document.getElementById('newPostModal').classList.add('active');
     updateNewPostStates(document.getElementById('postRegion').value);
+
+    // Auto pre-fill from logged-in user if available
+    const userState = document.getElementById('loggedInUserState')?.value;
+    const userDistrict = document.getElementById('loggedInUserDistrict')?.value;
+    if (userState) {
+      // Find matching region
+      for (const [reg, states] of Object.entries(REGION_STATES)) {
+        if (states.includes(userState)) {
+          document.getElementById('postRegion').value = reg;
+          updateNewPostStates(reg);
+          document.getElementById('postState').value = userState;
+          break;
+        }
+      }
+    }
+    if (userDistrict && !document.getElementById('postDistrict').value) {
+      document.getElementById('postDistrict').value = userDistrict;
+    }
   }
 
   function closeNewPostModal() {
@@ -1179,10 +1370,28 @@
     }
   }
 
+  // Real Photo Upload Preview
+  function previewPostImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('postImagePreviewImg').src = e.target.result;
+        document.getElementById('postImagePreviewBox').style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function removePostImagePreview() {
+    const fileInput = document.getElementById('postImageFile');
+    if (fileInput) fileInput.value = '';
+    document.getElementById('postImagePreviewBox').style.display = 'none';
+  }
+
   // Text-To-Speech (Regional Language Talk)
   function speakText(text, langCode, btnElement) {
     if (!('speechSynthesis' in window)) {
-      alert('Your browser does not support Speech Synthesis.');
+      showToast('Your browser does not support Speech Synthesis.', 'info');
       return;
     }
     window.speechSynthesis.cancel();
@@ -1194,12 +1403,8 @@
     if (btnElement) {
       const originalText = btnElement.innerHTML;
       btnElement.innerHTML = '<i class="fas fa-volume-up fa-spin"></i> बोल रहा है...';
-      utterance.onend = () => {
-        btnElement.innerHTML = originalText;
-      };
-      utterance.onerror = () => {
-        btnElement.innerHTML = originalText;
-      };
+      utterance.onend = () => { btnElement.innerHTML = originalText; };
+      utterance.onerror = () => { btnElement.innerHTML = originalText; };
     }
 
     window.speechSynthesis.speak(utterance);
@@ -1210,7 +1415,7 @@
   function toggleSpeechRecognition(targetInputId, langSelectId, btnElement) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Voice dictation is supported in Chrome, Edge, and modern browsers.');
+      showToast('Voice dictation is supported in Chrome, Edge, and Android browsers.', 'info');
       return;
     }
 
@@ -1219,6 +1424,7 @@
       recognition = null;
       btnElement.classList.remove('recording');
       btnElement.innerHTML = '<i class="fas fa-microphone"></i> 🎙️ बोलकर लिखें (Speak)';
+      showToast('माइक बंद हो गया', 'info');
       return;
     }
 
@@ -1231,6 +1437,7 @@
     recognition.onstart = function() {
       btnElement.classList.add('recording');
       btnElement.innerHTML = '<i class="fas fa-stop-circle"></i> 🔴 सुनना चालू है... (बोलें)';
+      showToast('🎙️ बोलना शुरू करें, आपकी भाषा में लिखा जा रहा है...', 'info');
     };
 
     recognition.onresult = function(event) {
@@ -1272,9 +1479,53 @@
       if (data.success) {
         btnElement.classList.add('upvoted');
         btnElement.querySelector('span').innerText = `मददगार (${data.upvotes})`;
+        showToast('👍 आपने इस अनुभव को मददगार के रूप में सराहा!', 'success');
       }
     })
     .catch(err => console.error(err));
+  }
+
+  // Bilingual In-Place Quick Translator
+  const translationsCache = {};
+  function togglePostTranslation(postId, btn) {
+    const titleEl = document.getElementById(`post-title-text-${postId}`);
+    const snippetEl = document.getElementById(`post-snippet-${postId}`);
+    if (!titleEl || !snippetEl) return;
+
+    if (btn.getAttribute('data-translated') === 'true') {
+      // Revert to original
+      titleEl.innerText = titleEl.getAttribute('data-orig');
+      snippetEl.innerText = snippetEl.getAttribute('data-orig');
+      btn.setAttribute('data-translated', 'false');
+      btn.innerHTML = '<i class="fas fa-exchange-alt"></i> अनुवाद';
+      showToast('मूल भाषा बहाल की गई', 'info');
+      return;
+    }
+
+    // Call chat RAG or translation engine to translate text into Hindi/English
+    const origText = snippetEl.getAttribute('data-orig');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> अनुवाद हो रहा है...';
+
+    // Simple dictionary or translation endpoint
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `messageText=${encodeURIComponent('Please translate the following farmer advice into simple Hindi: ' + origText)}&language=hi`
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.answer) {
+        snippetEl.innerText = res.answer;
+        btn.setAttribute('data-translated', 'true');
+        btn.innerHTML = '<i class="fas fa-undo"></i> मूल भाषा देखें';
+        showToast('🌐 अनुवाद पूरा हो गया!', 'success');
+      } else {
+        btn.innerHTML = '<i class="fas fa-exchange-alt"></i> अनुवाद';
+      }
+    })
+    .catch(() => {
+      btn.innerHTML = '<i class="fas fa-exchange-alt"></i> अनुवाद';
+    });
   }
 
   // Open Detailed Post Modal with Reviews
@@ -1320,11 +1571,14 @@
                 </div>
               </div>
               <div class="review-comment-text">${escapeHtml(r.comment)}</div>
+              <div style="font-size: 11px; color: #888; margin-top: 4px;">
+                <i class="fas fa-clock"></i> ${escapeHtml(r.formatted_date || '')}
+              </div>
             </div>
           `).join('');
         } else {
           reviewsHtml = `
-            <div style="text-align: center; padding: 16px; color: #888; font-size: 13px;">
+            <div id="noReviewsPlaceholder" style="text-align: center; padding: 16px; color: #888; font-size: 13px;">
               अभी कोई समीक्षा नहीं है। आप पहले समीक्षाकर्ता बनें!
             </div>
           `;
@@ -1332,7 +1586,7 @@
 
         contentArea.innerHTML = `
           <!-- Post Author Header -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #eee; padding-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #eee; padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="author-avatar" style="width: 40px; height: 40px; font-size: 16px;">
                 ${escapeHtml(post.author_name.charAt(0))}
@@ -1344,10 +1598,19 @@
                 </div>
                 <div style="font-size: 12px; color: #666;">
                   <i class="fas fa-map-marker-alt"></i> ${escapeHtml(post.district || '')}, ${escapeHtml(post.state)} (${escapeHtml(post.region)} India)
+                  &bull; <i class="fas fa-clock"></i> ${escapeHtml(post.formatted_date || '')}
                 </div>
               </div>
             </div>
-            <div>
+            <div style="display: flex; gap: 8px;">
+              ${post.clean_phone ? `
+                <a href="tel:${escapeHtml(post.clean_phone)}" class="btn-connect-action call" style="padding: 5px 12px;">
+                  <i class="fas fa-phone-alt"></i> कॉल करें
+                </a>
+                <a href="https://wa.me/${escapeHtml(post.whatsapp_phone)}?text=Namaste%20Ji" target="_blank" class="btn-connect-action whatsapp" style="padding: 5px 12px;">
+                  <i class="fab fa-whatsapp"></i> व्हाट्सएप
+                </a>
+              ` : ''}
               <button type="button" class="btn-tts-speak" onclick="speakText('${escapeQuotes(post.content)}', '${post.language}', this)">
                 <i class="fas fa-volume-up"></i> सुनें (${post.language_name})
               </button>
@@ -1370,7 +1633,7 @@
           <!-- Reviews Section -->
           <div style="margin-top: 24px;">
             <h4 style="font-size: 15px; font-weight: 700; color: #1b5e20; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-              <span><i class="fas fa-comments"></i> किसान समीक्षा व चर्चाएं (${post.reviews ? post.reviews.length : 0})</span>
+              <span><i class="fas fa-comments"></i> किसान समीक्षा व चर्चाएं (<span id="modalReviewsCount">${post.reviews ? post.reviews.length : 0}</span>)</span>
             </h4>
             <div id="reviewsListArea" style="max-height: 240px; overflow-y: auto;">
               ${reviewsHtml}
@@ -1381,7 +1644,7 @@
               <div style="font-weight: 700; font-size: 13px; color: #1b5e20; margin-bottom: 8px;">
                 <i class="fas fa-pen"></i> अपनी राय या सलाह लिखें (Add Your Review / Advice):
               </div>
-              <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+              <div style="display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
                 <select id="reviewRatingSelect" class="filter-select" style="min-width: 110px;">
                   <option value="5.0">⭐⭐⭐⭐⭐ (5.0)</option>
                   <option value="4.0">⭐⭐⭐⭐ (4.0)</option>
@@ -1402,7 +1665,7 @@
               </div>
               <textarea id="reviewCommentInput" rows="2" required placeholder="अपना सुझाव या अनुभव लिखें..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; box-sizing: border-box;"></textarea>
               <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
-                <button type="submit" class="btn-filter-apply" style="padding: 6px 16px;">
+                <button type="submit" id="btnSubmitReview" class="btn-filter-apply" style="padding: 6px 16px;">
                   <i class="fas fa-paper-plane"></i> समीक्षा भेजें (Post)
                 </button>
               </div>
@@ -1415,13 +1678,20 @@
       });
   }
 
-  // Submit Review on a post
+  // Submit Review on a post (Live in-place DOM update)
   function submitPostReview(e, postId) {
     e.preventDefault();
-    const comment = document.getElementById('reviewCommentInput').value.trim();
+    const commentInput = document.getElementById('reviewCommentInput');
+    const comment = commentInput.value.trim();
     const rating = document.getElementById('reviewRatingSelect').value;
     const lang = document.getElementById('reviewLangSelect').value;
+    const submitBtn = document.getElementById('btnSubmitReview');
     if (!comment) return;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> सबमिट हो रहा है...';
+    }
 
     fetch(`/api/community/post/${postId}/reviews`, {
       method: 'POST',
@@ -1435,35 +1705,90 @@
         return;
       }
       if (data.success) {
-        // Refresh modal details
-        openPostDetailModal(postId);
+        showToast('✅ आपकी समीक्षा सफलतापूर्वक जुड़ गई है!', 'success');
+        commentInput.value = '';
+        
+        // Remove empty placeholder if present
+        const noRev = document.getElementById('noReviewsPlaceholder');
+        if (noRev) noRev.remove();
+
+        // Append review to list immediately
+        const listArea = document.getElementById('reviewsListArea');
+        if (listArea) {
+          const userObjName = document.getElementById('loggedInUserName')?.value || 'Kisan Mitra';
+          const userState = document.getElementById('loggedInUserState')?.value || '';
+          const newRevNode = document.createElement('div');
+          newRevNode.className = 'review-item';
+          newRevNode.innerHTML = `
+            <div class="review-author-line">
+              <div class="review-author-name">
+                <i class="fas fa-user-circle" style="color: #2e7d32;"></i> ${escapeHtml(userObjName)}
+                <span style="font-size: 11.5px; font-weight: normal; color: #666;">(${escapeHtml(userState || 'Bharat')})</span>
+              </div>
+              <div class="review-rating-stars">
+                ⭐ ${parseFloat(rating).toFixed(1)}
+              </div>
+            </div>
+            <div class="review-comment-text">${escapeHtml(comment)}</div>
+            <div style="font-size: 11px; color: #888; margin-top: 4px;">
+              <i class="fas fa-clock"></i> Just now
+            </div>
+          `;
+          listArea.appendChild(newRevNode);
+          listArea.scrollTop = listArea.scrollHeight;
+        }
+
+        // Update count
+        const countSpan = document.getElementById('modalReviewsCount');
+        if (countSpan) {
+          countSpan.innerText = parseInt(countSpan.innerText || 0) + 1;
+        }
+        const cardBadge = document.getElementById(`review-count-badge-${postId}`);
+        if (cardBadge) {
+          const curr = parseInt(cardBadge.innerText) || 0;
+          cardBadge.innerHTML = `<i class="fas fa-comment-alt" style="color: #2e7d32;"></i> ${curr + 1} Reviews`;
+        }
       } else {
-        alert(data.error || 'Failed to submit review');
+        showToast(data.error || 'Failed to submit review', 'error');
       }
     })
-    .catch(err => alert('Error submitting review'));
+    .catch(err => showToast('Error submitting review', 'error'))
+    .finally(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> समीक्षा भेजें (Post)';
+      }
+    });
   }
 
-  // Submit New Community Post
+  // Submit New Community Post with Real Multipart Image Upload
   function submitNewPost(e) {
     e.preventDefault();
-    const payload = {
-      title: document.getElementById('postTitle').value.trim(),
-      category: document.getElementById('postCategory').value,
-      item_name: document.getElementById('postItemName').value.trim(),
-      region: document.getElementById('postRegion').value,
-      state: document.getElementById('postState').value,
-      district: document.getElementById('postDistrict').value.trim(),
-      language: document.getElementById('postLanguage').value,
-      rating: document.getElementById('postRating').value,
-      content: document.getElementById('postContent').value.trim(),
-      image_url: document.getElementById('postImageUrl').value.trim()
-    };
+    const btnSubmit = document.getElementById('btnSubmitPost');
+    const formData = new FormData();
+    formData.append('title', document.getElementById('postTitle').value.trim());
+    formData.append('category', document.getElementById('postCategory').value);
+    formData.append('item_name', document.getElementById('postItemName').value.trim());
+    formData.append('region', document.getElementById('postRegion').value);
+    formData.append('state', document.getElementById('postState').value);
+    formData.append('district', document.getElementById('postDistrict').value.trim());
+    formData.append('language', document.getElementById('postLanguage').value);
+    formData.append('rating', document.getElementById('postRating').value);
+    formData.append('content', document.getElementById('postContent').value.trim());
+
+    const imageFile = document.getElementById('postImageFile')?.files[0];
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> प्रकाशित हो रहा है...';
+    }
 
     fetch('/api/community/posts', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: formData
     })
     .then(r => r.json())
     .then(data => {
@@ -1472,14 +1797,22 @@
         return;
       }
       if (data.success) {
-        alert('🎉 आपका अनुभव किसान चौपाल में सफलतापूर्वक प्रकाशित हो गया है!');
+        showToast('🎉 आपका अनुभव किसान चौपाल में सफलतापूर्वक प्रकाशित हो गया है!', 'success');
         closeNewPostModal();
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
       } else {
-        alert(data.error || 'Failed to create post');
+        showToast(data.error || 'Failed to create post', 'error');
       }
     })
-    .catch(err => alert('Error creating post'));
+    .catch(err => showToast('Error creating post', 'error'))
+    .finally(() => {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="fas fa-paper-plane"></i> प्रकाशित करें (Publish Experience)';
+      }
+    });
   }
 
   function escapeHtml(text) {

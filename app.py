@@ -511,9 +511,13 @@ def community():
     else:
         available_states = sorted([s for state_list in REGION_STATE_MAPPING.values() for s in state_list])
 
+    user_id = session.get('user_id')
+    current_user = get_user_by_id(user_id) if user_id else None
+
     return render_template('community.html',
                            posts=posts,
                            meta=meta,
+                           current_user=current_user,
                            available_states=available_states,
                            active_region=region,
                            active_state=state,
@@ -525,9 +529,13 @@ def community():
 @app.route('/api/community/posts', methods=['GET', 'POST'])
 @login_required
 def api_community_posts():
-    """Retrieve filtered posts or create a new community post"""
+    """Retrieve filtered posts or create a new community post (supports JSON and Multipart Form Uploads)"""
     if request.method == 'POST':
-        data = request.get_json() or {}
+        if request.is_json:
+            data = request.get_json() or {}
+        else:
+            data = request.form.to_dict()
+
         title = data.get('title', '').strip()
         content = data.get('content', '').strip()
         category = data.get('category', 'General Agri Discussion').strip()
@@ -537,8 +545,31 @@ def api_community_posts():
         district = data.get('district', '').strip()
         village = data.get('village', '').strip()
         language = data.get('language', 'hi').strip()
-        rating = float(data.get('rating', 5.0))
+        rating = float(data.get('rating', 5.0) or 5.0)
         image_url = data.get('image_url', '').strip()
+
+        # Handle real image upload from camera / gallery
+        image_file = request.files.get('image') or request.files.get('image_file')
+        if image_file and image_file.filename:
+            import time
+            from werkzeug.utils import secure_filename
+            UPLOAD_FOLDER = os.path.join('static', 'uploads', 'community')
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            filename = f"post_{int(time.time())}_{secure_filename(image_file.filename)}"
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            image_file.save(filepath)
+            image_url = f"/static/uploads/community/{filename}"
+
+        # If no image provided, assign authentic farming photo based on category
+        if not image_url:
+            default_category_images = {
+                'Farming Machinery & Instruments': 'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80',
+                'Pesticides & Agrochemicals': 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=800&q=80',
+                'Crops & Harvest': 'https://images.unsplash.com/photo-1574323347407-f5e1ad659c40?auto=format&fit=crop&w=800&q=80',
+                'Seeds & Fertilizers': 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
+                'General Agri Discussion': 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80'
+            }
+            image_url = default_category_images.get(category, default_category_images['General Agri Discussion'])
 
         # Determine author
         user_id = session.get('user_id')
@@ -565,7 +596,7 @@ def api_community_posts():
             image_url=image_url,
             user_id=user_id
         )
-        return jsonify({'success': True, 'post_id': post_id, 'message': 'Post published successfully!'})
+        return jsonify({'success': True, 'post_id': post_id, 'image_url': image_url, 'message': 'Post published successfully!'})
 
     # GET
     region = request.args.get('region')

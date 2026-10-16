@@ -41,3 +41,7 @@ chroma_db/
 *.sqlite3
 "Krishi Mitra.db"
 agrigenius.db
+
+# User Uploads
+static/uploads/community/*
+!static/uploads/community/.gitkeep

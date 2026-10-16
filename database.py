@@ -897,6 +897,21 @@ def create_community_post(author_name, author_phone, region, state, district, vi
     conn.close()
     return post_id
 
+def format_datetime_str(ts):
+    """Format timestamps into authentic Indian localized human-readable dates"""
+    if not ts:
+        return 'Recently'
+    try:
+        from datetime import datetime
+        clean_ts = str(ts).split('.')[0].replace('T', ' ')
+        dt = datetime.strptime(clean_ts, '%Y-%m-%d %H:%M:%S')
+        now = datetime.now()
+        if dt.date() == now.date():
+            return f"Today, {dt.strftime('%I:%M %p')}"
+        return dt.strftime('%d %b %Y, %I:%M %p')
+    except Exception:
+        return str(ts)[:16]
+
 def get_community_posts(region=None, state=None, district=None, category=None,
                         search=None, sort='latest', limit=50):
     """Retrieve community posts with location-wise, regional, and category filters"""
@@ -952,7 +967,16 @@ def get_community_posts(region=None, state=None, district=None, category=None,
     
     posts = []
     for row in rows:
-        posts.append(dict(row))
+        p = dict(row)
+        p['formatted_date'] = format_datetime_str(p.get('created_at'))
+        raw_phone = ''.join(c for c in str(p.get('author_phone') or '') if c.isdigit())
+        if len(raw_phone) >= 10:
+            p['whatsapp_phone'] = '91' + raw_phone[-10:]
+            p['clean_phone'] = raw_phone[-10:]
+        else:
+            p['whatsapp_phone'] = ''
+            p['clean_phone'] = ''
+        posts.append(p)
     return posts
 
 def get_community_post(post_id, increment_view=True):
@@ -971,6 +995,14 @@ def get_community_post(post_id, increment_view=True):
         return None
 
     post = dict(post_row)
+    post['formatted_date'] = format_datetime_str(post.get('created_at'))
+    raw_phone = ''.join(c for c in str(post.get('author_phone') or '') if c.isdigit())
+    if len(raw_phone) >= 10:
+        post['whatsapp_phone'] = '91' + raw_phone[-10:]
+        post['clean_phone'] = raw_phone[-10:]
+    else:
+        post['whatsapp_phone'] = ''
+        post['clean_phone'] = ''
 
     # Fetch reviews
     cursor.execute('''
@@ -978,7 +1010,11 @@ def get_community_post(post_id, increment_view=True):
         WHERE post_id = ? 
         ORDER BY created_at ASC
     ''', (post_id,))
-    reviews = [dict(r) for r in cursor.fetchall()]
+    reviews = []
+    for r in cursor.fetchall():
+        rd = dict(r)
+        rd['formatted_date'] = format_datetime_str(rd.get('created_at'))
+        reviews.append(rd)
     post['reviews'] = reviews
     post['review_count'] = len(reviews)
     conn.close()

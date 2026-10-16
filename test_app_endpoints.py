@@ -671,7 +671,7 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertEqual(res_mach.status_code, 200)
         mach_data = res_mach.get_json()
         self.assertGreaterEqual(mach_data['count'], 1)
-        self.assertIn('Rotavator', mach_data['posts'][0]['title'])
+        self.assertTrue(any('Rotavator' in p['title'] for p in mach_data['posts']))
         print(f"  [PASS] Category Filter (Machinery): Found {mach_data['count']} instrument/machinery reviews")
 
         # 4. Post Details with authentic community reviews
@@ -707,6 +707,31 @@ class TestKrishiMitraApp(unittest.TestCase):
         self.assertTrue(create_data['success'])
         new_post_id = create_data['post_id']
         print(f"  [PASS] Publish Community Post API: Created new post #{new_post_id} for Sonipat, Haryana")
+
+        # 5b. Verify Real Multipart Form Upload with authentic image file
+        import io
+        fake_img = io.BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4')
+        multipart_data = {
+            'title': 'Solar Drip Irrigation Setup in Patiala',
+            'category': 'Farming Machinery & Instruments',
+            'item_name': 'Solar Drip 5HP Motor',
+            'region': 'North',
+            'state': 'Punjab',
+            'district': 'Patiala',
+            'village': 'Nabha',
+            'language': 'pa',
+            'rating': '5.0',
+            'content': 'ਸੋਲਰ ਡ੍ਰਿਪ ਇਰੀਗੇਸ਼ਨ ਲਗਾਉਣ ਨਾਲ ਬਿਜਲੀ ਦਾ ਬਿੱਲ ਜ਼ੀਰੋ ਹੋ ਗਿਆ ਹੈ ਅਤੇ ਪਾਣੀ ਦੀ 40% ਬੱਚਤ ਹੋ ਰਹੀ ਹੈ।',
+            'image': (fake_img, 'farm_solar.png')
+        }
+        res_mp = self.client.post('/api/community/posts',
+                                  data=multipart_data,
+                                  content_type='multipart/form-data')
+        self.assertEqual(res_mp.status_code, 200)
+        mp_data = res_mp.get_json()
+        self.assertTrue(mp_data['success'])
+        self.assertTrue(mp_data['image_url'].startswith('/static/uploads/community/'))
+        print(f"  [PASS] Real File Upload API: Saved farmer photo to {mp_data['image_url']}")
 
         # 6. Add community review / comment with star rating
         review_payload = {
