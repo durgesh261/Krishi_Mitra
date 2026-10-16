@@ -23,13 +23,83 @@ body {
   z-index: 1000;
 }
 
-.nav-brand {
+.nav-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-brand,
+.nav-brand-link {
   display: flex;
   align-items: center;
   gap: 10px;
   color: white;
-  font-size: 24px;
+  text-decoration: none;
+}
+
+.nav-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.nav-brand-title {
+  font-size: 21px;
   font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.nav-brand-tagline {
+  font-size: 11px;
+  color: #c8e6c9;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.nav-helpline-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.nav-helpline-pill:hover {
+  background: #fff;
+  color: #1b5e20;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.nav-helpline-pill i {
+  color: #ffd54f;
+}
+
+.nav-chat-highlight {
+  background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%) !important;
+  color: #1b5e20 !important;
+  font-weight: 700 !important;
+  padding: 7px 16px !important;
+  border-radius: 22px !important;
+  box-shadow: 0 2px 10px rgba(255, 179, 0, 0.4) !important;
+  transition: all 0.25s ease !important;
+}
+
+.nav-chat-highlight:hover {
+  background: #fff !important;
+  color: #1b5e20 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
 }
 
 .nav-logo {
@@ -2776,6 +2846,520 @@ body.drawer-open {
   background: #2e7d32;
   color: white !important;
   box-shadow: 0 3px 10px rgba(46, 125, 50, 0.35);
+}
+
+/* ==========================================================================
+   MOBILE BOTTOM NAVIGATION BAR (Thumb-friendly 1-Tap App Experience)
+   ========================================================================== */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    z-index: 1050;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 4px;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #616161;
+    font-size: 11px;
+    font-weight: 600;
+    gap: 3px;
+    padding: 6px 10px;
+    flex: 1;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-nav-item i {
+    font-size: 18px;
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-nav-item:hover,
+  .mobile-nav-item.active {
+    color: #2e7d32;
+  }
+
+  .mobile-nav-item.active i {
+    transform: scale(1.15);
+  }
+
+  .mobile-nav-item.crop-doc-badge {
+    position: relative;
+    top: -12px;
+  }
+
+  .crop-doc-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.45);
+    border: 3px solid #ffffff;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .crop-doc-icon-wrap i {
+    font-size: 20px !important;
+    color: #ffffff;
+  }
+
+  .mobile-nav-item.crop-doc-badge:hover .crop-doc-icon-wrap,
+  .mobile-nav-item.crop-doc-badge.active .crop-doc-icon-wrap {
+    transform: scale(1.1);
+  }
+
+  /* Prevent bottom nav from covering content */
+  .main-content {
+    padding-bottom: 84px !important;
+  }
+}
+
+/* ==========================================================================
+   1-TAP FARMER QUICK ACTION HUB (AgroStar & Plantix Style Dashboard)
+   ========================================================================== */
+.farmer-quick-hub {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  margin-bottom: 40px;
+  border: 1px solid #e8f5e9;
+}
+
+.farmer-quick-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #f1f8e9;
+  padding-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.farmer-quick-title-wrap h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1b5e20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.farmer-quick-title-wrap p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.quick-hub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #c8e6c9;
+}
+
+.farmer-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.farmer-quick-tile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fcfdfc;
+  border: 1.5px solid #e8f5e9;
+  border-radius: 16px;
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.farmer-quick-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  border-color: #a5d6a7;
+  background: #ffffff;
+}
+
+.quick-tile-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.farmer-quick-tile:hover .quick-tile-icon {
+  transform: scale(1.08);
+}
+
+.quick-tile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.quick-tile-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-tile-desc {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-tile-flair {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ==========================================================================
+   CATEGORIZED FEATURE MODULES (Doctor, Advisory, Mandi, Marketplace)
+   ========================================================================== */
+.farmer-modules-container {
+  display: flex;
+  flex-direction: column;
+  gap: 45px;
+  margin-bottom: 45px;
+}
+
+.farmer-module-group {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 32px 34px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eef2f5;
+  position: relative;
+}
+
+.module-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+  border-bottom: 2px solid #f8fafc;
+  padding-bottom: 16px;
+}
+
+.module-title-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.module-badge-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.module-title-box h3 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 3px;
+}
+
+.module-title-box p {
+  font-size: 13.5px;
+  color: #718096;
+  margin: 0;
+}
+
+.module-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+.farmer-feat-card {
+  background: #fbfcfd;
+  border: 1.5px solid #edf2f7;
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.farmer-feat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+
+.feat-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.feat-avatar-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.feat-heading-wrap h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.feat-sub-hindi {
+  font-size: 12.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.feat-body-desc {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.55;
+  margin-bottom: 18px;
+  flex-grow: 1;
+}
+
+.feat-highlights-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.feat-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 12px;
+}
+
+.feat-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.feat-action-btn:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   4-STEP FARMER WORKFLOW JOURNEY
+   ========================================================================== */
+.farmer-journey-section {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+  border-radius: 22px;
+  padding: 40px 35px;
+  color: #ffffff;
+  margin-bottom: 45px;
+  box-shadow: 0 12px 35px rgba(27, 94, 32, 0.25);
+}
+
+.journey-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 35px;
+}
+
+.journey-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.journey-header p {
+  font-size: 14.5px;
+  color: #c8e6c9;
+  line-height: 1.5;
+}
+
+.journey-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.journey-step-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  backdrop-filter: blur(4px);
+  transition: all 0.28s ease;
+}
+
+.journey-step-card:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+.step-num-bubble {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ffd54f;
+  color: #1b5e20;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.journey-step-card h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.journey-step-card p {
+  font-size: 13px;
+  color: #e8f5e9;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.step-link-btn {
+  margin-top: auto;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffd54f;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-link-btn:hover {
+  color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .farmer-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .module-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .journey-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .farmer-quick-grid {
+    grid-template-columns: 1fr;
+  }
+  .journey-steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .farmer-quick-hub,
+  .farmer-module-group,
+  .farmer-journey-section {
+    padding: 22px 18px;
+  }
+  .farmer-quick-title-wrap h2 {
+    font-size: 20px;
+  }
+  .module-title-box h3 {
+    font-size: 19px;
+  }
 }
 
 

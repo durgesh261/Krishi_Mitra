@@ -37,6 +37,107 @@
     </div>
   </div>
 
+  <!-- 1-TAP FARMER QUICK ACTION HUB (Leading Agro App Experience) -->
+  <div class="farmer-quick-hub">
+    <div class="farmer-quick-header">
+      <div class="farmer-quick-title-wrap">
+        <h2>⚡ <span data-i18n="quick_tools_title">Instant Farmer Action Hub</span> • <span>त्वरित किसान सेवाएं</span></h2>
+        <p data-i18n="quick_tools_desc">Frequently used services for daily farm management — instant 1-tap access</p>
+      </div>
+      <span class="quick-hub-badge"><i class="fas fa-bolt"></i> 1-Tap Access</span>
+    </div>
+    <div class="farmer-quick-grid">
+      <!-- 1. Crop Doctor -->
+      <a href="/disease" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #e8f5e9; color: #2e7d32;">
+          <i class="fas fa-camera"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Crop Doctor</span>
+          <span class="quick-tile-desc">पत्ती रोग स्कैन व इलाज</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #c8e6c9; color: #1b5e20;">Scan</span>
+      </a>
+      <!-- 2. Mandi Prices -->
+      <a href="/mandi-prices" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #fff8e1; color: #f57f17;">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Mandi Bhav</span>
+          <span class="quick-tile-desc">ताज़ा मंडी भाव व MSP</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #ffe082; color: #e65100;">Live</span>
+      </a>
+      <!-- 3. Weather -->
+      <a href="/weather" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #e1f5fe; color: #0288d1;">
+          <i class="fas fa-cloud-sun-rain"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Agro Weather</span>
+          <span class="quick-tile-desc">वर्षा व मौसम पूर्वानुमान</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #b3e5fc; color: #01579b;">Forecast</span>
+      </a>
+      <!-- 4. Crop Selection -->
+      <a href="/crop-recommendation" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #f1f8e9; color: #388e3c;">
+          <i class="fas fa-seedling"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Crop Selection</span>
+          <span class="quick-tile-desc">मिट्टी अनुसार सही फसल</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #dcedc8; color: #2e7d32;">Smart AI</span>
+      </a>
+      <!-- 5. 90+ Crop Guide -->
+      <a href="/crop-guide" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #f3e5f5; color: #7b1fa2;">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Crop Guide</span>
+          <span class="quick-tile-desc">90+ फसलों की संदर्शिका</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #e1bee7; color: #4a148c;">90+ Crops</span>
+      </a>
+      <!-- 6. Daily News -->
+      <a href="/news" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #e3f2fd; color: #1565c0;">
+          <i class="fas fa-newspaper"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Agri News</span>
+          <span class="quick-tile-desc">दैनिक समाचार व योजनाएं</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #bbdefb; color: #0d47a1;">Daily</span>
+      </a>
+      <!-- 7. Deals & Rentals -->
+      <a href="/#adCarouselContainer" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #fff3e0; color: #e65100;">
+          <i class="fas fa-tractor"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Deals & Rentals</span>
+          <span class="quick-tile-desc">ट्रैक्टर, बीज व ड्रोन बाज़ार</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #ffe0b2; color: #bf360c;">Offers</span>
+      </a>
+      <!-- 8. Mitra AI Chat -->
+      <a href="/chat" class="farmer-quick-tile">
+        <div class="quick-tile-icon" style="background: #fce4ec; color: #c2185b;">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="quick-tile-info">
+          <span class="quick-tile-name">Kisan Mitra AI</span>
+          <span class="quick-tile-desc">24x7 बोलकर या लिखकर पूछें</span>
+        </div>
+        <span class="quick-tile-flair" style="background: #f8bbd0; color: #880e4f;">24/7 AI</span>
+      </a>
+    </div>
+  </div>
+
   <!-- SLIDING AGRICULTURAL ADVERTISEMENT CAROUSEL (Slide Scroll) -->
   {% if ads %}
   <div class="ad-carousel-section">
@@ -178,128 +279,406 @@
   </div>
   {% endif %}
 
-  <!-- Features Grid Section -->
-  <div class="features-section">
-    <h2 data-i18n="features_heading">Our Smart Farming Features</h2>
-    <div class="features-grid">
-      <div class="feature-card" style="border: 2px solid #a5d6a7; background: #fbfffb;">
-        <div class="feature-icon" style="background: #2e7d32; color: white;"><i class="fas fa-chart-line"></i></div>
-        <h3 data-i18n="feat_mandi_title">🌾 Live Mandi Bhav & MSP</h3>
-        <p data-i18n="feat_mandi_desc">
-          Real-time wholesale APMC prices, Government MSP comparison, and arrival trends across major Indian mandis.
-        </p>
-        <a href="/mandi-prices" class="feature-link" data-i18n="feat_mandi_btn" style="color: #2e7d32; font-weight: 700;">
-          Check Mandi Rates <i class="fas fa-arrow-right"></i>
-        </a>
+  <!-- CATEGORIZED FARMER MODULES SECTION (Restructured for Intuitive Farmer Use) -->
+  <div class="farmer-modules-container">
+    
+    <!-- MODULE 1: Crop Doctor & Plant Health (फसल डॉक्टर एवं सुरक्षा) -->
+    <div class="farmer-module-group" id="cropDoctorHub">
+      <div class="module-header-row">
+        <div class="module-title-box">
+          <div class="module-badge-icon" style="background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);">
+            <i class="fas fa-stethoscope"></i>
+          </div>
+          <div>
+            <h3>🩺 Crop Doctor & Plant Protection • <span>फसल डॉक्टर एवं रोग निदान</span></h3>
+            <p>Instant diagnosis using leaf photography and drone/satellite multi-spectral field monitoring.</p>
+          </div>
+        </div>
+        <span class="quick-hub-badge" style="background: #e8f5e9; color: #1b5e20;">AI Powered</span>
       </div>
 
-      <div class="feature-card">
-        <div class="feature-icon" style="background: #1565c0; color: white;"><i class="fas fa-newspaper"></i></div>
-        <h3 data-i18n="feat_news_title">📰 Daily Agri News & Alerts</h3>
-        <p data-i18n="feat_news_desc">
-          Stay informed on policy changes, IMD weather forecasts, subsidy deadlines, and agronomic research.
-        </p>
-        <a href="/news" class="feature-link" style="color: #1565c0; font-weight: 700;">
-          Read News <i class="fas fa-arrow-right"></i>
-        </a>
+      <div class="module-cards-grid">
+        <!-- 1. Leaf Disease Detector -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #2e7d32;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #e8f5e9; color: #2e7d32;">
+              <i class="fas fa-camera"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_disease_title">Crop Disease Detection</h4>
+              <span class="feat-sub-hindi">पत्ती की फोटो खींचें और तुरंत बीमारी का नाम व उपचार पाएं</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_disease_desc">
+            Upload or snap crop leaf photos for instant deep learning disease identification, severity assessment, and organic/chemical fungicide treatment dosages.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> 100+ Crop Diseases</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Organic & Chemical Cure</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Instant Result</span>
+          </div>
+          <a href="/disease" class="feat-action-btn" style="background: #2e7d32; color: #ffffff;" data-i18n="feat_disease_btn">
+            <i class="fas fa-camera"></i> Scan Crop Leaf Now <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 2. Satellite & Drone Diagnostics -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #1b5e20;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #e0f2f1; color: #00796b;">
+              <i class="fas fa-satellite"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4>Satellite & Drone Diagnostics</h4>
+              <span class="feat-sub-hindi">उपग्रह एवं ड्रोन आधारित संपूर्ण खेत की निगरानी व पैदावार पूर्वानुमान</span>
+            </div>
+          </div>
+          <p class="feat-body-desc">
+            Multi-spectral vegetation index (NDVI), Grad-CAM disease attention maps, micro-climate telemetry, and quantitative quintal/hectare harvest yield forecasting.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Sentinel-2 NDVI</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Heatmap Localization</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Yield Forecast (q/ha)</span>
+          </div>
+          <a href="/remote-sensing" class="feat-action-btn" style="background: #00796b; color: #ffffff;">
+            <i class="fas fa-satellite-dish"></i> Open Satellite Telemetry <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 2: Crop Advisory & Cultivation Planning (फसल सलाह व योजना) -->
+    <div class="farmer-module-group" id="cropAdvisoryHub">
+      <div class="module-header-row">
+        <div class="module-title-box">
+          <div class="module-badge-icon" style="background: linear-gradient(135deg, #388e3c 0%, #66bb6a 100%);">
+            <i class="fas fa-seedling"></i>
+          </div>
+          <div>
+            <h3>🌱 Crop Planning & Advisory • <span>फसल योजना एवं संपूर्ण संदर्शिका</span></h3>
+            <p>Scientific advice for crop selection, nutrient management, costing, and eco-friendly yields.</p>
+          </div>
+        </div>
+        <span class="quick-hub-badge" style="background: #f1f8e9; color: #33691e;">Scientific Guide</span>
       </div>
 
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-seedling"></i></div>
-        <h3 data-i18n="feat_crop_title">Crop Recommendation</h3>
-        <p data-i18n="feat_crop_desc">
-          Find the most profitable and high-yielding crops suited to your soil nutrients, rainfall, and local climate.
-        </p>
-        <a href="/crop-recommendation" class="feature-link">
-          Recommend Crops <i class="fas fa-arrow-right"></i>
-        </a>
+      <div class="module-cards-grid">
+        <!-- 1. Crop Recommendation -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #388e3c;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #f1f8e9; color: #388e3c;">
+              <i class="fas fa-magic"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_crop_title">Smart Crop Recommendation</h4>
+              <span class="feat-sub-hindi">मिट्टी के पोषक तत्वों (N-P-K) व मौसम अनुसार सर्वोत्तम फसल</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_crop_desc">
+            Enter your soil nitrogen, phosphorus, potassium, pH, and rainfall to discover high-yielding crop recommendations with confidence scores and market feasibility.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Soil N-P-K Match</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> High Yield Probability</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Climate-Resilient</span>
+          </div>
+          <a href="/crop-recommendation" class="feat-action-btn" style="background: #388e3c; color: #ffffff;">
+            <i class="fas fa-seedling"></i> Get Crop Recommendation <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 2. 90+ Crop Cultivation Guide -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #7b1fa2;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #f3e5f5; color: #7b1fa2;">
+              <i class="fas fa-book-open"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_guide_title">90+ Crop Cultivation Guide</h4>
+              <span class="feat-sub-hindi">अनाज, दलहन, तिलहन, फल एवं सब्ज़ियों की बुवाई से कटाई संदर्शिका</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_guide_desc">
+            Detailed agronomic guides for 90+ Indian crops covering seed rates, irrigation intervals, fertilizer schedules, harvesting stages, and authentic crop photography.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> 90+ Indian Crops</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Irrigation Schedules</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Fertilizer Timelines</span>
+          </div>
+          <a href="/crop-guide" class="feat-action-btn" style="background: #7b1fa2; color: #ffffff;">
+            <i class="fas fa-book"></i> Browse 90+ Crop Guides <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 3. Resource & Profit Calculator -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #f57f17;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #fff8e1; color: #f57f17;">
+              <i class="fas fa-calculator"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_calc_title">Resource & Profit Calculator</h4>
+              <span class="feat-sub-hindi">बीज, खाद, पानी व जुताई की लागत और अनुमानित मुनाफे की गणना</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_calc_desc">
+            Calculate accurate seed amounts, NPK fertilizer bags, water volume, and projected net profit based on your farm acreage and current wholesale market rates.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Acreage Cost Estimate</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Fertilizer Bags</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Net Profit Projection</span>
+          </div>
+          <a href="/calculator" class="feat-action-btn" style="background: #f57f17; color: #ffffff;" data-i18n="feat_calc_btn">
+            <i class="fas fa-calculator"></i> Calculate Farm Profit <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 4. Sustainable Agriculture -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #00897b;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #e0f2f1; color: #00897b;">
+              <i class="fas fa-recycle"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4>Sustainable & Organic Farming</h4>
+              <span class="feat-sub-hindi">प्राकृतिक व जैविक खेती, जीवामृत, वर्मीकम्पोस्ट व भूमि स्वास्थ्य</span>
+            </div>
+          </div>
+          <p class="feat-body-desc">
+            Discover regenerative farming methods, bio-fertilizers, neem-based organic pest management, crop rotation matrices, and carbon credit opportunities.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Organic Manure</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Bio-Pesticides</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Soil Fertility</span>
+          </div>
+          <a href="/sustainability" class="feat-action-btn" style="background: #00897b; color: #ffffff;">
+            <i class="fas fa-leaf"></i> Explore Organic Farming <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 3: Mandi Intelligence & Weather (मंडी भाव एवं मौसम) -->
+    <div class="farmer-module-group" id="mandiWeatherHub">
+      <div class="module-header-row">
+        <div class="module-title-box">
+          <div class="module-badge-icon" style="background: linear-gradient(135deg, #f57f17 0%, #ffb300 100%);">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div>
+            <h3>🌾 Mandi Intelligence & Agro Weather • <span>मंडी भाव एवं मौसम पूर्वानुमान</span></h3>
+            <p>Track wholesale APMC rates, Government MSP, 7-day micro-weather forecasts, and agricultural news.</p>
+          </div>
+        </div>
+        <span class="quick-hub-badge" style="background: #fff8e1; color: #e65100;">Real-Time Updates</span>
       </div>
 
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-comments"></i></div>
-        <h3 data-i18n="feat_chat_title">AI Chat Assistant</h3>
-        <p data-i18n="feat_chat_desc">
-          Ask any agriculture-related question. Supports text and image inputs
-          for comprehensive farming advice.
-        </p>
-        <a href="/chat" class="feature-link" data-i18n="feat_chat_btn">
-          Try Chat <i class="fas fa-arrow-right"></i>
-        </a>
+      <div class="module-cards-grid">
+        <!-- 1. Live Mandi Prices & MSP -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #e65100;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #fff3e0; color: #e65100;">
+              <i class="fas fa-store"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_mandi_title">Live Mandi Bhav & MSP Tracker</h4>
+              <span class="feat-sub-hindi">देश की प्रमुख मंडियों के ताज़ा थोक भाव एवं न्यूनतम समर्थन मूल्य (MSP)</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_mandi_desc">
+            Real-time wholesale APMC rates across states, Government MSP comparison, high/low spread analysis, and crop arrival trends to help you sell at peak prices.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> APMC Live Rates</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Official MSP Benchmark</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Arrival Trends</span>
+          </div>
+          <a href="/mandi-prices" class="feat-action-btn" style="background: #e65100; color: #ffffff;" data-i18n="feat_mandi_btn">
+            <i class="fas fa-chart-line"></i> Check Today's Mandi Bhav <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 2. Weather-Based Decisions -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #0288d1;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #e1f5fe; color: #0288d1;">
+              <i class="fas fa-cloud-sun-rain"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_weather_title">Live Weather & Agro Advisory</h4>
+              <span class="feat-sub-hindi">वर्षा, तापमान, हवा की दिशा एवं मौसम आधारित सटीक बुवाई/कटाई सलाह</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_weather_desc">
+            Get accurate hourly and 7-day meteorological forecasts with AI agronomic recommendations for irrigation, spray schedules, and harvest protection.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Rain Radar Alerts</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Spraying Advisory</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> 7-Day Forecast</span>
+          </div>
+          <a href="/weather" class="feat-action-btn" style="background: #0288d1; color: #ffffff;" data-i18n="feat_weather_btn">
+            <i class="fas fa-cloud-sun"></i> Check Live Weather <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 3. Daily Agri News & Alerts -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #1565c0;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #e3f2fd; color: #1565c0;">
+              <i class="fas fa-newspaper"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_news_title">Daily Agri News & Government Alerts</h4>
+              <span class="feat-sub-hindi">कृषि नीतियां, मौसम चेतावनी, सब्सिडी आवेदन तिथियां एवं शोध समाचार</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_news_desc">
+            Live RSS aggregated news feeds from ICAR, Ministry of Agriculture, IMD, and community farmer reports keeping you informed of vital farming updates.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Verified News Feeds</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Subsidy Deadlines</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Community Reports</span>
+          </div>
+          <a href="/news" class="feat-action-btn" style="background: #1565c0; color: #ffffff;">
+            <i class="fas fa-newspaper"></i> Read All Agri News <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- 4. Kisan Mitra AI Chat -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #c2185b;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #fce4ec; color: #c2185b;">
+              <i class="fas fa-comments"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_chat_title">24x7 Kisan Mitra AI Chat</h4>
+              <span class="feat-sub-hindi">अपनी मातृभाषा में बोलकर या लिखकर खेती का कोई भी सवाल पूछें</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_chat_desc">
+            Agricultural conversational intelligence powered by verified agronomy data. Ask questions on pest control, crop management, fertilizers, or mandi logistics.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> 10 Indian Languages</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Voice & Photo Support</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Instant Solutions</span>
+          </div>
+          <a href="/chat" class="feat-action-btn" style="background: #c2185b; color: #ffffff;" data-i18n="feat_chat_btn">
+            <i class="fas fa-robot"></i> Ask Mitra AI Now <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 4: Marketplace, Subsidies & Support (बाज़ार, सरकारी योजनाएं व सहायता) -->
+    <div class="farmer-module-group" id="marketplaceSevaHub">
+      <div class="module-header-row">
+        <div class="module-title-box">
+          <div class="module-badge-icon" style="background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);">
+            <i class="fas fa-hands-helping"></i>
+          </div>
+          <div>
+            <h3>🚜 Marketplace, Subsidies & Support • <span>बाज़ार, सरकारी योजनाएं एवं सहायता</span></h3>
+            <p>Farmer-to-farmer equipment rental marketplace, Central/State subsidies, and 24x7 toll-free support.</p>
+          </div>
+        </div>
+        <span class="quick-hub-badge" style="background: #e3f2fd; color: #0d47a1;">Community & Seva</span>
       </div>
 
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-cloud-sun"></i></div>
-        <h3 data-i18n="feat_weather_title">Weather-Based Decisions</h3>
-        <p data-i18n="feat_weather_desc">
-          Get real-time weather data and AI-powered farming recommendations
-          based on current conditions.
-        </p>
-        <a href="/weather" class="feature-link" data-i18n="feat_weather_btn">
-          Check Weather <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
+      <div class="module-cards-grid">
+        <!-- 1. Deals & Equipment Rentals -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #e65100;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #fff3e0; color: #e65100;">
+              <i class="fas fa-bullhorn"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4>Farmer Deals & Equipment Rentals</h4>
+              <span class="feat-sub-hindi">ट्रैक्टर, कंबाइन, प्रमाणित बीज, ड्रोन छिड़काव एवं फसल खरीद-बिक्री</span>
+            </div>
+          </div>
+          <p class="feat-body-desc">
+            Connect directly with verified agricultural suppliers and fellow farmers to rent machinery, purchase high-germination seed varieties, or post your harvest lots.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Direct Farmer Contact</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Machinery Rentals</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> Zero Middlemen</span>
+          </div>
+          <a href="/#adCarouselContainer" class="feat-action-btn" style="background: #e65100; color: #ffffff;">
+            <i class="fas fa-store-alt"></i> View Active Deals & Post Offer <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
 
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-leaf"></i></div>
-        <h3 data-i18n="feat_disease_title">Crop Disease Detection</h3>
-        <p data-i18n="feat_disease_desc">
-          Upload crop images for instant disease identification, diagnosis, and
-          treatment recommendations.
-        </p>
-        <a href="/disease" class="feature-link" data-i18n="feat_disease_btn">
-          Detect Disease <i class="fas fa-arrow-right"></i>
-        </a>
+        <!-- 2. Krishi Seva: Subsidies & Soil Labs -->
+        <div class="farmer-feat-card" style="border-left: 4px solid #2e7d32;">
+          <div class="feat-top-row">
+            <div class="feat-avatar-icon" style="background: #e8f5e9; color: #2e7d32;">
+              <i class="fas fa-landmark"></i>
+            </div>
+            <div class="feat-heading-wrap">
+              <h4 data-i18n="feat_krishi_title">Krishi Seva & Schemes Hub</h4>
+              <span class="feat-sub-hindi">14+ सरकारी सब्सिडी योजनाएं एवं 77 प्रमाणित मृदा परीक्षण प्रयोगशालाएं</span>
+            </div>
+          </div>
+          <p class="feat-body-desc" data-i18n="feat_krishi_desc">
+            Direct portal to Government of India subsidies (PM-KUSUM, PM-KISAN, Sub-Mission on Agri Mechanization) and directory of verified district soil testing laboratories.
+          </p>
+          <div class="feat-highlights-list">
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> 14+ Govt Subsidies</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> 77 Soil Testing Labs</span>
+            <span class="feat-pill-tag"><i class="fas fa-check"></i> State Wise Directory</span>
+          </div>
+          <a href="/krishi-seva" class="feat-action-btn" style="background: #2e7d32; color: #ffffff;">
+            <i class="fas fa-hands-helping"></i> Explore Krishi Seva Hub <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <div class="feature-card" style="border: 2px solid #81c784; background: #f9fbf9;">
-        <div class="feature-icon" style="background: #1b5e20; color: white;"><i class="fas fa-satellite"></i></div>
-        <h3>🛰️ Multi-Spectral Remote Sensing</h3>
-        <p>
-          Multimodal AI combining satellite & drone imagery with micro-climate telemetry. Computes NDVI, Grad-CAM heatmaps, and yield forecasts (+14.2% F1).
-        </p>
-        <a href="/remote-sensing" class="feature-link" style="color: #1b5e20; font-weight: 700;">
-          Launch Remote Sensing <i class="fas fa-arrow-right"></i>
-        </a>
+  <!-- 4-STEP FARMER WORKFLOW JOURNEY (How Krishi Mitra Works For You) -->
+  <div class="farmer-journey-section">
+    <div class="journey-header">
+      <h2>🚀 कृषि मित्र से अधिक पैदावार व मुनाफा — 4 सरल चरणों में</h2>
+      <p>How Krishi Mitra guides you seamlessly from soil preparation to peak market sales</p>
+    </div>
+    <div class="journey-steps-grid">
+      <div class="journey-step-card">
+        <div class="step-num-bubble">1</div>
+        <h4>मिट्टी जांच व फसल चयन</h4>
+        <p>अपनी भूमि के पोषक तत्वों (N-P-K) के आधार पर सर्वाधिक लाभदायक फसल चुनें।</p>
+        <a href="/crop-recommendation" class="step-link-btn">फसल चयन करें <i class="fas fa-chevron-right"></i></a>
       </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-calculator"></i></div>
-        <h3 data-i18n="feat_calc_title">Resource Calculator</h3>
-        <p data-i18n="feat_calc_desc">
-          Calculate water, fertilizer, and other resource requirements based on
-          crop type and farm size.
-        </p>
-        <a href="/calculator" class="feature-link" data-i18n="feat_calc_btn">
-          Calculate <i class="fas fa-arrow-right"></i>
-        </a>
+      <div class="journey-step-card">
+        <div class="step-num-bubble">2</div>
+        <h4>मौसम अनुसार वैज्ञानिक बुवाई</h4>
+        <p>90+ फसलों की संदर्शिका व वर्षा पूर्वानुमान देखकर सही समय पर खाद व पानी दें।</p>
+        <a href="/crop-guide" class="step-link-btn">संदर्शिका देखें <i class="fas fa-chevron-right"></i></a>
       </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-book"></i></div>
-        <h3 data-i18n="feat_guide_title">Crop Cultivation Guide</h3>
-        <p data-i18n="feat_guide_desc">
-          Detailed watering schedules, fertilizer plans, and duration guides for 42 Indian crops.
-        </p>
-        <a href="/crop-guide" class="feature-link">
-          Explore Guides <i class="fas fa-arrow-right"></i>
-        </a>
+      <div class="journey-step-card">
+        <div class="step-num-bubble">3</div>
+        <h4>तत्काल पत्ती स्कैन व सुरक्षा</h4>
+        <p>फसल में कोई भी रोग दिखे तो 1-क्लिक में फोटो खींचें और तुरंत सही दवा जानें।</p>
+        <a href="/disease" class="step-link-btn">रोग स्कैन करें <i class="fas fa-chevron-right"></i></a>
       </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-hands-helping"></i></div>
-        <h3 data-i18n="feat_krishi_title">Krishi Seva & Schemes</h3>
-        <p data-i18n="feat_krishi_desc">
-          Access 14+ Government subsidies and 77 certified Soil Testing Laboratories across India.
-        </p>
-        <a href="/krishi-seva" class="feature-link">
-          Explore Seva Hub <i class="fas fa-arrow-right"></i>
-        </a>
+      <div class="journey-step-card">
+        <div class="step-num-bubble">4</div>
+        <h4>उच्चतम मंडी भाव पर बिक्री</h4>
+        <p>मंडी भाव व MSP की तुलना करें और सही समय पर सर्वाधिक लाभ में उपज बेचें।</p>
+        <a href="/mandi-prices" class="step-link-btn">मंडी भाव देखें <i class="fas fa-chevron-right"></i></a>
       </div>
     </div>
   </div>
 
   <!-- Kisan 24x7 Emergency Helplines Desk (Real Farmer Support) -->
-  <div class="kisan-helplines-section">
+  <div class="kisan-helplines-section" id="helplines">
     <div class="helplines-header">
       <div class="helpline-icon-title">
         <i class="fas fa-headset"></i>
@@ -347,6 +726,8 @@
           <span class="hl-desc">₹6,000/year DBT installment verification</span>
         </div>
       </a>
+    </div>
+  </div>
   <!-- Modal for Farmers to Post Deals & Verified Agricultural Offers -->
   <div id="submitDealModal" class="agri-modal-backdrop" style="display: none;">
     <div class="agri-modal-content">

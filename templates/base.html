@@ -26,14 +26,20 @@
   </head>
   <body>
     <nav class="navbar">
-      <div class="nav-brand">
-        <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:white;">
+      <div class="nav-brand-wrap">
+        <a href="/" class="nav-brand-link">
           <img
             src="{{ url_for('static', filename='logo.png') }}"
             alt="Logo"
             class="nav-logo"
           />
-          <span>Krishi Mitra</span>
+          <div class="nav-brand-text">
+            <span class="nav-brand-title">Krishi Mitra</span>
+            <span class="nav-brand-tagline">स्मार्ट किसान साथी</span>
+          </div>
+        </a>
+        <a href="tel:18001801551" class="nav-helpline-pill" title="Kisan Call Center Toll-Free 24x7">
+          <i class="fas fa-phone-alt"></i> <span>1800-180-1551</span>
         </a>
       </div>
       <ul class="nav-links">
@@ -52,55 +58,68 @@
           >
         </li>
 
-        <!-- Features Dropdown -->
+        <!-- 1. Crop Doctor Dropdown (फसल डॉक्टर) -->
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-i18n="nav_features">
-            <i class="fas fa-th"></i> Features <i class="fas fa-caret-down"></i>
+          <a href="#" class="dropdown-toggle" data-i18n="nav_crop_doctor">
+            <i class="fas fa-stethoscope"></i> Crop Doctor <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="/mandi-prices" data-i18n="nav_mandi">
-                <i class="fas fa-chart-line"></i> Mandi Prices & MSP (मंडी भाव)
-              </a>
-            </li>
-            <li>
-              <a href="/crop-recommendation" data-i18n="nav_crop_rec">
-                <i class="fas fa-seedling"></i> Crop Recommendation
-              </a>
-            </li>
-            <li>
-              <a href="/crop-guide" data-i18n="nav_crop_guide"> 
-                <i class="fas fa-book"></i> Crop Guide 
-              </a>
-            </li>
-            <li>
-              <a href="/weather" data-i18n="nav_weather"> 
-                <i class="fas fa-cloud-sun"></i> Live Agro Weather 
-              </a>
-            </li>
-            <li>
               <a href="/disease" data-i18n="nav_disease">
-                <i class="fas fa-leaf"></i> Disease Detection
+                <i class="fas fa-camera"></i> Leaf Disease Detector (रोग पहचान)
               </a>
             </li>
             <li>
               <a href="/remote-sensing">
-                <i class="fas fa-satellite"></i> Remote Sensing & AI (उपग्रह व ड्रोन)
+                <i class="fas fa-satellite"></i> Satellite & Drone Diagnostics (उपग्रह निगरानी)
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- 2. Crop Advisory Dropdown (फसल सलाह) -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-i18n="nav_crop_advisory">
+            <i class="fas fa-seedling"></i> Crop Advisory <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/crop-recommendation" data-i18n="nav_crop_rec">
+                <i class="fas fa-magic"></i> Smart Crop Recommendation (फसल चयन)
+              </a>
+            </li>
+            <li>
+              <a href="/crop-guide" data-i18n="nav_crop_guide"> 
+                <i class="fas fa-book-open"></i> 90+ Crop Cultivation Guide (फसल संदर्शिका)
               </a>
             </li>
             <li>
               <a href="/calculator" data-i18n="nav_calc">
-                <i class="fas fa-calculator"></i> Profit Calculator
+                <i class="fas fa-calculator"></i> Profit & Resource Calculator (लागत व मुनाफा)
               </a>
             </li>
             <li>
               <a href="/sustainability" data-i18n="nav_sustainability">
-                <i class="fas fa-recycle"></i> Sustainability
+                <i class="fas fa-recycle"></i> Sustainable Agriculture (टिकाऊ खेती)
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- 3. Mandi & Weather Dropdown (मंडी व मौसम) -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-i18n="nav_mandi_weather">
+            <i class="fas fa-store"></i> Mandi & Weather <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/mandi-prices" data-i18n="nav_mandi">
+                <i class="fas fa-chart-line"></i> Mandi Prices & MSP (ताज़ा मंडी भाव)
               </a>
             </li>
             <li>
-              <a href="/krishi-seva" data-i18n="nav_krishi_seva">
-                <i class="fas fa-hands-helping"></i> Krishi Seva & Schemes
+              <a href="/weather" data-i18n="nav_weather"> 
+                <i class="fas fa-cloud-sun-rain"></i> Live Agro Weather (मौसम पूर्वानुमान)
               </a>
             </li>
             <li>
@@ -111,30 +130,42 @@
           </ul>
         </li>
 
-        <li>
-          <a
-            href="/mandi-prices"
-            class="{% if request.endpoint == 'mandi_prices' %}active{% endif %}"
-            data-i18n="nav_mandi_direct"
-            ><i class="fas fa-store"></i> Mandi Bhav</a
-          >
+        <!-- 4. Marketplace & Seva Dropdown (बाज़ार व सेवा) -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-i18n="nav_market_seva">
+            <i class="fas fa-tractor"></i> Market & Seva <i class="fas fa-caret-down"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="/#adCarouselContainer">
+                <i class="fas fa-bullhorn"></i> Farmer Deals & Rentals (उपकरण व बीज बाज़ार)
+              </a>
+            </li>
+            <li>
+              <a href="/krishi-seva" data-i18n="nav_krishi_seva">
+                <i class="fas fa-hands-helping"></i> Government Subsidies & Soil Labs (कृषि सेवा)
+              </a>
+            </li>
+            <li>
+              <a href="/chat" data-i18n="nav_chat">
+                <i class="fas fa-comments"></i> 24x7 AI Krishi Mitra (कृषि मित्र चैट)
+              </a>
+            </li>
+            <li>
+              <a href="/#helplines">
+                <i class="fas fa-headset"></i> 24x7 Emergency Helplines (टोल-फ्री डेस्क)
+              </a>
+            </li>
+          </ul>
         </li>
 
-        <li>
-          <a
-            href="/news"
-            class="{% if request.endpoint == 'news_portal' %}active{% endif %}"
-            data-i18n="nav_news_direct"
-            ><i class="fas fa-newspaper"></i> Agri News</a
-          >
-        </li>
-
+        <!-- Direct Action: AI Chat Button -->
         <li>
           <a
             href="/chat"
-            class="{% if request.endpoint == 'chat' %}active{% endif %}"
+            class="nav-chat-highlight {% if request.endpoint == 'chat' %}active{% endif %}"
             data-i18n="nav_chat"
-            ><i class="fas fa-comments"></i> AI Chat</a
+            ><i class="fas fa-robot"></i> Ask Mitra AI</a
           >
         </li>
 
@@ -217,6 +248,32 @@
     <div class="nav-backdrop" id="navBackdrop"></div>
 
     <main class="main-content">{% block content %}{% endblock %}</main>
+
+    <!-- Mobile Bottom Navigation Bar (App-like 1-tap thumb navigation for farmers) -->
+    <nav class="mobile-bottom-nav" aria-label="Quick Mobile Navigation">
+      <a href="/" class="mobile-nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="/mandi-prices" class="mobile-nav-item {% if request.endpoint == 'mandi_prices' %}active{% endif %}">
+        <i class="fas fa-chart-line"></i>
+        <span>Mandi</span>
+      </a>
+      <a href="/disease" class="mobile-nav-item crop-doc-badge {% if request.endpoint == 'disease_detection' %}active{% endif %}" title="Crop Doctor Leaf Scan">
+        <div class="crop-doc-icon-wrap">
+          <i class="fas fa-camera"></i>
+        </div>
+        <span>Doctor</span>
+      </a>
+      <a href="/news" class="mobile-nav-item {% if request.endpoint == 'news' %}active{% endif %}">
+        <i class="fas fa-newspaper"></i>
+        <span>News</span>
+      </a>
+      <a href="/chat" class="mobile-nav-item {% if request.endpoint == 'chat' %}active{% endif %}">
+        <i class="fas fa-comments"></i>
+        <span>Mitra AI</span>
+      </a>
+    </nav>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
