@@ -122,7 +122,7 @@ body,
   flex-shrink: 0;
 }
 
-@media (max-width: 1360px) {
+@media (max-width: 1180px) {
   .nav-helpline-pill {
     display: none !important;
   }
