@@ -3013,7 +3013,7 @@ function applyLanguage(langCode) {
   // Community UI Multi-lingual dictionary
   const COMMUNITY_I18N = {
     "nav_community": {
-      "en": "Kisan Community", "hi": "किसान चौपाल", "pa": "ਕਿਸਾਨ ਚੌਪਾਲ",
+      "en": "Community", "hi": "किसान चौपाल", "pa": "ਕਿਸਾਨ ਚੌਪਾਲ",
       "mr": "शेतकरी चौपाल", "gu": "ખેડૂત ચોપાલ", "bn": "কৃষক চৌপাল",
       "te": "రైతు సంఘం", "ta": "விவசாயி சமூகம்", "kn": "ರೈತ ಚೌಪಾಲ", "ml": "കർഷക സമൂഹം"
     },
@@ -3058,7 +3058,7 @@ function applyLanguage(langCode) {
       "te": "మధ్య భారతదేశం", "ta": "மத்திய இந்தியா", "kn": "ಮಧ್ಯ ಭಾರತ", "ml": "മധ്യ ഇന്ത്യ"
     },
     "quick_community_title": {
-      "en": "Kisan Community", "hi": "किसान चौपाल", "pa": "ਕਿਸਾਨ ਚੌਪਾਲ",
+      "en": "Community", "hi": "किसान चौपाल", "pa": "ਕਿਸਾਨ ਚੌਪਾਲ",
       "mr": "शेतकरी चौपाल", "gu": "ખેડૂત ચોપાલ", "bn": "কৃষক চৌপাল",
       "te": "రైతు సంఘం", "ta": "விவசாயி சமூகம்", "kn": "ರೈತ ಚೌಪಾಲ", "ml": "കർഷക സമൂഹം"
     },
@@ -3099,11 +3099,19 @@ function applyLanguage(langCode) {
       if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
         el.placeholder = dict[key];
       } else {
-        // Preserve icon if present
-        const icon = el.querySelector("i");
-        if (icon) {
-          const iconHTML = icon.outerHTML;
-          el.innerHTML = iconHTML + " " + dict[key];
+        // If element has a child element with data-i18n, let child handle it
+        if (el.querySelector(":scope > [data-i18n]")) {
+          return;
+        }
+        // Preserve leading icon and caret if present
+        const icon = el.querySelector("i:not(.fa-caret-down)");
+        const caret = el.querySelector(".fa-caret-down");
+        if (icon && !caret) {
+          el.innerHTML = icon.outerHTML + " " + dict[key];
+        } else if (icon && caret) {
+          el.innerHTML = icon.outerHTML + " " + dict[key] + ' <i class="fas fa-caret-down"></i>';
+        } else if (!icon && caret) {
+          el.innerHTML = dict[key] + ' <i class="fas fa-caret-down"></i>';
         } else {
           el.textContent = dict[key];
         }

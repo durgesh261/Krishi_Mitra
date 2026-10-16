@@ -20,7 +20,7 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}?v=2.2"
+      href="{{ url_for('static', filename='css/style.css') }}?v=2.3"
     />
     {% block extra_css %}{% endblock %}
   </head>
@@ -38,8 +38,8 @@
             <span class="nav-brand-tagline">स्मार्ट किसान साथी</span>
           </div>
         </a>
-        <a href="tel:18001801551" class="nav-helpline-pill" title="Kisan Call Center Toll-Free 24x7">
-          <i class="fas fa-phone-alt"></i> <span>1800-180-1551</span>
+        <a href="tel:18001801551" class="nav-helpline-pill" title="Kisan Call Center Toll-Free 24x7: 1800-180-1551">
+          <i class="fas fa-phone-alt"></i> <span class="helpline-text">1800-180-1551</span>
         </a>
       </div>
       <ul class="nav-links">
@@ -53,15 +53,14 @@
           <a
             href="/"
             class="{% if request.endpoint == 'index' %}active{% endif %}"
-            data-i18n="nav_home"
-            ><i class="fas fa-home"></i> Home</a
+            ><i class="fas fa-home"></i> <span data-i18n="nav_home">Home</span></a
           >
         </li>
 
         <!-- 1. Crop Doctor Dropdown (फसल डॉक्टर) -->
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-i18n="nav_crop_doctor">
-            <i class="fas fa-stethoscope"></i> Crop Doctor <i class="fas fa-caret-down"></i>
+          <a href="#" class="dropdown-toggle">
+            <i class="fas fa-stethoscope"></i> <span data-i18n="nav_crop_doctor">Crop Doctor</span> <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -79,8 +78,8 @@
 
         <!-- 2. Crop Advisory Dropdown (फसल सलाह) -->
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-i18n="nav_crop_advisory">
-            <i class="fas fa-seedling"></i> Crop Advisory <i class="fas fa-caret-down"></i>
+          <a href="#" class="dropdown-toggle">
+            <i class="fas fa-seedling"></i> <span data-i18n="nav_crop_advisory">Crop Advisory</span> <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -108,8 +107,8 @@
 
         <!-- 3. Mandi & Weather Dropdown (मंडी व मौसम) -->
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-i18n="nav_mandi_weather">
-            <i class="fas fa-store"></i> Mandi & Weather <i class="fas fa-caret-down"></i>
+          <a href="#" class="dropdown-toggle">
+            <i class="fas fa-store"></i> <span data-i18n="nav_mandi_weather">Mandi & Weather</span> <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -132,12 +131,12 @@
 
         <!-- 4. Marketplace & Seva Dropdown (बाज़ार व सेवा) -->
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-i18n="nav_market_seva">
-            <i class="fas fa-tractor"></i> Market & Seva <i class="fas fa-caret-down"></i>
+          <a href="#" class="dropdown-toggle">
+            <i class="fas fa-tractor"></i> <span data-i18n="nav_market_seva">Market & Seva</span> <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="/community" data-i18n="nav_community">
+              <a href="/community" data-i18n="community_hero_title">
                 <i class="fas fa-users" style="color: #2e7d32;"></i> Kisan Community Hub (किसान चौपाल व समीक्षा)
               </a>
             </li>
@@ -169,8 +168,7 @@
           <a
             href="/community"
             class="{% if request.endpoint == 'community' %}active{% endif %}"
-            data-i18n="nav_community"
-            ><i class="fas fa-users"></i> Community</a
+            ><i class="fas fa-users"></i> <span data-i18n="nav_community">Community</span></a
           >
         </li>
 
@@ -179,8 +177,7 @@
           <a
             href="/about"
             class="{% if request.endpoint == 'about' %}active{% endif %}"
-            data-i18n="nav_about"
-            ><i class="fas fa-info-circle"></i> About</a
+            ><i class="fas fa-info-circle"></i> <span data-i18n="nav_about">About</span></a
           >
         </li>
 
@@ -188,17 +185,16 @@
         <li class="nav-cluster-divider" aria-hidden="true"></li>
 
         <!-- Action 1: Ask Mitra AI -->
-        <li>
+        <li class="nav-action-item">
           <a
             href="/chat"
             class="nav-chat-highlight {% if request.endpoint == 'chat' %}active{% endif %}"
-            data-i18n="nav_chat"
-            ><i class="fas fa-robot"></i> Ask Mitra AI</a
+            ><i class="fas fa-robot"></i> <span data-i18n="nav_chat">AI Chat</span></a
           >
         </li>
 
         <!-- Action 2: 10 Indian Regional Languages Switcher Dropdown -->
-        <li class="dropdown lang-nav-item">
+        <li class="dropdown lang-nav-item nav-action-item">
           <a href="#" class="dropdown-toggle nav-lang-pill" id="currentLangBtn" title="Choose Language / भाषा चुनें">
             <i class="fas fa-globe-asia"></i> <span id="currentLangLabel">English</span> <i class="fas fa-caret-down"></i>
           </a>
@@ -224,9 +220,9 @@
 
         <!-- Action 3: User Menu / Sign In -->
         {% if session.user_id %}
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle nav-auth-pill" data-i18n="nav_account">
-            <i class="fas fa-user-circle"></i> {{ session.username or 'Account' }}
+        <li class="dropdown nav-action-item">
+          <a href="#" class="dropdown-toggle nav-auth-pill" title="My Account">
+            <i class="fas fa-user-circle"></i> <span class="nav-username">{{ session.username or 'Account' }}</span>
             <i class="fas fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu">
@@ -249,11 +245,11 @@
           </ul>
         </li>
         {% else %}
-        <li>
+        <li class="nav-action-item">
           <a
             href="/login"
             class="nav-auth-pill {% if request.endpoint in ['login', 'signup'] %}active{% endif %}"
-            data-i18n="nav_signin"
+            title="Sign In / Login"
             ><i class="fas fa-user-circle"></i> <span data-i18n="nav_signin">Sign In</span></a
           >
         </li>
@@ -321,7 +317,7 @@
 
       // Close mobile drawer when clicking any link inside except dropdown toggles
       $(".nav-links a:not(.dropdown-toggle)").click(function () {
-        if ($(window).width() <= 1180) {
+        if ($(window).width() <= 1080) {
           toggleMobileMenu(false);
         }
       });
