@@ -809,6 +809,16 @@ class TestKrishiMitraApp(unittest.TestCase):
         conn.commit()
         conn.close()
 
+        # Clean up uploaded test image file
+        import os
+        if mp_data and mp_data.get('image_url', '').startswith('/static/'):
+            local_img = mp_data['image_url'].lstrip('/')
+            if os.path.exists(local_img):
+                try:
+                    os.remove(local_img)
+                except Exception:
+                    pass
+
 if __name__ == '__main__':
     unittest.main()
 

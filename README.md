@@ -147,7 +147,7 @@ Krishi_Mitra/
 ├── news_service.py             # Daily Agri News feed & agricultural ads engine
 ├── multimodal_remote_sensing.py# Remote sensing, NDVI/NDWI, Grad-CAM & climate fusion engine
 ├── location_service.py         # OpenCage GPS reverse-geocoding service
-├── test_app_endpoints.py       # Comprehensive 15-suite automated test runner
+├── test_app_endpoints.py       # Comprehensive 19-suite automated test runner
 ├── requirements.txt            # Python dependencies
 ├── run.bat                     # Quick-start Windows launch script
 ├── .env.example                # Sample environment configuration template
@@ -172,14 +172,18 @@ Krishi_Mitra/
 ├── templates/                  # Jinja2 HTML templates (Mobile-first responsive)
 │   ├── base.html               # Master layout with drawer navigation & i18n
 │   ├── index.html              # Homepage with hero, ads carousel, helplines & news
+│   ├── community.html          # Kisan Community Hub (area-wise discussions & equipment reviews)
+│   ├── crop_guide.html         # 90+ Indian Field and Fruit Crops cultivation guides
 │   ├── remote_sensing.html     # Multi-Spectral remote sensing & Grad-CAM dashboard
 │   ├── mandi_prices.html       # Mandi Bhav & MSP explorer
-│   ├── news.html               # Daily Agri News portal
+│   ├── news.html               # Daily Agri News portal & 7-day auto-purge advisory
 │   ├── krishi_seva.html        # Schemes directory & soil testing laboratories
 │   ├── crop_recommendation.html# Crop prediction wizard
 │   ├── weather.html            # Live agro-meteorological advisory
 │   ├── disease.html            # Foliage disease diagnosis tool
 │   ├── calculator.html         # Farming profit calculator
+│   ├── sustainability.html     # Sustainable agriculture & organic practices
+│   ├── profile.html            # Farmer profile & prediction history
 │   └── select_language.html    # 10 Indian Regional Languages switcher
 └── static/
     ├── css/style.css           # Modern green agricultural design system
