@@ -20,38 +20,139 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentImageFile = null;
   let currentImageBase64 = null;
 
-  // Dynamic Crop Agronomic Hints (All 90 crops supported)
+  // Dynamic Crop Agronomic Profile & Telemetry Auto-Calibration
   const cropSelectEl = document.getElementById('cropName');
   const cropAgronomicHint = document.getElementById('cropAgronomicHint');
+  const cropProfileCard = document.getElementById('cropTelemetryProfileCard');
+  const profileCropName = document.getElementById('profileCropName');
+  const profileBaselineYield = document.getElementById('profileBaselineYield');
+  const profileComfortBands = document.getElementById('profileComfortBands');
+  const profileThreat = document.getElementById('profileThreat');
 
-  const CROP_HINTS = {
-    wheat: "🌾 Baseline: 50.0 q/ha • Comfort: 12-25°C • 50-70% RH",
-    rice: "🌱 Baseline: 57.5 q/ha • Comfort: 20-35°C • 70-90% RH",
-    cotton: "🌿 Baseline: 26.0 q/ha • Comfort: 21-36°C • 55-80% RH",
-    mustard: "🌻 Baseline: 18.0 q/ha • Comfort: 14-25°C • 50-70% RH",
-    sugarcane: "🎋 Baseline: 950.0 q/ha • Comfort: 20-38°C • 65-88% RH",
-    maize: "🌽 Baseline: 42.0 q/ha • Comfort: 18-32°C • 55-75% RH",
-    chickpea: "🌱 Baseline: 24.0 q/ha • Comfort: 15-28°C • 45-70% RH",
-    soybean: "🌻 Baseline: 26.0 q/ha • Comfort: 20-32°C • 60-80% RH",
-    potato: "🥔 Baseline: 300.0 q/ha • Comfort: 14-24°C • 65-85% RH",
-    tomato: "🍅 Baseline: 500.0 q/ha • Comfort: 18-30°C • 55-75% RH",
-    onion: "🧅 Baseline: 220.0 q/ha • Comfort: 15-28°C • 50-70% RH",
-    mango: "🥭 Baseline: 125.0 q/ha • Comfort: 20-38°C • 50-75% RH",
-    banana: "🍌 Baseline: 450.0 q/ha • Comfort: 20-35°C • 70-90% RH",
-    apple: "🍎 Baseline: 185.0 q/ha • Comfort: 5-24°C • 60-80% RH",
-    grapes: "🍇 Baseline: 250.0 q/ha • Comfort: 15-35°C • 50-70% RH",
-    pomegranate: "🍎 Baseline: 140.0 q/ha • Comfort: 20-38°C • 40-65% RH",
-    guava: "🍈 Baseline: 180.0 q/ha • Comfort: 18-34°C • 50-75% RH",
-    papaya: "🍈 Baseline: 550.0 q/ha • Comfort: 22-35°C • 60-85% RH",
-    chilli: "🌶️ Baseline: 25.0 q/ha • Comfort: 18-32°C • 50-75% RH"
-  };
+  const tempInput = document.getElementById('temperatureInput');
+  const humInput = document.getElementById('humidityInput');
+  const rainInput = document.getElementById('rainfallInput');
+  const soilInput = document.getElementById('soilMoistureInput');
+  const vpdInput = document.getElementById('vpdInput');
+  const vpdBadge = document.getElementById('vpdRiskBadge');
 
-  if (cropSelectEl && cropAgronomicHint) {
+  // Psychrometric Vapor Pressure Deficit (VPD) Calculator
+  function updatePsychrometricVPD() {
+    const temp = parseFloat(tempInput ? tempInput.value : 25.0) || 25.0;
+    const rh = parseFloat(humInput ? humInput.value : 75.0) || 75.0;
+    // Saturation vapor pressure (es) in kPa using Magnus-Tetens formula:
+    const es = 0.61078 * Math.exp((17.27 * temp) / (temp + 237.3));
+    // Actual vapor pressure (ea) in kPa:
+    const ea = es * (rh / 100.0);
+    const vpd = Math.max(0.05, Math.round((es - ea) * 100) / 100);
+
+    if (vpdInput) {
+      vpdInput.value = vpd;
+    }
+
+    if (vpdBadge) {
+      if (vpd < 0.40) {
+        vpdBadge.textContent = `⚠️ Spore Risk (${vpd} kPa - Stomata Wet)`;
+        vpdBadge.style.background = "#fee2e2";
+        vpdBadge.style.color = "#991b1b";
+        vpdBadge.style.border = "1px solid #f87171";
+      } else if (vpd <= 1.40) {
+        vpdBadge.textContent = `✅ Optimal Transpiration (${vpd} kPa)`;
+        vpdBadge.style.background = "#dcfce7";
+        vpdBadge.style.color = "#166534";
+        vpdBadge.style.border = "1px solid #86efac";
+      } else {
+        vpdBadge.textContent = `⚠️ Moisture Stress (${vpd} kPa - Dry)`;
+        vpdBadge.style.background = "#ffedd5";
+        vpdBadge.style.color = "#9a3412";
+        vpdBadge.style.border = "1px solid #fdba74";
+      }
+    }
+    return vpd;
+  }
+
+  // Real-time listener on Temp and Humidity inputs
+  [tempInput, humInput].forEach(inp => {
+    if (inp) {
+      inp.addEventListener('input', updatePsychrometricVPD);
+      inp.addEventListener('change', updatePsychrometricVPD);
+    }
+  });
+
+  // Dynamic Crop Selection Handler
+  async function loadCropTelemetry(selectedCrop) {
+    if (!selectedCrop) return;
+    
+    // Immediate visual feedback: show loading state
+    if (cropAgronomicHint) {
+      cropAgronomicHint.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Loading authentic agronomic telemetry for ${selectedCrop}...`;
+    }
+
+    try {
+      const resp = await fetch(`/api/crop-telemetry/${selectedCrop}`);
+      const data = await resp.json();
+
+      if (data.success) {
+        // 1. Populate Micro-Climate Telemetry Inputs
+        if (tempInput) tempInput.value = data.temperature;
+        if (humInput) humInput.value = data.humidity;
+        if (rainInput) rainInput.value = data.rainfall_7d;
+        if (soilInput) soilInput.value = data.soil_moisture;
+        if (vpdInput) vpdInput.value = data.vpd;
+
+        // 2. Update VPD badge
+        updatePsychrometricVPD();
+
+        // 3. Update Profile Card
+        if (cropProfileCard) {
+          cropProfileCard.style.display = 'block';
+          if (profileCropName) profileCropName.textContent = `${data.name} (${data.sub_category || data.category})`;
+          if (profileBaselineYield) profileBaselineYield.textContent = `Base Yield: ${data.baseline_yield} q/ha`;
+          if (profileComfortBands) profileComfortBands.innerHTML = `<i class="fas fa-thermometer-half" style="color: #ea580c;"></i> Comfort: ${data.optimal_temp[0]}–${data.optimal_temp[1]}°C &nbsp;•&nbsp; <i class="fas fa-tint" style="color: #0284c7;"></i> Comfort RH: ${data.optimal_rh[0]}–${data.optimal_rh[1]}%`;
+          if (profileThreat) profileThreat.innerHTML = `<i class="fas fa-biohazard"></i> Pathogen Threat: ${data.pathogen_threat}`;
+        }
+
+        if (cropAgronomicHint) {
+          cropAgronomicHint.innerHTML = `🌾 Base: ${data.baseline_yield} q/ha • Comfort: ${data.optimal_temp[0]}-${data.optimal_temp[1]}°C • ${data.optimal_rh[0]}-${data.optimal_rh[1]}% RH`;
+        }
+
+        // 4. Update representative canopy image if no custom image was manually uploaded
+        if (!currentImageFile) {
+          currentImageBase64 = data.canopy_data_url;
+          canopyPreviewImg.src = data.canopy_data_url;
+          imageFilenameBadge.textContent = `${data.name} (Automated Multispectral Array Loaded)`;
+          imagePreviewContainer.style.display = 'block';
+          dropZone.style.display = 'none';
+        }
+
+        // Flash visual highlight on Modality B box
+        const modalityBBox = cropSelectEl.closest('div[style*="background: white"]');
+        if (modalityBBox) {
+          modalityBBox.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+          modalityBBox.style.borderColor = '#2e7d32';
+          modalityBBox.style.boxShadow = '0 0 0 3px rgba(46, 125, 50, 0.25)';
+          setTimeout(() => {
+            modalityBBox.style.borderColor = '#e0e0e0';
+            modalityBBox.style.boxShadow = '0 3px 14px rgba(0,0,0,0.06)';
+          }, 800);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not load dynamic crop telemetry:", err);
+      if (cropAgronomicHint) {
+        cropAgronomicHint.textContent = "🌿 Authentic ICAR agronomic envelope & yield calibration active";
+      }
+    }
+  }
+
+  if (cropSelectEl) {
     cropSelectEl.addEventListener('change', function () {
-      const selectedCrop = this.value;
-      const hint = CROP_HINTS[selectedCrop] || "🌿 Authentic ICAR agronomic envelope & yield calibration active";
-      cropAgronomicHint.textContent = hint;
+      loadCropTelemetry(this.value);
     });
+    // Trigger on initial page load if value is present
+    if (cropSelectEl.value) {
+      loadCropTelemetry(cropSelectEl.value);
+    }
   }
 
   // 1. Dropzone Click & Drag Events

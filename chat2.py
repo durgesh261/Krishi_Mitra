@@ -81,7 +81,7 @@ def analyze_crop_image_locally(image_base64):
             if g > r * 1.15 and g > b * 1.15 and g > 40:
                 green_count += 1
             # Chlorosis / Yellowing
-            elif r > 110 and g > 110 and b < 90 and abs(r - g) < 40:
+            elif r > 110 and g > 110 and b < 90 and abs(int(r) - int(g)) < 40:
                 yellow_count += 1
             # Necrosis / Brown spots / Lesions
             elif r > 80 and g > 50 and b < 60 and r > g * 1.2:

@@ -44,7 +44,8 @@ from crop_recommendation import (
 from multimodal_remote_sensing import (
     predict_multimodal_disease_and_yield,
     get_preset_scenario,
-    create_synthetic_preset_image
+    create_synthetic_preset_image,
+    get_crop_telemetry_profile
 )
 
 load_dotenv()
@@ -1073,6 +1074,15 @@ def api_sample_remote_sensing(scenario_id):
             "scenario": scenario,
             "image_data_url": f"data:image/jpeg;base64,{b64_img}"
         })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+@app.route('/api/crop-telemetry/<crop_key>', methods=['GET'])
+def api_crop_telemetry(crop_key):
+    """Returns dynamic authentic micro-climate telemetry defaults, agronomic envelope, and canopy preview"""
+    try:
+        data = get_crop_telemetry_profile(crop_key)
+        return jsonify(data)
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
 

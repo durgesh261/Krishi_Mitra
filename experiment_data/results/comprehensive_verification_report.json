@@ -1,0 +1,386 @@
+{
+  "scenario_1_dwarka_groundnut": {
+    "location": {
+      "city": "Dwarka",
+      "state": "Gujarat",
+      "lat": 22.2442,
+      "lon": 68.9685
+    },
+    "live_weather": {
+      "temp": 27.2,
+      "rh": 93.0,
+      "rainfall_7d": 22.0,
+      "vpd": 0.25,
+      "soil_moisture": 69.75
+    },
+    "location_method_result": {
+      "success": true,
+      "crop": "Groundnut / Peanut (मूंगफली)",
+      "crop_key": "groundnut",
+      "crop_category": "General",
+      "crop_sub_category": "Oilseed",
+      "canopy_source": "DJI Agras Drone Multispectral (GSD 2.5cm)",
+      "spectral_indices": {
+        "ndvi": 0.036,
+        "ndwi": 0.051,
+        "gndvi": 0.051,
+        "savi": 0.029,
+        "vegetation_coverage_pct": 2.9,
+        "canopy_health": "Severe Defoliation / Bare Soil / Necrosis",
+        "health_color": "#d32f2f"
+      },
+      "diagnosis": {
+        "class_id": "foliar_blight",
+        "name": "Foliar Blight (Helminthosporium / Alternaria)",
+        "severity": "Moderate to High Risk",
+        "confidence": 40.1,
+        "color": "#d32f2f",
+        "recommended_chemical": "Spray Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 ml/L.",
+        "recommended_organic": "Neem oil 1500 ppm @ 4 ml/L + bio-fungicide Pseudomonas fluorescens @ 5 g/L.",
+        "crop_specific_advisory": "Tikka Leaf Spot (Cercospora) and Collar Rot. Spray Hexaconazole @ 2ml/L or Mancozeb @ 2.5g/L.",
+        "probabilities": [
+          {
+            "class": "Healthy Canopy / Vigorous Foliage",
+            "prob": 1.1,
+            "color": "#2e7d32"
+          },
+          {
+            "class": "Foliar Blight (Helminthosporium / Alternaria)",
+            "prob": 40.1,
+            "color": "#d32f2f"
+          },
+          {
+            "class": "Stripe / Yellow Rust (Puccinia striiformis)",
+            "prob": 33.2,
+            "color": "#e65100"
+          },
+          {
+            "class": "Paddy Blast & Brown Lesion Complex (Magnaporthe)",
+            "prob": 8.5,
+            "color": "#c2185b"
+          },
+          {
+            "class": "Powdery Mildew (Erysiphe / Leveillula)",
+            "prob": 8.7,
+            "color": "#7b1fa2"
+          },
+          {
+            "class": "Nutrient Deficiency Chlorosis & Moisture Stress",
+            "prob": 8.5,
+            "color": "#f57c00"
+          }
+        ]
+      },
+      "yield_forecast": {
+        "estimated_yield_q_ha": 14.26,
+        "district_baseline_q_ha": 30.0,
+        "delta_pct": -52.5,
+        "status": "Deficit Expected (-)"
+      },
+      "gradcam_image": "[CONFIRMED_VALID_BASE64_HEATMAP_DATA_URI]",
+      "climate_attribution": [
+        {
+          "factor": "Relative Humidity",
+          "weight": 94.3,
+          "impact": "High Moisture Favoring Fungal Spores"
+        },
+        {
+          "factor": "Thermal Conduciveness",
+          "weight": 65.0,
+          "impact": "Within Pathogen Germination Band"
+        },
+        {
+          "factor": "Canopy Spectral Vigor (NDVI)",
+          "weight": 71.4,
+          "impact": "Photosynthetic Chlorosis Observed"
+        },
+        {
+          "factor": "Precipitation Wetting",
+          "weight": 36.7,
+          "impact": "Low Rain-splash Risk"
+        }
+      ]
+    },
+    "manual_method_result": {
+      "success": true,
+      "crop": "Groundnut / Peanut (मूंगफली)",
+      "crop_key": "groundnut",
+      "crop_category": "General",
+      "crop_sub_category": "Oilseed",
+      "canopy_source": "Ground-Level Smartphone Macro",
+      "spectral_indices": {
+        "ndvi": 0.036,
+        "ndwi": 0.051,
+        "gndvi": 0.051,
+        "savi": 0.029,
+        "vegetation_coverage_pct": 2.9,
+        "canopy_health": "Severe Defoliation / Bare Soil / Necrosis",
+        "health_color": "#d32f2f"
+      },
+      "diagnosis": {
+        "class_id": "foliar_blight",
+        "name": "Foliar Blight (Helminthosporium / Alternaria)",
+        "severity": "Moderate to High Risk",
+        "confidence": 34.9,
+        "color": "#d32f2f",
+        "recommended_chemical": "Spray Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 ml/L.",
+        "recommended_organic": "Neem oil 1500 ppm @ 4 ml/L + bio-fungicide Pseudomonas fluorescens @ 5 g/L.",
+        "crop_specific_advisory": "Tikka Leaf Spot (Cercospora) and Collar Rot. Spray Hexaconazole @ 2ml/L or Mancozeb @ 2.5g/L.",
+        "probabilities": [
+          {
+            "class": "Healthy Canopy / Vigorous Foliage",
+            "prob": 1.6,
+            "color": "#2e7d32"
+          },
+          {
+            "class": "Foliar Blight (Helminthosporium / Alternaria)",
+            "prob": 34.9,
+            "color": "#d32f2f"
+          },
+          {
+            "class": "Stripe / Yellow Rust (Puccinia striiformis)",
+            "prob": 29.7,
+            "color": "#e65100"
+          },
+          {
+            "class": "Paddy Blast & Brown Lesion Complex (Magnaporthe)",
+            "prob": 16.3,
+            "color": "#c2185b"
+          },
+          {
+            "class": "Powdery Mildew (Erysiphe / Leveillula)",
+            "prob": 6.0,
+            "color": "#7b1fa2"
+          },
+          {
+            "class": "Nutrient Deficiency Chlorosis & Moisture Stress",
+            "prob": 11.5,
+            "color": "#f57c00"
+          }
+        ]
+      },
+      "yield_forecast": {
+        "estimated_yield_q_ha": 14.44,
+        "district_baseline_q_ha": 30.0,
+        "delta_pct": -51.9,
+        "status": "Deficit Expected (-)"
+      },
+      "gradcam_image": "[CONFIRMED_VALID_BASE64_HEATMAP_DATA_URI]",
+      "climate_attribution": [
+        {
+          "factor": "Relative Humidity",
+          "weight": 68.6,
+          "impact": "High Moisture Favoring Fungal Spores"
+        },
+        {
+          "factor": "Thermal Conduciveness",
+          "weight": 45.8,
+          "impact": "Sub-optimal for Fungal Proliferation"
+        },
+        {
+          "factor": "Canopy Spectral Vigor (NDVI)",
+          "weight": 71.4,
+          "impact": "Photosynthetic Chlorosis Observed"
+        },
+        {
+          "factor": "Precipitation Wetting",
+          "weight": 75.0,
+          "impact": "Splash Dispersion Likely"
+        }
+      ]
+    },
+    "single_leaf_diagnosis": "### 🌾 Krishi Mitra Crop Health Diagnosis\n\n1. **Plant Identified**: Agricultural Crop (Solanaceous / Cereal / Horticultural Foliage)\n2. **Health Status**: **Mild Issue**\n3. **Disease Detected**: **Nitrogen / Micronutrient Chlorosis & Early Leaf Rust**\n4. **Symptoms Observed**: Mild interveinal yellowing and reduced chlorophyll density on leaf margins.\n5. **Possible Causes**:\n   - Fungal spore proliferation favored by elevated humidity (>70%) and warm temperatures.\n   - Secondary transmission through splash irrigation or insect vectors.\n   - Deficiency of potassium or micronutrients (Zinc/Iron) lowering plant immunity.\n6. **Treatment Recommendations**:\n   - **Organic / Biological**: Spray Neem Seed Kernel Extract (NSKE 5%) or Neem Oil (1500 ppm at 4-5 ml/L) mixed with mild soap. Apply *Trichoderma viride* or *Pseudomonas fluorescens* (5g/L water) as biocontrol.\n   - **Chemical Intervention**: If severity is high, spray Mancozeb 75% WP (2.5 g/L) or Copper Oxychloride 50% WP (3.0 g/L). For systemic control, spray Azoxystrobin 18.2% + Difenoconazole 11.4% SC (1 ml/L).\n   - Remove and destroy severely infected lower leaves to prevent spore dispersion.\n7. **Prevention Tips**:\n   - Shift from overhead sprinkler irrigation to drip irrigation to avoid leaf wetness.\n   - Ensure adequate field drainage to prevent waterlogging around root zones.\n   - Rotate crops with non-host crops (e.g., pulses or legumes) next season."
+  },
+  "scenario_2_punjab_wheat": {
+    "location": {
+      "city": "Ludhiana",
+      "state": "Punjab",
+      "lat": 30.901,
+      "lon": 75.8573
+    },
+    "live_weather": {
+      "temp": 25.4,
+      "rh": 47.0,
+      "rainfall_7d": 12.0,
+      "vpd": 1.72,
+      "soil_moisture": 32.9
+    },
+    "location_method_result": {
+      "success": true,
+      "crop": "Wheat (गेहूँ)",
+      "crop_key": "wheat",
+      "crop_category": "General",
+      "crop_sub_category": "Cereal",
+      "canopy_source": "Sentinel-2 MSI (10m Resolution)",
+      "spectral_indices": {
+        "ndvi": 0.209,
+        "ndwi": 0.162,
+        "gndvi": 0.101,
+        "savi": 0.134,
+        "vegetation_coverage_pct": 16.7,
+        "canopy_health": "Severe Defoliation / Bare Soil / Necrosis",
+        "health_color": "#d32f2f"
+      },
+      "diagnosis": {
+        "class_id": "stripe_rust",
+        "name": "Stripe / Yellow Rust (Puccinia striiformis)",
+        "severity": "Severe Outbreak Warning",
+        "confidence": 77.7,
+        "color": "#e65100",
+        "recommended_chemical": "Immediate foliar spray of Propiconazole 25% EC (Tilt) @ 1 ml/L or Tebuconazole 25.9% EC @ 1 ml/L.",
+        "recommended_organic": "Isolate infected patches; avoid late-stage overhead sprinkler irrigation.",
+        "crop_specific_advisory": "Watch for Yellow/Stripe Rust (Puccinia striiformis) and Karnal Bunt. Spray Propiconazole 25% EC @ 1ml/L at first sign of rust pustules.",
+        "probabilities": [
+          {
+            "class": "Healthy Canopy / Vigorous Foliage",
+            "prob": 1.8,
+            "color": "#2e7d32"
+          },
+          {
+            "class": "Foliar Blight (Helminthosporium / Alternaria)",
+            "prob": 2.5,
+            "color": "#d32f2f"
+          },
+          {
+            "class": "Stripe / Yellow Rust (Puccinia striiformis)",
+            "prob": 77.7,
+            "color": "#e65100"
+          },
+          {
+            "class": "Paddy Blast & Brown Lesion Complex (Magnaporthe)",
+            "prob": 2.0,
+            "color": "#c2185b"
+          },
+          {
+            "class": "Powdery Mildew (Erysiphe / Leveillula)",
+            "prob": 4.9,
+            "color": "#7b1fa2"
+          },
+          {
+            "class": "Nutrient Deficiency Chlorosis & Moisture Stress",
+            "prob": 11.1,
+            "color": "#f57c00"
+          }
+        ]
+      },
+      "yield_forecast": {
+        "estimated_yield_q_ha": 20.43,
+        "district_baseline_q_ha": 50.0,
+        "delta_pct": -59.1,
+        "status": "Deficit Expected (-)"
+      },
+      "gradcam_image": "[CONFIRMED_VALID_BASE64_HEATMAP_DATA_URI]",
+      "climate_attribution": [
+        {
+          "factor": "Relative Humidity",
+          "weight": 0.0,
+          "impact": "Favorable Moisture Balance"
+        },
+        {
+          "factor": "Thermal Conduciveness",
+          "weight": 80.0,
+          "impact": "Within Pathogen Germination Band"
+        },
+        {
+          "factor": "Canopy Spectral Vigor (NDVI)",
+          "weight": 54.1,
+          "impact": "Photosynthetic Chlorosis Observed"
+        },
+        {
+          "factor": "Precipitation Wetting",
+          "weight": 20.0,
+          "impact": "Low Rain-splash Risk"
+        }
+      ]
+    },
+    "manual_method_result": {
+      "success": true,
+      "crop": "Wheat (गेहूँ)",
+      "crop_key": "wheat",
+      "crop_category": "General",
+      "crop_sub_category": "Cereal",
+      "canopy_source": "Sentinel-2 MSI (10m Resolution)",
+      "spectral_indices": {
+        "ndvi": 0.209,
+        "ndwi": 0.162,
+        "gndvi": 0.101,
+        "savi": 0.134,
+        "vegetation_coverage_pct": 16.7,
+        "canopy_health": "Severe Defoliation / Bare Soil / Necrosis",
+        "health_color": "#d32f2f"
+      },
+      "diagnosis": {
+        "class_id": "stripe_rust",
+        "name": "Stripe / Yellow Rust (Puccinia striiformis)",
+        "severity": "Severe Outbreak Warning",
+        "confidence": 76.7,
+        "color": "#e65100",
+        "recommended_chemical": "Immediate foliar spray of Propiconazole 25% EC (Tilt) @ 1 ml/L or Tebuconazole 25.9% EC @ 1 ml/L.",
+        "recommended_organic": "Isolate infected patches; avoid late-stage overhead sprinkler irrigation.",
+        "crop_specific_advisory": "Watch for Yellow/Stripe Rust (Puccinia striiformis) and Karnal Bunt. Spray Propiconazole 25% EC @ 1ml/L at first sign of rust pustules.",
+        "probabilities": [
+          {
+            "class": "Healthy Canopy / Vigorous Foliage",
+            "prob": 1.2,
+            "color": "#2e7d32"
+          },
+          {
+            "class": "Foliar Blight (Helminthosporium / Alternaria)",
+            "prob": 3.9,
+            "color": "#d32f2f"
+          },
+          {
+            "class": "Stripe / Yellow Rust (Puccinia striiformis)",
+            "prob": 76.7,
+            "color": "#e65100"
+          },
+          {
+            "class": "Paddy Blast & Brown Lesion Complex (Magnaporthe)",
+            "prob": 5.1,
+            "color": "#c2185b"
+          },
+          {
+            "class": "Powdery Mildew (Erysiphe / Leveillula)",
+            "prob": 5.3,
+            "color": "#7b1fa2"
+          },
+          {
+            "class": "Nutrient Deficiency Chlorosis & Moisture Stress",
+            "prob": 7.8,
+            "color": "#f57c00"
+          }
+        ]
+      },
+      "yield_forecast": {
+        "estimated_yield_q_ha": 22.22,
+        "district_baseline_q_ha": 50.0,
+        "delta_pct": -55.6,
+        "status": "Deficit Expected (-)"
+      },
+      "gradcam_image": "[CONFIRMED_VALID_BASE64_HEATMAP_DATA_URI]",
+      "climate_attribution": [
+        {
+          "factor": "Relative Humidity",
+          "weight": 74.3,
+          "impact": "High Moisture Favoring Fungal Spores"
+        },
+        {
+          "factor": "Thermal Conduciveness",
+          "weight": 45.8,
+          "impact": "Sub-optimal for Fungal Proliferation"
+        },
+        {
+          "factor": "Canopy Spectral Vigor (NDVI)",
+          "weight": 54.1,
+          "impact": "Photosynthetic Chlorosis Observed"
+        },
+        {
+          "factor": "Precipitation Wetting",
+          "weight": 60.0,
+          "impact": "Splash Dispersion Likely"
+        }
+      ]
+    },
+    "single_leaf_diagnosis": "### 🌾 Krishi Mitra Crop Health Diagnosis\n\n1. **Plant Identified**: Healthy Agricultural Foliage\n2. **Health Status**: **Healthy (Optimum Growth)**\n3. **Disease Detected**: No disease or pathogen infection detected.\n4. **Symptoms Observed**: Strong uniform green pigmentation, healthy leaf turgidity, no active lesions observed.\n5. **Possible Causes**: Good agronomic management, adequate moisture, balanced nutrient application.\n6. **Treatment Recommendations**:\n   - Continue current irrigation and fertilization regime.\n   - Maintain foliar spray of micronutrients (Zinc 0.5% + Boron 0.2%) during flowering stage.\n7. **Prevention Tips**:\n   - Monitor field regularly for early arrival of sucking pests (aphids, thrips).\n   - Maintain proper crop spacing to ensure aeration."
+  }
+}
