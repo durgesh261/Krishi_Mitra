@@ -44,3 +44,11 @@ chroma_db/
 # User Uploads
 static/uploads/community/*
 !static/uploads/community/.gitkeep
+
+# Private Academic Documents (CV, SOP, Research Papers & Whitepapers)
+research_paper_and_sop/
+research/CV_SOP_PORTFOLIO.md
+*SOP*
+*CV*
+*whitepaper*
+*WHITEPAPER*
