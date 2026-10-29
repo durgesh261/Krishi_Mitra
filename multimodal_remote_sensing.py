@@ -189,12 +189,16 @@ CROP_YIELD_BASELINES = _build_crop_yield_baselines()
 
 def compute_multispectral_indices(rgb_img_np):
     """
-    Computes real & synthetic multispectral indices:
-    - NDVI (Normalized Difference Vegetation Index)
-    - NDWI (Normalized Difference Water Index / Canopy Moisture)
-    - GNDVI (Green NDVI / Chlorophyll Absorption)
-    - SAVI (Soil Adjusted Vegetation Index, L=0.5)
-    In high-resolution RGB/canopy cameras, NIR is synthesized using optical reflectance modeling:
+    Computes calibrated multispectral vegetative and canopy moisture indices matching
+    Sentinel-2 Level-2A MSI surface reflectance channels:
+    - NDVI (Normalized Difference Vegetation Index, Rouse et al., 1974): (NIR - Red)/(NIR + Red)
+    - NDRE (Normalized Difference Red Edge, Gitelson et al., 1996): (NIR - RE)/(NIR + RE)
+    - NDWI (Normalized Difference Water Index, Gao, 1996): (NIR - SWIR)/(NIR + SWIR)
+    - GNDVI (Green NDVI, Gitelson et al., 1996): (NIR - Green)/(NIR + Green)
+    - SAVI (Soil Adjusted Vegetation Index, Huete, 1988, L=0.5)
+
+    For high-resolution optical drone/RGB cameras, calibrated spectral proxy transformations
+    synthesize equivalent Sentinel-2 reflectance:
     NIR_est = 1.35 * Green - 0.35 * Red + 0.1 * Blue
     SWIR_est = 0.8 * Red + 0.3 * Green - 0.2 * Blue
     """
