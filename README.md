@@ -8,7 +8,7 @@
 [![Sentinel-2](https://img.shields.io/badge/Earth%20Observation-Sentinel--2%20MSI-informational?logo=esa&logoColor=white)](https://sentinels.copernicus.eu/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Live Demo & Web Portal:** [https://durgesh261.github.io/Krishi_Mitra/](https://durgesh261.github.io/Krishi_Mitra/)  
+> **Live Web Platform:** [https://krishi-mitra-m6z8.onrender.com/](https://krishi-mitra-m6z8.onrender.com/)  
 > **Source Repository:** [https://github.com/durgesh261/Krishi_Mitra](https://github.com/durgesh261/Krishi_Mitra)  
 > **Author & Lead Architect:** [Durgesh Kanjariya](https://github.com/durgesh261) (ORCID: [0009-0006-9878-4967](https://orcid.org/0009-0006-9878-4967))
 
