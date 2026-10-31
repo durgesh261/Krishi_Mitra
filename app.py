@@ -1312,10 +1312,14 @@ def api_get_location():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    host = "0.0.0.0" if os.environ.get("PORT") else "127.0.0.1"
+    debug = False if os.environ.get("PORT") else True
     print("\n" + "="*65)
     print("  [OK] Krishi Mitra: AI-Powered Smart Farming Assistant")
-    print("  [OK] Running directly at: http://127.0.0.1:5000")
+    print(f"  [OK] Running at: http://{host}:{port}")
     print("  [OK] Default Admin: admin / admin123")
     print("="*65 + "\n")
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=debug, host=host, port=port)
+
 
