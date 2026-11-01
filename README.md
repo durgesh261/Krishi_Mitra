@@ -18,7 +18,7 @@
 
 > **Paper Title:** *Multimodal Deep Learning for Pre-Symptomatic Crop Disease Identification and Localized Yield Prediction: Coupling Multispectral Canopy Imagery with Microclimate Telemetry*  
 > **Author:** Durgesh Kanjariya  
-> **Status:** Submitted & Under Peer Review at *Computers and Electronics in Agriculture* (Elsevier COMPAG) | Open-Access Research Preprint (SSRN / Zenodo)
+> **Status:** Submitted & Under Peer Review at *Computers and Electronics in Agriculture* (Elsevier COMPAG) | Open-Access Research Preprint (Elsevier SSRN)
 
 ```
                             +---------------------------------------+
@@ -235,7 +235,7 @@ If you find this codebase or research useful in your work, please cite:
   title     = {Multimodal Deep Learning for Pre-Symptomatic Crop Disease Identification and Localized Yield Prediction: Coupling Multispectral Canopy Imagery with Microclimate Telemetry},
   journal   = {Computers and Electronics in Agriculture (Under Review)},
   year      = {2026},
-  note      = {Preprint available on SSRN / Zenodo},
+  note      = {Preprint available on Elsevier SSRN},
   url       = {https://github.com/durgesh261/Krishi_Mitra}
 }
 ```
